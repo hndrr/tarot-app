@@ -112,11 +112,28 @@ export async function saveCard(data: z.infer<typeof saveCardSchema>) {
 }
 
 export async function getSession(id: string) {
-  // TODO: 実際のセッション取得処理を実装
-  return {
-    id,
-    userId: "test-user",
-    readingType: "daily",
-    createdAt: new Date(),
-  };
+  try {
+    const cookieStore = await cookies();
+    const sessionStr = cookieStore.get("tarot-session")?.value;
+
+    if (!sessionStr) {
+      throw new Error("セッションが見つかりません");
+    }
+
+    const sessionData = JSON.parse(sessionStr);
+
+    if (sessionData.id !== id) {
+      throw new Error("セッションIDが一致しません");
+    }
+
+    return {
+      id: sessionData.id,
+      userId: sessionData.userId,
+      createdAt: new Date(sessionData.createdAt),
+      cards: await getSessionCards(),
+    };
+  } catch (error) {
+    console.error("Failed to get session:", error);
+    throw new Error("セッションの取得に失敗しました");
+  }
 }

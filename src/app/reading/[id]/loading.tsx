@@ -1,6 +1,15 @@
 import Image from "next/image";
+// import { headers } from "next/headers";
 
-export default function Loading() {
+export default async function Loading() {
+  // const headersList = headers();
+  // const referer = (await headersList).get("referer") || "";
+
+  // // カードの詳細ページからの遷移の場合はローディングを表示しない
+  // if (referer.includes("/cards/")) {
+  //   return null;
+  // }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-indigo-900 text-white relative overflow-hidden">
       {/* background */}
