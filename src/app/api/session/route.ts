@@ -1,45 +1,36 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { getCookie, setCookie } from "hono/cookie";
+import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
 
 const app = new Hono();
 
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+const CardSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  position: z.string(),
+  isReversed: z.boolean(),
+});
 
-interface SessionData {
-  cards: Card[];
-  hasVisited: boolean;
-}
+const RequestSchema = z.object({
+  card: CardSchema.optional(),
+  hasVisited: z.boolean().optional(),
+});
 
-app.post("/api/session", async (c) => {
+const SessionDataSchema = z.object({
+  cards: z.array(CardSchema),
+  hasVisited: z.boolean(),
+});
+
+app.post("/api/session", zValidator("json", RequestSchema), async (c) => {
   try {
-    const data = (await c.req.json()) as {
-      card?: Card;
-      hasVisited?: boolean;
-    };
-
-    // 現在のセッションデータを取得
+    const data = c.req.valid("json");
     const existingData = getCookie(c, "tarot-cards");
-    let sessionData: SessionData = { cards: [], hasVisited: false };
+    const sessionData = SessionDataSchema.parse(
+      existingData ? JSON.parse(existingData) : { cards: [], hasVisited: false }
+    );
 
-    if (existingData) {
-      try {
-        const parsed = JSON.parse(existingData);
-        sessionData = {
-          cards: Array.isArray(parsed.cards) ? parsed.cards : [],
-          hasVisited: Boolean(parsed.hasVisited),
-        };
-      } catch (error) {
-        console.error("Failed to parse existing session data:", error);
-      }
-    }
-
-    // カードの更新または追加
     if (data.card) {
       const existingIndex = sessionData.cards.findIndex(
         (c) => c.id === data.card!.id
@@ -51,18 +42,16 @@ app.post("/api/session", async (c) => {
       }
     }
 
-    // hasVisitedフラグの更新
     if (data.hasVisited !== undefined) {
       sessionData.hasVisited = data.hasVisited;
     }
 
-    // セッションの保存
     setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1週間
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return c.json({ success: true });
@@ -72,24 +61,15 @@ app.post("/api/session", async (c) => {
   }
 });
 
-app.get("/", async (c) => {
+app.get("/api/session", async (c) => {
   try {
     const sessionStr = getCookie(c, "tarot-cards");
-
     if (!sessionStr) {
       return c.json({ cards: [], hasVisited: false });
     }
 
-    try {
-      const data = JSON.parse(sessionStr);
-      return c.json({
-        cards: Array.isArray(data.cards) ? data.cards : [],
-        hasVisited: Boolean(data.hasVisited),
-      });
-    } catch (error) {
-      console.error("Error parsing session data:", error);
-      return c.json({ cards: [], hasVisited: false });
-    }
+    const sessionData = SessionDataSchema.parse(JSON.parse(sessionStr));
+    return c.json(sessionData);
   } catch (error) {
     console.error("Error reading session:", error);
     return c.json({ error: "セッションの読み込みに失敗しました" }, 500);
