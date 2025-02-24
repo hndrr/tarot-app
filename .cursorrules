@@ -1,0 +1,83 @@
+# Cursor-specific rules for Tarot Reading App
+
+# Main application code
+# - API routes for session and card management
+# - Card reading and display pages
+# - Card interaction components
+# - Action utilities
+
+# Core source directories to include
+src/app/api/session/**        # Session management APIs
+src/app/api/session/card/**   # Card-specific API endpoints
+src/app/cards/**              # Card display pages
+src/app/reading/**            # Reading session pages
+src/components/**             # Shared components (DrawCardButton, SaveCard)
+src/lib/**                    # Utility functions and actions
+
+# Directories to ignore
+node_modules/
+.next/
+dist/
+build/
+out/
+
+# Project config files to ignore
+*.config.js
+*.config.ts
+.env*
+!.env.example
+
+# Documentation and specs
+.specstory/
+*.md
+docs/
+
+# Development artifacts
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Binary and generated files
+*.pdf
+*.jpg
+*.png
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Temporary and cache files
+.cache/
+*.tmp
+*.temp
+
+# Test and coverage files
+coverage/
+__tests__/
+__mocks__/
+*.test.*
+*.spec.*
+
+# Configuration files that don't need code intelligence
+.eslintrc*
+.prettierrc*
+.babelrc*
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore OS files
+Thumbs.db
+
+# Ignore IDE specific files
+*.swp
+*.swo
+
+# Ignore package manager files
+yarn.lock
+package-lock.json 
