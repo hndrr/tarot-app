@@ -5,31 +5,31 @@ import Image from "next/image";
 
 type Params = Promise<{ id: string }>;
 
-// type TarotResponse = {
-//   upright: string;
-//   reversed: string;
-// };
+type TarotResponse = {
+  upright: string;
+  reversed: string;
+};
 
-// async function getTarotMessage(
-//   name: string,
-//   meaning: string
-// ): Promise<TarotResponse> {
-//   const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
+async function getTarotMessage(
+  name: string,
+  meaning: string
+): Promise<TarotResponse> {
+  const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
 
-//   const res = await fetch(`${apiHost}/api/tarot`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ name, meaning }),
-//   });
+  const res = await fetch(`${apiHost}/api/tarot`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, meaning }),
+  });
 
-//   if (!res.ok) {
-//     throw new Error("文言生成に失敗しました。");
-//   }
+  if (!res.ok) {
+    throw new Error("文言生成に失敗しました。");
+  }
 
-//   return res.json();
-// }
+  return res.json();
+}
 
 export default async function CardDetail({ params }: { params: Params }) {
   const { id } = await params;
@@ -38,25 +38,26 @@ export default async function CardDetail({ params }: { params: Params }) {
   // セッションからカード情報を取得
   const savedCards = await getSessionCards();
   const savedCard = savedCards.find((c) => c.id === parseInt(id));
-  console.log("savedCard", savedCard);
   const isReversed = savedCard?.isReversed ?? false;
 
-  // 保存されているメッセージがあればそれを使用し、なければAPIで生成
-  let message: string | undefined;
-
+  // メッセージの生成
+  let message: string;
   if (savedCard?.message) {
-    // 保存されているメッセージを使用
     message = savedCard.message;
-    // } else if (card) {
-    //   try {
-    //     // 保存されたメッセージがない場合は、現在の向きに応じたメッセージを生成
-    //     const result = await getTarotMessage(card.name, card.meaning);
-    //     message = isReversed ? result.reversed : result.upright;
-    //   } catch (error) {
-    //     console.error("エラー:", error);
-    //   }
+  } else if (card) {
+    try {
+      // APIを使用してメッセージを生成
+      const result = await getTarotMessage(card.name, card.meaning);
+      message = isReversed ? result.reversed : result.upright;
+    } catch (error) {
+      console.error("API Error:", error);
+      // APIエラー時のフォールバック
+      message = isReversed
+        ? `逆位置の${card.name}は、${card.meaning}の反対の意味を持ちます。`
+        : `${card.name}は、${card.meaning}を示唆しています。`;
+    }
   } else {
-    console.error("カードが見つかりません");
+    message = "カードの解釈を読み込めませんでした。";
   }
 
   if (!card) {

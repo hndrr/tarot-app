@@ -1,6 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { z } from "zod";
+import { createSessionSchema, drawCardSchema, saveCardSchema } from "./schema";
 
 export interface Card {
   id: number;
@@ -80,4 +82,43 @@ export async function getSessionCards(): Promise<Card[]> {
     console.error("Failed to get cards from session:", error);
     return [];
   }
+}
+
+// カード操作の関数
+export async function drawCard(data: z.infer<typeof drawCardSchema>) {
+  const { position } = data;
+  return {
+    id: Math.random(),
+    name: "Test Card",
+    position: position ? `position-${position}` : "upright",
+    isReversed: Math.random() > 0.5,
+  };
+}
+
+// セッション管理の関数
+export async function createSession(data: z.infer<typeof createSessionSchema>) {
+  const { userId, readingType } = data;
+  // セッション作成処理
+  return {
+    id: Math.random().toString(),
+    userId,
+    readingType,
+    createdAt: new Date(),
+  };
+}
+
+// 既存のsaveCardToSession関数を活用
+export async function saveCard(data: z.infer<typeof saveCardSchema>) {
+  await saveCardToSession(data);
+  return { ...data, saved: true };
+}
+
+export async function getSession(id: string) {
+  // TODO: 実際のセッション取得処理を実装
+  return {
+    id,
+    userId: "test-user",
+    readingType: "daily",
+    createdAt: new Date(),
+  };
 }

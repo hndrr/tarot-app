@@ -1,17 +1,50 @@
-import { NextResponse } from "next/server";
-import { saveCardToSession } from "@/lib/actions";
-import { Card } from "@/lib/actions";
+import { Hono } from "hono";
+import { handle } from "hono/vercel";
+import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
+import { drawCard, saveCard } from "@/lib/actions";
 
-export async function POST(request: Request) {
+const api = new Hono().basePath("/api/session/card");
+
+// カードドローのスキーマ
+const drawCardSchema = z.object({
+  sessionId: z.string(),
+  position: z.number().optional(),
+});
+
+// カードドローのエンドポイント
+api.post("/draw", zValidator("json", drawCardSchema), async (c) => {
+  const data = c.req.valid("json");
+
   try {
-    const card: Card = await request.json();
-    await saveCardToSession(card);
-    return NextResponse.json({ success: true });
+    const card = await drawCard(data);
+    return c.json(card, 201);
   } catch (error) {
-    console.error("Failed to save card:", error);
-    return NextResponse.json(
-      { error: "カードの保存に失敗しました。" },
-      { status: 500 }
-    );
+    console.error("Draw card error:", error);
+    return c.json({ error: "Failed to draw card" }, 500);
   }
-}
+});
+
+// カード保存のスキーマ
+const saveCardSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  position: z.string(),
+  isReversed: z.boolean(),
+  message: z.string().optional(),
+});
+
+// カード保存のエンドポイント
+api.post("/save", zValidator("json", saveCardSchema), async (c) => {
+  const data = c.req.valid("json");
+
+  try {
+    const savedCard = await saveCard(data);
+    return c.json(savedCard, 201);
+  } catch (error) {
+    console.error("Save card error:", error);
+    return c.json({ error: "Failed to save card" }, 500);
+  }
+});
+
+export const POST = handle(api);
