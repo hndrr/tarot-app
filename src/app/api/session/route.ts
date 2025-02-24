@@ -1,5 +1,8 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { Hono } from "hono";
+import { handle } from "hono/vercel";
+import { getCookie, setCookie } from "hono/cookie";
+
+const app = new Hono();
 
 interface Card {
   id: number;
@@ -13,17 +16,15 @@ interface SessionData {
   hasVisited: boolean;
 }
 
-// セッションデータを保存するPOSTエンドポイント
-export async function POST(request: Request) {
+app.post("/api/session", async (c) => {
   try {
-    const data = (await request.json()) as {
+    const data = (await c.req.json()) as {
       card?: Card;
       hasVisited?: boolean;
     };
 
     // 現在のセッションデータを取得
-    const cookieStore = await cookies();
-    const existingData = cookieStore.get("tarot-cards")?.value;
+    const existingData = getCookie(c, "tarot-cards");
     let sessionData: SessionData = { cards: [], hasVisited: false };
 
     if (existingData) {
@@ -44,10 +45,8 @@ export async function POST(request: Request) {
         (c) => c.id === data.card!.id
       );
       if (existingIndex >= 0) {
-        // 既存のカードを更新
         sessionData.cards[existingIndex] = data.card;
       } else {
-        // 新しいカードを追加
         sessionData.cards.push(data.card);
       }
     }
@@ -58,52 +57,44 @@ export async function POST(request: Request) {
     }
 
     // セッションの保存
-    const response = NextResponse.json({ success: true });
-    response.cookies.set({
-      name: "tarot-cards",
-      value: JSON.stringify(sessionData),
+    setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "Lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1週間
     });
 
-    return response;
+    return c.json({ success: true });
   } catch (error) {
     console.error("Error saving session data:", error);
-    return NextResponse.json(
-      { error: "セッションの保存に失敗しました" },
-      { status: 500 }
-    );
+    return c.json({ error: "セッションの保存に失敗しました" }, 500);
   }
-}
+});
 
-// セッションデータを取得するGETエンドポイント
-export async function GET() {
+app.get("/", async (c) => {
   try {
-    const cookieStore = await cookies();
-    const sessionStr = cookieStore.get("tarot-cards")?.value;
+    const sessionStr = getCookie(c, "tarot-cards");
 
     if (!sessionStr) {
-      return NextResponse.json({ cards: [], hasVisited: false });
+      return c.json({ cards: [], hasVisited: false });
     }
 
     try {
       const data = JSON.parse(sessionStr);
-      return NextResponse.json({
+      return c.json({
         cards: Array.isArray(data.cards) ? data.cards : [],
         hasVisited: Boolean(data.hasVisited),
       });
     } catch (error) {
       console.error("Error parsing session data:", error);
-      return NextResponse.json({ cards: [], hasVisited: false });
+      return c.json({ cards: [], hasVisited: false });
     }
   } catch (error) {
     console.error("Error reading session:", error);
-    return NextResponse.json(
-      { error: "セッションの読み込みに失敗しました" },
-      { status: 500 }
-    );
+    return c.json({ error: "セッションの読み込みに失敗しました" }, 500);
   }
-}
+});
+
+export const GET = handle(app);
+export const POST = handle(app);

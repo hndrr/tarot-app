@@ -25,15 +25,22 @@ export default function SaveCard({ card, isFirstVisit = true }: SaveCardProps) {
           },
           body: JSON.stringify({
             card,
-            hasVisited: true,
+            hasVisited: !isFirstVisit,
           }),
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
+          throw new Error(data.error || "セッションの保存に失敗しました");
+        }
+
+        if (!data.success) {
           throw new Error("セッションの保存に失敗しました");
         }
       } catch (error) {
         console.error("Failed to save session:", error);
+        // エラー処理をここに追加することもできます（例：トースト通知など）
       }
     };
 

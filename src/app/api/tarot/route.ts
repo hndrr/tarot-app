@@ -1,13 +1,16 @@
 // import { generateTarotMessageGemini } from "@/lib/generateTarotMessageGemini";
-import { NextResponse } from "next/server";
+import { Hono } from "hono";
+import { handle } from "hono/vercel";
+
+const app = new Hono();
 
 type TarotResponse = {
   upright: string;
   reversed: string;
 };
 
-export async function POST(request: Request) {
-  const { name, meaning } = await request.json();
+app.post("/api/tarot", async (c) => {
+  const { name, meaning } = await c.req.json();
   const prompt = `
   あなたはタロットカード占い師です。
 
@@ -72,12 +75,12 @@ export async function POST(request: Request) {
     const responseText = data.candidates[0].content.parts[0].text.trim();
     const tarotResponse: TarotResponse = JSON.parse(responseText)?.[0];
 
-    return NextResponse.json(tarotResponse);
+    return c.json(tarotResponse);
   } catch (error) {
     console.error("文言生成エラー:", error);
-    return NextResponse.json(
-      { error: "文言生成に失敗しました。" },
-      { status: 500 }
-    );
+    return c.json({ error: "文言生成に失敗しました。" }, 500);
   }
-}
+});
+
+export const GET = handle(app);
+export const POST = handle(app);
