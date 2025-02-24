@@ -1,17 +1,11 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createSession, getSession } from "@/lib/actions";
+import { createSessionSchema } from "@/lib/schema";
 
 // APIの型定義
 const api = new Hono().basePath("/api/session");
-
-// セッション作成のスキーマ
-const createSessionSchema = z.object({
-  userId: z.string(),
-  readingType: z.enum(["daily", "weekly", "monthly"]),
-});
 
 // セッション作成のエンドポイント
 api.post("/", zValidator("json", createSessionSchema), async (c) => {

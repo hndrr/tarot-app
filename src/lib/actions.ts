@@ -97,12 +97,10 @@ export async function drawCard(data: z.infer<typeof drawCardSchema>) {
 
 // セッション管理の関数
 export async function createSession(data: z.infer<typeof createSessionSchema>) {
-  const { userId, readingType } = data;
-  // セッション作成処理
+  const { userId } = data;
   return {
     id: Math.random().toString(),
     userId,
-    readingType,
     createdAt: new Date(),
   };
 }

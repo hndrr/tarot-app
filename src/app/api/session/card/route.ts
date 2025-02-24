@@ -1,16 +1,10 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { drawCard, saveCard } from "@/lib/actions";
+import { drawCardSchema, saveCardSchema } from "@/lib/schema";
 
 const api = new Hono().basePath("/api/session/card");
-
-// カードドローのスキーマ
-const drawCardSchema = z.object({
-  sessionId: z.string(),
-  position: z.number().optional(),
-});
 
 // カードドローのエンドポイント
 api.post("/draw", zValidator("json", drawCardSchema), async (c) => {
@@ -23,15 +17,6 @@ api.post("/draw", zValidator("json", drawCardSchema), async (c) => {
     console.error("Draw card error:", error);
     return c.json({ error: "Failed to draw card" }, 500);
   }
-});
-
-// カード保存のスキーマ
-const saveCardSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  position: z.string(),
-  isReversed: z.boolean(),
-  message: z.string().optional(),
 });
 
 // カード保存のエンドポイント

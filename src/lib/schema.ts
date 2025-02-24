@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const createSessionSchema = z.object({
   userId: z.string(),
-  readingType: z.enum(["daily", "weekly", "monthly"]),
 });
 
 export const drawCardSchema = z.object({
