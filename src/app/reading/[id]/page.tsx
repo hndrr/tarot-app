@@ -1,11 +1,11 @@
 import { tarotCards } from "@/data/tarotCards";
-import { delay } from "@/lib/delay";
 import { Card } from "@/lib/actions";
 import TarotCard from "@components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import DrawCardButton from "@/components/DrawCardButton";
+import { delay } from "@/lib/delay";
 
 type Params = Promise<{ id: string }>;
 
@@ -38,6 +38,7 @@ export default async function Reading({ params }: { params: Params }) {
         name: card.name,
         position: isReversed ? "reversed" : "upright",
         isReversed,
+        message: existingCard?.message,
       }
     : null;
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { tarotCards } from "@/data/tarotCards";
+import type { Card } from "@/lib/actions";
 
 interface DrawCardButtonProps {
   variant?: "primary" | "secondary";
@@ -28,6 +29,42 @@ export default function DrawCardButton({
 
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
     const selectedCard = tarotCards[randomIndex];
+    const isReversed = Math.random() < 0.5;
+
+    // タロットメッセージを生成
+    const response = await fetch("/api/tarot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: selectedCard.name,
+        meaning: selectedCard.meaning,
+      }),
+    });
+
+    if (response.ok) {
+      const { upright, reversed } = await response.json();
+      const message = isReversed ? reversed : upright;
+
+      // カード情報をcookieに保存
+      const cardData: Card = {
+        id: selectedCard.id,
+        name: selectedCard.name,
+        position: isReversed ? "reversed" : "upright",
+        isReversed,
+        message,
+      };
+
+      await fetch("/api/session/card", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cardData),
+      });
+    }
+
     router.push(`/reading/${selectedCard.id}`);
   };
 

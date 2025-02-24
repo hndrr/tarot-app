@@ -1,12 +1,15 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { z } from "zod";
+import { createSessionSchema, drawCardSchema, saveCardSchema } from "./schema";
 
 export interface Card {
   id: number;
   name: string;
   position: string;
   isReversed: boolean;
+  message?: string;
 }
 
 export async function saveCardToSession(card: Card) {
@@ -78,5 +81,59 @@ export async function getSessionCards(): Promise<Card[]> {
   } catch (error) {
     console.error("Failed to get cards from session:", error);
     return [];
+  }
+}
+
+// カード操作の関数
+export async function drawCard(data: z.infer<typeof drawCardSchema>) {
+  const { position } = data;
+  return {
+    id: Math.random(),
+    name: "Test Card",
+    position: position ? `position-${position}` : "upright",
+    isReversed: Math.random() > 0.5,
+  };
+}
+
+// セッション管理の関数
+export async function createSession(data: z.infer<typeof createSessionSchema>) {
+  const { userId } = data;
+  return {
+    id: Math.random().toString(),
+    userId,
+    createdAt: new Date(),
+  };
+}
+
+// 既存のsaveCardToSession関数を活用
+export async function saveCard(data: z.infer<typeof saveCardSchema>) {
+  await saveCardToSession(data);
+  return { ...data, saved: true };
+}
+
+export async function getSession(id: string) {
+  try {
+    const cookieStore = await cookies();
+    const sessionStr = cookieStore.get("tarot-session")?.value;
+
+    if (!sessionStr) {
+      throw new Error("セッションが見つかりません");
+    }
+
+    const sessionData = JSON.parse(sessionStr);
+
+    if (sessionData.id !== id) {
+      throw new Error("セッションIDが一致しません");
+    }
+
+    return {
+      id: sessionData.id,
+      userId: sessionData.userId,
+      createdAt: new Date(sessionData.createdAt),
+      cards: await getSessionCards(),
+    };
+  } catch (error) {
+    console.error("Failed to get session:", error);
+    throw new Error("セッションの取得に失敗しました");
   }
 }

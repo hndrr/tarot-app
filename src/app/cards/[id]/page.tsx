@@ -38,17 +38,26 @@ export default async function CardDetail({ params }: { params: Params }) {
   // セッションからカード情報を取得
   const savedCards = await getSessionCards();
   const savedCard = savedCards.find((c) => c.id === parseInt(id));
-  console.log("savedCard", savedCard);
   const isReversed = savedCard?.isReversed ?? false;
 
-  let result: TarotResponse | null = null;
-
-  if (card) {
+  // メッセージの生成
+  let message: string;
+  if (savedCard?.message) {
+    message = savedCard.message;
+  } else if (card) {
     try {
-      result = await getTarotMessage(card.name, card.meaning);
+      // APIを使用してメッセージを生成
+      const result = await getTarotMessage(card.name, card.meaning);
+      message = isReversed ? result.reversed : result.upright;
     } catch (error) {
-      console.error("エラー:", error);
+      console.error("API Error:", error);
+      // APIエラー時のフォールバック
+      message = isReversed
+        ? `逆位置の${card.name}は、${card.meaning}の反対の意味を持ちます。`
+        : `${card.name}は、${card.meaning}を示唆しています。`;
     }
+  } else {
+    message = "カードの解釈を読み込めませんでした。";
   }
 
   if (!card) {
@@ -99,9 +108,7 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <p className="text-gray-200">
-                  {isReversed ? result?.reversed : result?.upright}
-                </p>
+                <p className="text-gray-200">{message}</p>
               </div>
             </div>
           </div>
