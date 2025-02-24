@@ -7,6 +7,7 @@ export interface Card {
   name: string;
   position: string;
   isReversed: boolean;
+  message?: string;
 }
 
 export async function saveCardToSession(card: Card) {

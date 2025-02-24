@@ -38,6 +38,7 @@ export default async function Reading({ params }: { params: Params }) {
         name: card.name,
         position: isReversed ? "reversed" : "upright",
         isReversed,
+        message: existingCard?.message,
       }
     : null;
 

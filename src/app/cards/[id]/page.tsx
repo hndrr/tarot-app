@@ -5,31 +5,31 @@ import Image from "next/image";
 
 type Params = Promise<{ id: string }>;
 
-type TarotResponse = {
-  upright: string;
-  reversed: string;
-};
+// type TarotResponse = {
+//   upright: string;
+//   reversed: string;
+// };
 
-async function getTarotMessage(
-  name: string,
-  meaning: string
-): Promise<TarotResponse> {
-  const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
+// async function getTarotMessage(
+//   name: string,
+//   meaning: string
+// ): Promise<TarotResponse> {
+//   const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
 
-  const res = await fetch(`${apiHost}/api/tarot`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name, meaning }),
-  });
+//   const res = await fetch(`${apiHost}/api/tarot`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ name, meaning }),
+//   });
 
-  if (!res.ok) {
-    throw new Error("文言生成に失敗しました。");
-  }
+//   if (!res.ok) {
+//     throw new Error("文言生成に失敗しました。");
+//   }
 
-  return res.json();
-}
+//   return res.json();
+// }
 
 export default async function CardDetail({ params }: { params: Params }) {
   const { id } = await params;
@@ -41,14 +41,22 @@ export default async function CardDetail({ params }: { params: Params }) {
   console.log("savedCard", savedCard);
   const isReversed = savedCard?.isReversed ?? false;
 
-  let result: TarotResponse | null = null;
+  // 保存されているメッセージがあればそれを使用し、なければAPIで生成
+  let message: string | undefined;
 
-  if (card) {
-    try {
-      result = await getTarotMessage(card.name, card.meaning);
-    } catch (error) {
-      console.error("エラー:", error);
-    }
+  if (savedCard?.message) {
+    // 保存されているメッセージを使用
+    message = savedCard.message;
+    // } else if (card) {
+    //   try {
+    //     // 保存されたメッセージがない場合は、現在の向きに応じたメッセージを生成
+    //     const result = await getTarotMessage(card.name, card.meaning);
+    //     message = isReversed ? result.reversed : result.upright;
+    //   } catch (error) {
+    //     console.error("エラー:", error);
+    //   }
+  } else {
+    console.error("カードが見つかりません");
   }
 
   if (!card) {
@@ -99,9 +107,7 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <p className="text-gray-200">
-                  {isReversed ? result?.reversed : result?.upright}
-                </p>
+                <p className="text-gray-200">{message}</p>
               </div>
             </div>
           </div>

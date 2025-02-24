@@ -1,12 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+import type { Card } from "@/lib/actions";
 
 interface SessionData {
   cards: Card[];
