@@ -19,25 +19,32 @@ export default async function CardDetail({ params }: { params: Params }) {
 
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
-    : { cards: [], hasVisited: false };
+    : { card: null, hasVisited: false };
 
   console.log("Parsed session data (cards/[id]):", JSON.stringify(sessionData)); // デバッグ用
 
-  const savedCard = sessionData.cards?.find(
-    (c: { id: number }) => c.id === parseInt(id)
-  );
+  // 保存されたカードを取得
+  const savedCard =
+    sessionData.card?.id === parseInt(id) ? sessionData.card : null;
 
   console.log(
     "Saved card (cards/[id]):",
     savedCard ? JSON.stringify(savedCard) : "not found"
   ); // デバッグ用
 
-  // セッションに保存されたカードがあればその逆位置の状態を使用、なければデフォルトで正位置
-  // position プロパティも確認する
-  const isReversed =
-    savedCard?.isReversed ?? savedCard?.position === "reversed" ?? false;
+  // デバッグ: savedCardの詳細情報を出力
+  if (savedCard) {
+    console.log("savedCard full data:", JSON.stringify(savedCard));
+    console.log("savedCard.isReversed:", savedCard.isReversed);
+    console.log("typeof savedCard.isReversed:", typeof savedCard.isReversed);
+    console.log("savedCard.position:", savedCard.position);
+  }
 
-  console.log("Is reversed (cards/[id]):", isReversed); // デバッグ用
+  // 逆位置判定を単純化
+  const isReversed = Boolean(savedCard?.isReversed);
+
+  console.log("Final isReversed value:", isReversed);
+  console.log("typeof isReversed:", typeof isReversed);
 
   // タロットメッセージをセッションから取得
   let result: TarotResponse | null = null;

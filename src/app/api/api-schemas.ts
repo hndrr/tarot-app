@@ -31,7 +31,7 @@ export const SessionRequestSchema = z.object({
 
 // セッションデータスキーマ
 export const SessionDataSchema = z.object({
-  cards: z.array(CardSchema),
+  card: CardSchema.optional().nullable(),
   hasVisited: z.boolean(),
 });
 
@@ -55,7 +55,7 @@ export const sessionApiDef = new Hono()
   )
   .get(`${apiBase}/session`, async (c) => {
     return c.json({
-      cards: [],
+      card: null,
       hasVisited: false,
     });
   });

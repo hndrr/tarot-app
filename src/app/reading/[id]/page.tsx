@@ -1,12 +1,15 @@
 import { tarotCards } from "@/data/tarotCards";
 import { delay } from "@/lib/delay";
-import { Card } from "@/types";
 import TarotCard from "@components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import DrawCardButton from "@/components/DrawCardButton";
 import { tarotAPI } from "@/lib/client";
+
+// このページをキャッシュしない設定
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type Params = Promise<{ id: string }>;
 
@@ -39,14 +42,13 @@ export default async function Reading({ params }: { params: Params }) {
 
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
-    : { cards: [], hasVisited: false };
+    : { card: null, hasVisited: false };
 
   console.log("Parsed session data:", JSON.stringify(sessionData)); // デバッグ用
 
   // 既存のカードがあればその状態を使用、なければランダムに決定
-  const existingCard = sessionData.cards?.find(
-    (c: Card) => c.id === parseInt(id)
-  );
+  const existingCard =
+    sessionData.card?.id === parseInt(id) ? sessionData.card : null;
   console.log(
     "Existing card:",
     existingCard ? JSON.stringify(existingCard) : "not found"
@@ -54,11 +56,13 @@ export default async function Reading({ params }: { params: Params }) {
 
   // 既存のカードがあればその状態を使用、なければランダムに決定
   // 一度決定した逆位置の状態は保持する
+  // 同じIDのカードが存在する場合は、そのisReversed値を使用
   const isReversed = existingCard
-    ? existingCard.isReversed
+    ? Boolean(existingCard.isReversed) // 明示的に真偽値に変換
     : Math.random() < 0.5;
 
   console.log("Is reversed:", isReversed); // デバッグ用
+  console.log("typeof isReversed:", typeof isReversed); // デバッグ用
 
   if (!sessionData.hasVisited) {
     await delay(6000);
@@ -66,15 +70,25 @@ export default async function Reading({ params }: { params: Params }) {
 
   // タロットメッセージを取得
   let tarotMessage = null;
-  if (card && (!existingCard || !existingCard.tarotMessage)) {
+  // 既存のカードからタロットメッセージを取得
+  if (existingCard && existingCard.tarotMessage) {
+    tarotMessage = existingCard.tarotMessage;
+    console.log("Using existing tarot message from session");
+  }
+  // 新しいカードの場合、または既存のカードにタロットメッセージがなく、かつ初回訪問の場合のみAPIを呼び出す
+  else if (
+    card &&
+    (!existingCard || !existingCard.tarotMessage) &&
+    !sessionData.hasVisited
+  ) {
     try {
+      console.log("Fetching new tarot message from API");
       tarotMessage = await getTarotMessage(card.name, card.meaning);
     } catch (error) {
       console.error("タロットメッセージの取得に失敗:", error);
     }
-  } else if (existingCard && existingCard.tarotMessage) {
-    // 既存のカードからタロットメッセージを取得
-    tarotMessage = existingCard.tarotMessage;
+  } else {
+    console.log("Skipping API call for tarot message");
   }
 
   // カードデータを作成
@@ -83,10 +97,16 @@ export default async function Reading({ params }: { params: Params }) {
         id: card.id,
         name: card.name,
         position: isReversed ? "reversed" : "upright",
-        isReversed,
+        isReversed: isReversed, // 明示的に真偽値を代入
         tarotMessage: tarotMessage || existingCard?.tarotMessage,
       }
     : null;
+
+  console.log("cardData created:", JSON.stringify(cardData));
+  console.log(
+    "typeof cardData.isReversed:",
+    cardData ? typeof cardData.isReversed : "null"
+  );
 
   // 新しいカードの場合はクライアントサイドのSaveCardコンポーネントで保存する
   if (cardData && !existingCard) {
@@ -129,7 +149,7 @@ export default async function Reading({ params }: { params: Params }) {
               <SaveCard
                 card={cardData}
                 isFirstVisit={!sessionData.hasVisited}
-                skipSave={false} // 常に保存を行う（既存のカードがある場合でも更新する）
+                skipSave={Boolean(existingCard?.tarotMessage)} // タロットメッセージが既に存在する場合は保存をスキップ
               />
             )}
             <div className="mt-8 text-center">

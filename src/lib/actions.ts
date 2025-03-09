@@ -11,21 +11,14 @@ export async function saveCardToSession(
   hasVisited: boolean = true
 ) {
   try {
-    console.log(
-      "Server action: saveCardToSession called with card:",
-      JSON.stringify(card)
-    ); // デバッグ用
-    console.log("Server action: hasVisited:", hasVisited); // デバッグ用
+    console.log("Server action: card received:", JSON.stringify(card));
+    console.log("Server action: hasVisited:", hasVisited);
 
-    // sessionAPIクライアントを使用してカードデータを保存
+    // カードデータを直接使用（既にSaveCardコンポーネントで処理済み）
     const response = await sessionAPI.api.session.$post({
       json: {
-        card: {
-          ...card,
-          isReversed: card.isReversed, // 逆位置の情報を明示的に含める
-          position: card.isReversed ? "reversed" : "upright", // 位置情報も更新
-        },
-        hasVisited: hasVisited, // ユーザーが訪問したかどうかのフラグ
+        card: card,
+        hasVisited: hasVisited,
       },
     });
 
@@ -34,8 +27,8 @@ export async function saveCardToSession(
     }
 
     // パスを再検証して、変更を反映
-    revalidatePath("/reading/[id]");
-    revalidatePath("/cards/[id]"); // cards/[id]ページも再検証
+    revalidatePath("/reading/[id]", "page");
+    revalidatePath("/cards/[id]", "page");
 
     return { success: true };
   } catch (error) {
@@ -53,7 +46,8 @@ export async function getSessionCards(): Promise<Card[]> {
     }
 
     const data = await response.json();
-    return data.cards || [];
+    // cardがあれば配列に変換して返す（nullの場合は空配列）
+    return data.card ? [data.card] : [];
   } catch (error) {
     console.error("Failed to get cards from session:", error);
     return [];

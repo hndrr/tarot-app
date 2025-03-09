@@ -17,6 +17,8 @@ export default function SaveCard({
 }: SaveCardProps) {
   console.log("SaveCard component received card:", JSON.stringify(card)); // デバッグ用
   console.log("isReversed in card:", card.isReversed); // デバッグ用
+  console.log("typeof isReversed:", typeof card.isReversed); // デバッグ用
+  console.log("position in card:", card.position); // デバッグ用
   console.log("isFirstVisit:", isFirstVisit); // デバッグ用
 
   // 保存が完了したかどうかを追跡するためのref
@@ -27,10 +29,23 @@ export default function SaveCard({
 
   const saveSession = async () => {
     try {
+      // カードデータを準備（isReversedを確実に真偽値に変換）
+      const cardToSave: Card = {
+        ...card,
+        isReversed: Boolean(card.isReversed),
+        position: Boolean(card.isReversed) ? "reversed" : "upright",
+      };
+
+      console.log("Saving card with data:", JSON.stringify(cardToSave)); // デバッグ用
+      console.log(
+        "typeof cardToSave.isReversed:",
+        typeof cardToSave.isReversed
+      ); // デバッグ用
+
       // サーバーアクションを使用してカードデータを保存
       console.log("Using server action to save card"); // デバッグ用
       console.log("hasVisited will be set to:", !isFirstVisit); // デバッグ用
-      await saveCardToSession(card, !isFirstVisit);
+      await saveCardToSession(cardToSave, !isFirstVisit);
       console.log("Server action completed"); // デバッグ用
 
       // 保存が完了したことを記録
@@ -56,7 +71,14 @@ export default function SaveCard({
     // isReversedの値を更新
     prevIsReversedRef.current = card.isReversed;
 
-    saveSession();
+    // 一度だけ実行
+    if (!savedRef.current) {
+      console.log("First time saving card");
+      saveSession();
+    } else {
+      console.log("Card already saved, skipping");
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipSave, card.id, card.isReversed, isFirstVisit]); // card.isReversedを依存配列に追加
 

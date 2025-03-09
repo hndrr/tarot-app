@@ -17,13 +17,20 @@ export default function DrawCardButton({
 
   const drawCard = async () => {
     try {
-      // hasVisitedをリセット
-      const result = await sessionAPI.saveSession({
-        hasVisited: false,
+      console.log("DrawCardButton: Resetting session data");
+
+      // hasVisitedをリセットし、カード情報も完全にnullにする
+      const result = await sessionAPI.api.session.$post({
+        json: {
+          hasVisited: false,
+          card: undefined, // カード情報をリセット
+        },
       });
 
       if (!result.ok) {
         console.error("セッション保存中にエラーが発生しました");
+      } else {
+        console.log("DrawCardButton: Session reset successful");
       }
 
       const randomIndex = Math.floor(Math.random() * tarotCards.length);

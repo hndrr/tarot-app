@@ -20,37 +20,31 @@ app.post(
       const sessionData = SessionDataSchema.parse(
         existingData
           ? JSON.parse(existingData)
-          : { cards: [], hasVisited: false }
+          : { card: null, hasVisited: false }
       );
       console.log("Parsed session data:", JSON.stringify(sessionData));
 
       if (data.card) {
         console.log("Processing card data:", JSON.stringify(data.card));
-        const existingIndex = sessionData.cards.findIndex(
-          (c) => c.id === data.card!.id
-        );
-        console.log("Existing card index:", existingIndex);
-
-        if (existingIndex >= 0) {
-          console.log("Updating existing card");
-          sessionData.cards[existingIndex] = data.card;
-        } else {
-          console.log("Adding new card");
-          sessionData.cards.push(data.card);
-        }
+        sessionData.card = data.card;
+        console.log("Updated card");
       }
 
       if (data.tarotMessage) {
         const { cardId, message } = data.tarotMessage;
-        const cardIndex = sessionData.cards.findIndex((c) => c.id === cardId);
-        if (cardIndex >= 0) {
-          sessionData.cards[cardIndex].tarotMessage = message;
+        if (sessionData.card && sessionData.card.id === cardId) {
+          sessionData.card.tarotMessage = message;
+          console.log("Updated tarot message for card:", cardId);
+        } else {
+          console.log("No matching card found for tarot message:", cardId);
         }
       }
 
       if (data.hasVisited !== undefined) {
         sessionData.hasVisited = data.hasVisited;
       }
+
+      console.log("Saving session data:", JSON.stringify(sessionData));
 
       setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
         httpOnly: false,
@@ -72,7 +66,7 @@ app.get("/api/session", async (c) => {
   try {
     const sessionStr = getCookie(c, "tarot-cards");
     if (!sessionStr) {
-      return c.json({ cards: [], hasVisited: false });
+      return c.json({ card: null, hasVisited: false });
     }
 
     const sessionData = SessionDataSchema.parse(JSON.parse(sessionStr));

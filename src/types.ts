@@ -15,7 +15,7 @@ export type TarotResponse = {
 
 // セッションデータの型定義
 export type SessionData = {
-  cards: Card[];
+  card: Card | null;
   hasVisited: boolean;
 };
 
