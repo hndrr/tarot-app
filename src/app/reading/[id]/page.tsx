@@ -13,24 +13,6 @@ export const revalidate = 0;
 
 type Params = Promise<{ id: string }>;
 
-// タロットメッセージを取得する関数
-async function getTarotMessage(name: string, meaning: string) {
-  try {
-    const response = await tarotAPI.tarot.$post({
-      json: { name, meaning },
-    });
-
-    if (!response.ok) {
-      throw new Error("文言生成に失敗しました。");
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("タロット解釈の取得に失敗:", error);
-    throw new Error("文言生成に失敗しました。");
-  }
-}
-
 export default async function Reading({ params }: { params: Params }) {
   const { id } = await params;
   console.log("Reading page: id parameter:", id); // 追加: IDパラメータの確認
@@ -80,20 +62,22 @@ export default async function Reading({ params }: { params: Params }) {
     tarotMessage = existingCard.tarotMessage;
     console.log("Using existing tarot message from session");
   }
-  // 新しいカードの場合、または既存のカードにタロットメッセージがなく、かつ初回訪問の場合のみAPIを呼び出す
-  else if (
-    card &&
-    (!existingCard || !existingCard.tarotMessage) &&
-    !sessionData.hasVisited
-  ) {
+  // 新しいカードの場合、または既存のカードにタロットメッセージがない場合のみAPIを呼び出す
+  else if (card) {
     try {
       console.log("Fetching new tarot message from API");
-      tarotMessage = await getTarotMessage(card.name, card.meaning);
+      const response = await tarotAPI.tarot.$post({
+        json: { name: card.name, meaning: card.meaning },
+      });
+
+      if (!response.ok) {
+        throw new Error("タロットメッセージの取得に失敗しました");
+      }
+
+      tarotMessage = await response.json();
     } catch (error) {
       console.error("タロットメッセージの取得に失敗:", error);
     }
-  } else {
-    console.log("Skipping API call for tarot message");
   }
 
   // カードデータを作成
@@ -106,8 +90,8 @@ export default async function Reading({ params }: { params: Params }) {
         id: card.id,
         name: card.name,
         position: isReversed ? "reversed" : "upright",
-        isReversed: isReversed, // 明示的に真偽値を代入
-        tarotMessage: tarotMessage || existingCard?.tarotMessage,
+        isReversed: isReversed,
+        tarotMessage: tarotMessage, // タロットメッセージを含める
       }
     : null;
 

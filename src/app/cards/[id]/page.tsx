@@ -1,11 +1,8 @@
 import { tarotCards } from "@/data/tarotCards";
-import { tarotAPI } from "@/lib/client";
 import Link from "next/link";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
-import { TarotResponse } from "@/types";
 import { cookies } from "next/headers";
-import TarotMessageLoader from "@/components/TarotMessageLoader";
 
 type Params = Promise<{ id: string }>;
 
@@ -14,69 +11,32 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 export default async function CardDetail({ params }: { params: Params }) {
-  console.log("=== CardDetail Component Started ===");
   const { id } = await params;
-  console.log("Received ID:", id);
-
   const card = tarotCards.find((card) => card.id === parseInt(id));
-  console.log("Found card:", card);
 
   // セッションからカード情報を取得
   const cookieStore = await cookies();
   const sessionStr = cookieStore?.get("tarot-cards")?.value;
-  console.log("Session string from cookie (cards/[id]):", sessionStr);
-
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
     : { card: null, hasVisited: false };
 
-  console.log("Parsed session data (cards/[id]):", JSON.stringify(sessionData));
+  console.log("Session Data:", JSON.stringify(sessionData, null, 2));
 
   // 保存されたカードを取得
   const savedCard =
     sessionData.card?.id === parseInt(id) ? sessionData.card : null;
 
-  console.log("=== Starting Tarot Message Check ===");
-  console.log("savedCard:", JSON.stringify(savedCard));
-  console.log("savedCard?.tarotMessage:", savedCard?.tarotMessage);
-
-  // デバッグ: savedCardの詳細情報を出力
-  if (savedCard) {
-    console.log("savedCard full data:", JSON.stringify(savedCard));
-    console.log("savedCard.isReversed:", savedCard.isReversed);
-    console.log("typeof savedCard.isReversed:", typeof savedCard.isReversed);
-    console.log("savedCard.position:", savedCard.position);
-  }
+  console.log("Saved Card:", JSON.stringify(savedCard, null, 2));
 
   // 逆位置判定を単純化
   const isReversed = Boolean(savedCard?.isReversed);
 
-  console.log("Final isReversed value:", isReversed);
-  console.log("typeof isReversed:", typeof isReversed);
-
   // タロットメッセージをセッションから取得
-  let result: TarotResponse | null = null;
+  const result = savedCard?.tarotMessage || null;
 
-  if (savedCard?.tarotMessage) {
-    result = savedCard.tarotMessage;
-  } else if (card) {
-    try {
-      const response = await tarotAPI.tarot.$post({
-        json: {
-          name: card.name,
-          meaning: card.meaning,
-        },
-      });
-
-      if (response.ok) {
-        result = await response.json();
-      }
-    } catch (error) {
-      // サーバーサイドでのAPI呼び出しが失敗した場合は、
-      // クライアントサイドのTarotMessageLoaderがフォールバックとして機能します
-      console.error("サーバーサイドでのAPI呼び出しに失敗:", error);
-    }
-  }
+  console.log("Tarot Message:", JSON.stringify(result, null, 2));
+  console.log("Is Reversed:", isReversed);
 
   if (!card) {
     return (
@@ -93,15 +53,6 @@ export default async function CardDetail({ params }: { params: Params }) {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-10">
         <BackButton id={id} />
-        {/* サーバーサイドでの取得に失敗した場合のフォールバック */}
-        {!result && (
-          <TarotMessageLoader
-            cardId={parseInt(id)}
-            cardName={card.name}
-            cardMeaning={card.meaning}
-            hasTarotMessage={Boolean(savedCard?.tarotMessage)}
-          />
-        )}
 
         <div className="flex flex-col md:flex-row items-center gap-10">
           <div
