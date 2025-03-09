@@ -75,35 +75,30 @@ export default async function Reading({ params }: { params: Params }) {
       }
 
       tarotMessage = await response.json();
-      console.log(
-        "Received tarot message:",
-        JSON.stringify(tarotMessage, null, 2)
-      );
     } catch (error) {
       console.error("タロットメッセージの取得に失敗:", error);
-      throw error; // エラーを上位に伝播させる
     }
   }
 
-  // カードデータを作成（タロットメッセージが取得できた後で）
+  // カードデータを作成
   if (!card) {
     console.error("Reading page: Card not found for id:", id);
   }
 
-  const cardData =
-    card && tarotMessage
-      ? {
-          id: card.id,
-          name: card.name,
-          position: isReversed ? "reversed" : "upright",
-          isReversed: isReversed,
-          tarotMessage: tarotMessage,
-        }
-      : null;
+  const cardData = card
+    ? {
+        id: card.id,
+        name: card.name,
+        position: isReversed ? "reversed" : "upright",
+        isReversed: isReversed,
+        tarotMessage: tarotMessage, // タロットメッセージを含める
+      }
+    : null;
 
+  console.log("cardData created:", JSON.stringify(cardData));
   console.log(
-    "Final cardData with message:",
-    JSON.stringify(cardData, null, 2)
+    "typeof cardData.isReversed:",
+    cardData ? typeof cardData.isReversed : "null"
   );
 
   // 新しいカードの場合はクライアントサイドのSaveCardコンポーネントで保存する
