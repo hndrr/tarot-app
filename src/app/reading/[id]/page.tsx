@@ -13,33 +13,38 @@ export const revalidate = 0;
 
 type Params = Promise<{ id: string }>;
 
+async function getTarotMessage(
+  name: string,
+  meaning: string
+): Promise<{
+  upright: string;
+  reversed: string;
+} | null> {
+  const response = await tarotAPI.tarot.$post({
+    json: { name: name, meaning: meaning },
+  });
+
+  if (!response.ok) {
+    throw new Error("タロットメッセージの取得に失敗しました");
+  }
+
+  return await response.json();
+}
+
 export default async function Reading({ params }: { params: Params }) {
   const { id } = await params;
-  console.log("Reading page: id parameter:", id); // 追加: IDパラメータの確認
   const card = tarotCards.find((card) => card.id === parseInt(id));
-  console.log(
-    "Reading page: found card:",
-    card ? JSON.stringify(card) : "null"
-  ); // 追加: カード検索結果の確認
-
   // セッションからデータを取得
   const cookieStore = await cookies();
   const sessionStr = cookieStore?.get("tarot-cards")?.value;
-  console.log("Session string from cookie:", sessionStr); // デバッグ用
 
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
     : { card: null, hasVisited: false };
 
-  console.log("Parsed session data:", JSON.stringify(sessionData)); // デバッグ用
-
   // 既存のカードがあればその状態を使用、なければランダムに決定
   const existingCard =
     sessionData.card?.id === parseInt(id) ? sessionData.card : null;
-  console.log(
-    "Existing card:",
-    existingCard ? JSON.stringify(existingCard) : "not found"
-  ); // デバッグ用
 
   // 既存のカードがあればその状態を使用、なければランダムに決定
   // 一度決定した逆位置の状態は保持する
@@ -47,9 +52,6 @@ export default async function Reading({ params }: { params: Params }) {
   const isReversed = existingCard
     ? Boolean(existingCard.isReversed) // 明示的に真偽値に変換
     : Math.random() < 0.5;
-
-  console.log("Is reversed:", isReversed); // デバッグ用
-  console.log("typeof isReversed:", typeof isReversed); // デバッグ用
 
   if (!sessionData.hasVisited) {
     await delay(6000);
@@ -67,44 +69,16 @@ export default async function Reading({ params }: { params: Params }) {
   if (card) {
     try {
       console.log("Fetching new tarot message from API");
-      const response = await tarotAPI.tarot.$post({
-        json: { name: card.name, meaning: card.meaning },
-      });
+      const response = await getTarotMessage(card.name, card.meaning);
 
-      if (!response.ok) {
-        throw new Error("タロットメッセージの取得に失敗しました");
-      }
+      // if (!response.ok) {
+      //   throw new Error("タロットメッセージの取得に失敗しました");
+      // }
 
-      tarotMessage = await response.json();
+      tarotMessage = response;
     } catch (error) {
       console.error("タロットメッセージの取得に失敗:", error);
     }
-  }
-
-  // カードデータを作成
-  if (!card) {
-    console.error("Reading page: Card not found for id:", id);
-  }
-
-  const cardData = card
-    ? {
-        id: card.id,
-        name: card.name,
-        position: isReversed ? "reversed" : "upright",
-        isReversed: isReversed,
-        tarotMessage: tarotMessage, // タロットメッセージを含める
-      }
-    : null;
-
-  console.log("cardData created:", JSON.stringify(cardData));
-  console.log(
-    "typeof cardData.isReversed:",
-    cardData ? typeof cardData.isReversed : "null"
-  );
-
-  // 新しいカードの場合はクライアントサイドのSaveCardコンポーネントで保存する
-  if (cardData && !existingCard) {
-    console.log("新しいカードデータ:", JSON.stringify(cardData)); // デバッグ用
   }
 
   if (!card) {
@@ -139,7 +113,7 @@ export default async function Reading({ params }: { params: Params }) {
         <div className="flex flex-col items-center gap-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-2xl w-full">
             <TarotCard card={tarotCardData} isReversed={isReversed} />
-            {card && (
+            {tarotMessage && (
               <SaveCard
                 card={{
                   id: card.id,
