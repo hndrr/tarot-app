@@ -7,29 +7,29 @@ import { cookies } from "next/headers";
 type Params = Promise<{ id: string }>;
 
 // TODO: readingで値が保存されないため
-async function getTarotMessage(
-  name: string,
-  meaning: string
-): Promise<{
-  upright: string;
-  reversed: string;
-} | null> {
-  const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
+// async function getTarotMessage(
+//   name: string,
+//   meaning: string
+// ): Promise<{
+//   upright: string;
+//   reversed: string;
+// } | null> {
+//   const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
 
-  const response = await fetch(`${apiHost}/api/tarot`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name, meaning }),
-  });
+//   const response = await fetch(`${apiHost}/api/tarot`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ name, meaning }),
+//   });
 
-  if (!response.ok) {
-    throw new Error("タロットメッセージの取得に失敗しました");
-  }
+//   if (!response.ok) {
+//     throw new Error("タロットメッセージの取得に失敗しました！");
+//   }
 
-  return await response.json();
-}
+//   return await response.json();
+// }
 
 export default async function CardDetail({ params }: { params: Params }) {
   const { id } = await params;
@@ -44,29 +44,20 @@ export default async function CardDetail({ params }: { params: Params }) {
 
   console.log("Session Data:", JSON.stringify(sessionData, null, 2));
 
-  // 保存されたカードを取得
+  // セッションのカードIDとページのIDが一致する場合のみカードを取得
+  const cardId = Number(id);
   const savedCard =
-    sessionData.card?.id === parseInt(id) ? sessionData.card : null;
+    sessionData.card && sessionData.card.id === cardId
+      ? sessionData.card
+      : null;
 
   console.log("Saved Card:", JSON.stringify(savedCard, null, 2));
 
-  // 逆位置判定を単純化
-  const isReversed = Boolean(savedCard?.isReversed);
+  // カードの状態を取得
+  const isReversed = savedCard ? Boolean(savedCard.isReversed) : false;
+  const tarotMessage = savedCard?.tarotMessage || null;
 
-  let result = null;
-
-  if (card) {
-    try {
-      result = await getTarotMessage(card.name, card.meaning);
-    } catch (error) {
-      console.error("エラー:", error);
-    }
-  }
-
-  // // タロットメッセージをセッションから取得
-  // const result = savedCard?.tarotMessage || null;
-
-  console.log("Tarot Message:", JSON.stringify(result, null, 2));
+  console.log("Tarot Message:", JSON.stringify(tarotMessage, null, 2));
   console.log("Is Reversed:", isReversed);
 
   if (!card) {
@@ -113,7 +104,7 @@ export default async function CardDetail({ params }: { params: Params }) {
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
                 <p className="text-gray-200">
-                  {isReversed ? result?.reversed : result?.upright}
+                  {isReversed ? tarotMessage?.reversed : tarotMessage?.upright}
                 </p>
               </div>
             </div>

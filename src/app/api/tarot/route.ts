@@ -4,9 +4,9 @@ import { handle } from "hono/vercel";
 import { zValidator } from "@hono/zod-validator";
 import { TarotRequestSchema, TarotResponseSchema } from "../api-schemas";
 
-const app = new Hono();
+const app = new Hono().basePath("/api/tarot");
 
-app.post("/api/tarot", zValidator("json", TarotRequestSchema), async (c) => {
+app.post("*", zValidator("json", TarotRequestSchema), async (c) => {
   try {
     const { name, meaning } = c.req.valid("json");
 
@@ -63,11 +63,13 @@ app.post("/api/tarot", zValidator("json", TarotRequestSchema), async (c) => {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
+      console.error(`Gemini API Error: ${response.statusText}`);
+      console.error(`Response: ${await response.text()}`);
+      return c.json({ error: "文言生成に失敗しました。" }, 500);
     }
 
     const data = await response.json();
-    console.log(data);
+    console.log("Gemini API Response:", JSON.stringify(data, null, 2));
     const responseText = data.candidates[0].content.parts[0].text.trim();
     const parsedResponse = TarotResponseSchema.parse(
       JSON.parse(responseText)?.[0]
@@ -80,5 +82,4 @@ app.post("/api/tarot", zValidator("json", TarotRequestSchema), async (c) => {
   }
 });
 
-export const GET = handle(app);
 export const POST = handle(app);
