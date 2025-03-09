@@ -4,6 +4,7 @@ export type Card = {
   name: string;
   position: string;
   isReversed: boolean;
+  tarotMessage?: TarotResponse;
 };
 
 // タロットカードレスポンスの型定義
@@ -22,4 +23,8 @@ export type SessionData = {
 export type SessionRequest = {
   card?: Card;
   hasVisited?: boolean;
+  tarotMessage?: {
+    cardId: number;
+    message: TarotResponse;
+  };
 };

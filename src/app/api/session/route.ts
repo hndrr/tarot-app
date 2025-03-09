@@ -1,65 +1,72 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { getCookie, setCookie } from "hono/cookie";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import { SessionRequestSchema, SessionDataSchema } from "../api-schemas";
 
 const app = new Hono();
 
-const CardSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  position: z.string(),
-  isReversed: z.boolean(),
-});
+app.post(
+  "/api/session",
+  zValidator("json", SessionRequestSchema),
+  async (c) => {
+    try {
+      const data = c.req.valid("json");
+      console.log("Session API received data:", JSON.stringify(data));
 
-const RequestSchema = z.object({
-  card: CardSchema.optional(),
-  hasVisited: z.boolean().optional(),
-});
+      const existingData = getCookie(c, "tarot-cards");
+      console.log("Existing cookie data:", existingData);
 
-const SessionDataSchema = z.object({
-  cards: z.array(CardSchema),
-  hasVisited: z.boolean(),
-});
-
-app.post("/api/session", zValidator("json", RequestSchema), async (c) => {
-  try {
-    const data = c.req.valid("json");
-    const existingData = getCookie(c, "tarot-cards");
-    const sessionData = SessionDataSchema.parse(
-      existingData ? JSON.parse(existingData) : { cards: [], hasVisited: false }
-    );
-
-    if (data.card) {
-      const existingIndex = sessionData.cards.findIndex(
-        (c) => c.id === data.card!.id
+      const sessionData = SessionDataSchema.parse(
+        existingData
+          ? JSON.parse(existingData)
+          : { cards: [], hasVisited: false }
       );
-      if (existingIndex >= 0) {
-        sessionData.cards[existingIndex] = data.card;
-      } else {
-        sessionData.cards.push(data.card);
+      console.log("Parsed session data:", JSON.stringify(sessionData));
+
+      if (data.card) {
+        console.log("Processing card data:", JSON.stringify(data.card));
+        const existingIndex = sessionData.cards.findIndex(
+          (c) => c.id === data.card!.id
+        );
+        console.log("Existing card index:", existingIndex);
+
+        if (existingIndex >= 0) {
+          console.log("Updating existing card");
+          sessionData.cards[existingIndex] = data.card;
+        } else {
+          console.log("Adding new card");
+          sessionData.cards.push(data.card);
+        }
       }
+
+      if (data.tarotMessage) {
+        const { cardId, message } = data.tarotMessage;
+        const cardIndex = sessionData.cards.findIndex((c) => c.id === cardId);
+        if (cardIndex >= 0) {
+          sessionData.cards[cardIndex].tarotMessage = message;
+        }
+      }
+
+      if (data.hasVisited !== undefined) {
+        sessionData.hasVisited = data.hasVisited;
+      }
+
+      setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error("Error saving session data:", error);
+      return c.json({ error: "セッションの保存に失敗しました" }, 500);
     }
-
-    if (data.hasVisited !== undefined) {
-      sessionData.hasVisited = data.hasVisited;
-    }
-
-    setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
-    return c.json({ success: true });
-  } catch (error) {
-    console.error("Error saving session data:", error);
-    return c.json({ error: "セッションの保存に失敗しました" }, 500);
   }
-});
+);
 
 app.get("/api/session", async (c) => {
   try {

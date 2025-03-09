@@ -1,22 +1,12 @@
 // import { generateTarotMessageGemini } from "@/lib/generateTarotMessageGemini";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import { TarotRequestSchema, TarotResponseSchema } from "../api-schemas";
 
 const app = new Hono();
 
-const TarotResponseSchema = z.object({
-  upright: z.string(),
-  reversed: z.string(),
-});
-
-const RequestSchema = z.object({
-  name: z.string(),
-  meaning: z.string(),
-});
-
-app.post("/api/tarot", zValidator("json", RequestSchema), async (c) => {
+app.post("/api/tarot", zValidator("json", TarotRequestSchema), async (c) => {
   try {
     const { name, meaning } = c.req.valid("json");
 

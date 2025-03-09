@@ -13,8 +13,10 @@ export default function BackButton({ id }: BackButtonProps) {
   const handleBack = async () => {
     // hasVisitedフラグをtrueに設定して保存
     try {
-      const response = await sessionAPI.saveSession({
-        hasVisited: true,
+      const response = await sessionAPI.api.session.$post({
+        json: {
+          hasVisited: true,
+        },
       });
 
       if (!response.ok) {

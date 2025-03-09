@@ -1,43 +1,43 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { Card } from "@/types";
+import { revalidatePath } from "next/cache";
+import { sessionAPI } from "@/lib/client";
 
 // 以下の関数はサーバー側でのみ実行され、クライアント側ではsessionAPIを使用
 
-export async function saveCardToSession(card: Card) {
+export async function saveCardToSession(
+  card: Card,
+  hasVisited: boolean = true
+) {
   try {
-    const cookieStore = await cookies();
-    const existingCookie = cookieStore.get("tarot-cards")?.value;
-    let sessionData;
+    console.log(
+      "Server action: saveCardToSession called with card:",
+      JSON.stringify(card)
+    ); // デバッグ用
+    console.log("Server action: hasVisited:", hasVisited); // デバッグ用
 
-    try {
-      sessionData = existingCookie ? JSON.parse(existingCookie) : { cards: [] };
-      if (!sessionData.cards) {
-        sessionData.cards = [];
-      }
-    } catch (error) {
-      console.error("Failed to parse existing cookie:", error);
-      sessionData = { cards: [] };
-    }
-
-    // 既存のカードがあれば更新、なければ追加
-    const existingCardIndex = sessionData.cards.findIndex(
-      (c: Card) => c.id === card.id
-    );
-    if (existingCardIndex >= 0) {
-      sessionData.cards[existingCardIndex] = card;
-    } else {
-      sessionData.cards.push(card);
-    }
-
-    await cookieStore.set("tarot-cards", JSON.stringify(sessionData), {
-      httpOnly: false,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1週間
+    // sessionAPIクライアントを使用してカードデータを保存
+    const response = await sessionAPI.api.session.$post({
+      json: {
+        card: {
+          ...card,
+          isReversed: card.isReversed, // 逆位置の情報を明示的に含める
+          position: card.isReversed ? "reversed" : "upright", // 位置情報も更新
+        },
+        hasVisited: hasVisited, // ユーザーが訪問したかどうかのフラグ
+      },
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to save session data");
+    }
+
+    // パスを再検証して、変更を反映
+    revalidatePath("/reading/[id]");
+    revalidatePath("/cards/[id]"); // cards/[id]ページも再検証
+
+    return { success: true };
   } catch (error) {
     console.error("Failed to save card to session:", error);
     throw new Error("カードの保存に失敗しました");
@@ -46,31 +46,14 @@ export async function saveCardToSession(card: Card) {
 
 export async function getSessionCards(): Promise<Card[]> {
   try {
-    const cookieStore = await cookies();
-    const sessionStr = cookieStore.get("tarot-cards")?.value;
+    const response = await sessionAPI.api.session.$get();
 
-    if (!sessionStr) {
-      return [];
+    if (!response.ok) {
+      throw new Error("Failed to get session data");
     }
 
-    try {
-      const data = JSON.parse(sessionStr);
-
-      // データ構造の確認と変換
-      if (Array.isArray(data)) {
-        // 古い形式: 配列直接保存
-        return data;
-      } else if (data.cards && Array.isArray(data.cards)) {
-        // 新しい形式: { cards: Card[] }
-        return data.cards;
-      } else {
-        console.error("Invalid session data structure");
-        return [];
-      }
-    } catch (error) {
-      console.error("Failed to parse session data:", error);
-      return [];
-    }
+    const data = await response.json();
+    return data.cards || [];
   } catch (error) {
     console.error("Failed to get cards from session:", error);
     return [];

@@ -1,50 +1,63 @@
 import { tarotCards } from "@/data/tarotCards";
-import { getSessionCards } from "@/lib/actions";
 import { tarotAPI } from "@/lib/client";
 import Link from "next/link";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
+import { TarotResponse } from "@/types";
+import { cookies } from "next/headers";
 
 type Params = Promise<{ id: string }>;
-
-type TarotResponse = {
-  upright: string;
-  reversed: string;
-};
-
-async function getTarotMessage(
-  name: string,
-  meaning: string
-): Promise<TarotResponse> {
-  try {
-    const response = await tarotAPI.getInterpretation({ name, meaning });
-
-    if (!response.ok) {
-      throw new Error("文言生成に失敗しました。");
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("タロット解釈の取得に失敗:", error);
-    throw new Error("文言生成に失敗しました。");
-  }
-}
 
 export default async function CardDetail({ params }: { params: Params }) {
   const { id } = await params;
   const card = tarotCards.find((card) => card.id === parseInt(id));
 
   // セッションからカード情報を取得
-  const savedCards = await getSessionCards();
-  const savedCard = savedCards.find((c) => c.id === parseInt(id));
-  console.log("savedCard", savedCard);
-  const isReversed = savedCard?.isReversed ?? false;
+  const cookieStore = await cookies();
+  const sessionStr = cookieStore?.get("tarot-cards")?.value;
+  console.log("Session string from cookie (cards/[id]):", sessionStr); // デバッグ用
 
+  const sessionData = sessionStr
+    ? JSON.parse(sessionStr)
+    : { cards: [], hasVisited: false };
+
+  console.log("Parsed session data (cards/[id]):", JSON.stringify(sessionData)); // デバッグ用
+
+  const savedCard = sessionData.cards?.find(
+    (c: { id: number }) => c.id === parseInt(id)
+  );
+
+  console.log(
+    "Saved card (cards/[id]):",
+    savedCard ? JSON.stringify(savedCard) : "not found"
+  ); // デバッグ用
+
+  // セッションに保存されたカードがあればその逆位置の状態を使用、なければデフォルトで正位置
+  // position プロパティも確認する
+  const isReversed =
+    savedCard?.isReversed ?? savedCard?.position === "reversed" ?? false;
+
+  console.log("Is reversed (cards/[id]):", isReversed); // デバッグ用
+
+  // タロットメッセージをセッションから取得
   let result: TarotResponse | null = null;
-
-  if (card) {
+  if (savedCard?.tarotMessage) {
+    result = savedCard.tarotMessage;
+  } else if (card) {
+    // セッションにタロットメッセージがない場合は、APIから取得（フォールバック）
     try {
-      result = await getTarotMessage(card.name, card.meaning);
+      const response = await tarotAPI.api.tarot.$post({
+        json: {
+          name: card.name,
+          meaning: card.meaning,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("文言生成に失敗しました。");
+      }
+
+      result = await response.json();
     } catch (error) {
       console.error("エラー:", error);
     }

@@ -2,18 +2,31 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
+// タロットレスポンススキーマ
+export const TarotResponseSchema = z.object({
+  upright: z.string(),
+  reversed: z.string(),
+});
+
 // カードのスキーマ定義
-const CardSchema = z.object({
+export const CardSchema = z.object({
   id: z.number(),
   name: z.string(),
   position: z.string(),
   isReversed: z.boolean(),
+  tarotMessage: TarotResponseSchema.optional(),
 });
 
 // セッションリクエストスキーマ
-const SessionRequestSchema = z.object({
+export const SessionRequestSchema = z.object({
   card: CardSchema.optional(),
   hasVisited: z.boolean().optional(),
+  tarotMessage: z
+    .object({
+      cardId: z.number(),
+      message: TarotResponseSchema,
+    })
+    .optional(),
 });
 
 // セッションデータスキーマ
@@ -23,15 +36,9 @@ export const SessionDataSchema = z.object({
 });
 
 // タロットリクエストスキーマ
-const TarotRequestSchema = z.object({
+export const TarotRequestSchema = z.object({
   name: z.string(),
   meaning: z.string(),
-});
-
-// タロットレスポンススキーマ
-export const TarotResponseSchema = z.object({
-  upright: z.string(),
-  reversed: z.string(),
 });
 
 // APIの基本パス
