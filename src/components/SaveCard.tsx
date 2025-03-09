@@ -99,8 +99,6 @@ export default function SaveCard({
       // 少し遅延させて実行（レンダリング完了後に実行されるようにする）
       const timeoutId = setTimeout(saveSession, 100);
       return () => clearTimeout(timeoutId);
-    } else {
-      console.log("カードは既に保存されています");
     }
 
     // コンポーネントのアンマウント時に実行されるクリーンアップ関数

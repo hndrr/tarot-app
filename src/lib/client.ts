@@ -20,6 +20,9 @@ export const sessionAPI = hc<SessionApiType>(`${baseUrl}/api`, {
 
 export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+    console.log("API Request URL:", input);
+    console.log("API Request Init:", JSON.stringify(init));
+
     return fetch(input, {
       ...init,
       credentials: "include",
@@ -27,6 +30,16 @@ export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
         ...init?.headers,
         "Content-Type": "application/json",
       },
+    }).then(async (response) => {
+      console.log("API Response Status:", response.status);
+      const clonedResponse = response.clone();
+      try {
+        const data = await clonedResponse.json();
+        console.log("API Response Data:", JSON.stringify(data));
+      } catch (error) {
+        console.log("API Response is not JSON");
+      }
+      return response;
     });
   },
 });

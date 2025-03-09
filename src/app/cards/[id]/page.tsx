@@ -50,9 +50,11 @@ export default async function CardDetail({ params }: { params: Params }) {
   let result: TarotResponse | null = null;
   if (savedCard?.tarotMessage) {
     result = savedCard.tarotMessage;
+    console.log("Using saved tarot message:", JSON.stringify(result));
   } else if (card) {
     // セッションにタロットメッセージがない場合は、APIから取得（フォールバック）
     try {
+      console.log("Fetching tarot message for card:", card.name);
       const response = await tarotAPI.tarot.$post({
         json: {
           name: card.name,
@@ -60,13 +62,23 @@ export default async function CardDetail({ params }: { params: Params }) {
         },
       });
 
+      console.log("API Response received");
+
       if (!response.ok) {
-        throw new Error("文言生成に失敗しました。");
+        console.error("API Error Status:", response.status);
+        console.error("API Error Text:", await response.text());
+        throw new Error(`API Error: ${response.status}`);
       }
 
-      result = await response.json();
+      const responseData = await response.json();
+      console.log("API Response Data:", JSON.stringify(responseData));
+      result = responseData;
     } catch (error) {
-      console.error("エラー:", error);
+      console.error("タロット解釈の取得に失敗:", error);
+      console.error(
+        "Error details:",
+        error instanceof Error ? error.message : "Unknown error"
+      );
     }
   }
 
