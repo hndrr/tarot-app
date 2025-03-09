@@ -16,7 +16,7 @@ type Params = Promise<{ id: string }>;
 // タロットメッセージを取得する関数
 async function getTarotMessage(name: string, meaning: string) {
   try {
-    const response = await tarotAPI.api.tarot.$post({
+    const response = await tarotAPI.tarot.$post({
       json: { name, meaning },
     });
 

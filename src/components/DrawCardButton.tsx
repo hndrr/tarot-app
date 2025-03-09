@@ -20,7 +20,7 @@ export default function DrawCardButton({
       console.log("DrawCardButton: Resetting session data");
 
       // hasVisitedをリセットし、カード情報も完全にnullにする
-      const result = await sessionAPI.api.session.$post({
+      const result = await sessionAPI.session.$post({
         json: {
           hasVisited: false,
           card: null, // カード情報をnullにリセット（undefinedではなく）

@@ -53,7 +53,7 @@ export default async function CardDetail({ params }: { params: Params }) {
   } else if (card) {
     // セッションにタロットメッセージがない場合は、APIから取得（フォールバック）
     try {
-      const response = await tarotAPI.api.tarot.$post({
+      const response = await tarotAPI.tarot.$post({
         json: {
           name: card.name,
           meaning: card.meaning,

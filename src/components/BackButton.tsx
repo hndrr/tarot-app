@@ -17,7 +17,7 @@ export default function BackButton({ id }: BackButtonProps) {
       console.log("BackButton: Getting current session data");
 
       // まず現在のセッションデータを取得
-      const sessionResponse = await sessionAPI.api.session.$get();
+      const sessionResponse = await sessionAPI.session.$get();
       if (sessionResponse.ok) {
         const sessionData = await sessionResponse.json();
         console.log(
@@ -46,7 +46,7 @@ export default function BackButton({ id }: BackButtonProps) {
 
         console.log("BackButton: Posting data:", JSON.stringify(postData));
 
-        const response = await sessionAPI.api.session.$post({
+        const response = await sessionAPI.session.$post({
           json: postData,
         });
 

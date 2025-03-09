@@ -58,7 +58,7 @@ export async function saveCardToSession(
 
     // APIを使用する方法（バックアップとして残しておく）
     try {
-      const response = await sessionAPI.api.session.$post({
+      const response = await sessionAPI.session.$post({
         json: sessionData,
       });
       console.log("Server action: API response status:", response.status);
@@ -108,7 +108,7 @@ export async function getSessionCards(): Promise<Card[]> {
     }
 
     // APIからのフォールバック
-    const response = await sessionAPI.api.session.$get();
+    const response = await sessionAPI.session.$get();
 
     if (!response.ok) {
       throw new Error("Failed to get session data");
