@@ -7,6 +7,7 @@ import { tarotAPI } from "@/lib/client";
 
 type Params = Promise<{ id: string }>;
 
+// TODO: readingで値が保存されないため
 async function getTarotMessage(
   name: string,
   meaning: string
