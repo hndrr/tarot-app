@@ -139,7 +139,7 @@ export default async function Reading({ params }: { params: Params }) {
         <div className="flex flex-col items-center gap-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-2xl w-full">
             <TarotCard card={tarotCardData} isReversed={isReversed} />
-            {cardData && (
+            {card && (
               <SaveCard
                 card={{
                   id: card.id,
