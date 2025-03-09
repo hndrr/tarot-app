@@ -15,8 +15,14 @@ async function getTarotMessage(
   upright: string;
   reversed: string;
 } | null> {
-  const response = await tarotAPI.tarot.$post({
-    json: { name: name, meaning: meaning },
+  const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
+
+  const response = await fetch(`${apiHost}/api/tarot`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, meaning }),
   });
 
   if (!response.ok) {
