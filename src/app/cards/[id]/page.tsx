@@ -5,7 +5,7 @@ import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import { TarotResponse } from "@/types";
 import { cookies } from "next/headers";
-import TarotDebug from "@/components/TarotDebug";
+import TarotMessageLoader from "@/components/TarotMessageLoader";
 
 type Params = Promise<{ id: string }>;
 
@@ -58,53 +58,23 @@ export default async function CardDetail({ params }: { params: Params }) {
   let result: TarotResponse | null = null;
 
   if (savedCard?.tarotMessage) {
-    console.log("Using existing tarot message from session");
     result = savedCard.tarotMessage;
-  } else {
-    console.log("No saved tarot message found, attempting API call");
-    if (card) {
-      try {
-        console.log("=== Starting API Call ===");
-        console.log("Card data for API:", {
+  } else if (card) {
+    try {
+      const response = await tarotAPI.tarot.$post({
+        json: {
           name: card.name,
           meaning: card.meaning,
-        });
+        },
+      });
 
-        const response = await tarotAPI.tarot.$post({
-          json: {
-            name: card.name,
-            meaning: card.meaning,
-          },
-        });
-
-        console.log("API call completed, status:", response.status);
-
-        if (!response.ok) {
-          console.error("API Error Status:", response.status);
-          const errorText = await response.text();
-          console.error("API Error Text:", errorText);
-          throw new Error(`API Error: ${response.status} - ${errorText}`);
-        }
-
-        const responseData = await response.json();
-        console.log("API Response Data:", JSON.stringify(responseData));
-
-        if (!responseData.upright || !responseData.reversed) {
-          console.error("Invalid response format:", responseData);
-          throw new Error("Invalid response format");
-        }
-
-        result = responseData;
-        console.log("Successfully set result:", JSON.stringify(result));
-      } catch (error) {
-        console.error("タロット解釈の取得に失敗:", error);
-        console.error(
-          "Error stack:",
-          error instanceof Error ? error.stack : "No stack trace"
-        );
+      if (response.ok) {
+        result = await response.json();
       }
-    } else {
-      console.log("No card data available for API call");
+    } catch (error) {
+      // サーバーサイドでのAPI呼び出しが失敗した場合は、
+      // クライアントサイドのTarotMessageLoaderがフォールバックとして機能します
+      console.error("サーバーサイドでのAPI呼び出しに失敗:", error);
     }
   }
 
@@ -123,12 +93,15 @@ export default async function CardDetail({ params }: { params: Params }) {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-10">
         <BackButton id={id} />
-        <TarotDebug
-          cardId={parseInt(id)}
-          cardName={card.name}
-          cardMeaning={card.meaning}
-          hasTarotMessage={Boolean(savedCard?.tarotMessage)}
-        />
+        {/* サーバーサイドでの取得に失敗した場合のフォールバック */}
+        {!result && (
+          <TarotMessageLoader
+            cardId={parseInt(id)}
+            cardName={card.name}
+            cardMeaning={card.meaning}
+            hasTarotMessage={Boolean(savedCard?.tarotMessage)}
+          />
+        )}
 
         <div className="flex flex-col md:flex-row items-center gap-10">
           <div
