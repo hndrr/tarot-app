@@ -3,6 +3,7 @@ import type { SessionApiType, TarotApiType } from "@/app/api/api-schemas";
 
 // APIエンドポイントのベースURL
 const baseUrl = process.env.NEXT_PUBLIC_API_HOST || "";
+console.log("=== API Configuration ===");
 console.log("API Base URL:", baseUrl);
 console.log("Full Tarot API URL:", `${baseUrl}/api/tarot`);
 
@@ -22,10 +23,14 @@ export const sessionAPI = hc<SessionApiType>(`${baseUrl}/api`, {
 
 export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {
-    console.log("Tarot API Request URL:", input.toString());
-    console.log("Tarot API Request Method:", init?.method);
-    console.log("Tarot API Request Headers:", init?.headers);
-    console.log("Tarot API Request Body:", init?.body);
+    console.log("=== Tarot API Request Started ===");
+    console.log("Request URL:", input.toString());
+    console.log("Request Method:", init?.method);
+    console.log("Request Headers:", JSON.stringify(init?.headers, null, 2));
+    console.log(
+      "Request Body:",
+      init?.body ? JSON.parse(init.body as string) : null
+    );
 
     return fetch(input, {
       ...init,
@@ -35,13 +40,21 @@ export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
         "Content-Type": "application/json",
       },
     }).then(async (response) => {
-      console.log("Tarot API Response Status:", response.status);
+      console.log("=== Tarot API Response Received ===");
+      console.log("Response Status:", response.status);
+      console.log(
+        "Response Headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       const clonedResponse = response.clone();
       try {
         const data = await clonedResponse.json();
-        console.log("Tarot API Response Data:", JSON.stringify(data));
+        console.log("Response Body:", JSON.stringify(data, null, 2));
       } catch {
-        console.log("Tarot API Response is not JSON");
+        console.log("Response is not JSON");
+        const text = await clonedResponse.text();
+        console.log("Response Text:", text);
       }
       return response;
     });

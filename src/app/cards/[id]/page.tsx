@@ -8,29 +8,36 @@ import { cookies } from "next/headers";
 
 type Params = Promise<{ id: string }>;
 
+export const dynamic = "force-dynamic"; // キャッシュを無効化
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 export default async function CardDetail({ params }: { params: Params }) {
+  console.log("=== CardDetail Component Started ===");
   const { id } = await params;
+  console.log("Received ID:", id);
+
   const card = tarotCards.find((card) => card.id === parseInt(id));
+  console.log("Found card:", card);
 
   // セッションからカード情報を取得
   const cookieStore = await cookies();
   const sessionStr = cookieStore?.get("tarot-cards")?.value;
-  console.log("Session string from cookie (cards/[id]):", sessionStr); // デバッグ用
+  console.log("Session string from cookie (cards/[id]):", sessionStr);
 
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
     : { card: null, hasVisited: false };
 
-  console.log("Parsed session data (cards/[id]):", JSON.stringify(sessionData)); // デバッグ用
+  console.log("Parsed session data (cards/[id]):", JSON.stringify(sessionData));
 
   // 保存されたカードを取得
   const savedCard =
     sessionData.card?.id === parseInt(id) ? sessionData.card : null;
 
-  console.log(
-    "Saved card (cards/[id]):",
-    savedCard ? JSON.stringify(savedCard) : "not found"
-  ); // デバッグ用
+  console.log("=== Starting Tarot Message Check ===");
+  console.log("savedCard:", JSON.stringify(savedCard));
+  console.log("savedCard?.tarotMessage:", savedCard?.tarotMessage);
 
   // デバッグ: savedCardの詳細情報を出力
   if (savedCard) {
@@ -48,21 +55,16 @@ export default async function CardDetail({ params }: { params: Params }) {
 
   // タロットメッセージをセッションから取得
   let result: TarotResponse | null = null;
-  console.log("Checking for tarot message...");
-  console.log("savedCard:", savedCard);
-  console.log("savedCard?.tarotMessage:", savedCard?.tarotMessage);
 
   if (savedCard?.tarotMessage) {
-    console.log("Found saved tarot message");
+    console.log("Using existing tarot message from session");
     result = savedCard.tarotMessage;
-    console.log("Using saved tarot message:", JSON.stringify(result));
   } else {
-    console.log("No saved tarot message found, will try API");
+    console.log("No saved tarot message found, attempting API call");
     if (card) {
-      // セッションにタロットメッセージがない場合は、APIから取得
       try {
-        console.log("Starting API call for card:", card.name);
-        console.log("Card data for API call:", {
+        console.log("=== Starting API Call ===");
+        console.log("Card data for API:", {
           name: card.name,
           meaning: card.meaning,
         });
@@ -74,7 +76,7 @@ export default async function CardDetail({ params }: { params: Params }) {
           },
         });
 
-        console.log("API Response received, status:", response.status);
+        console.log("API call completed, status:", response.status);
 
         if (!response.ok) {
           console.error("API Error Status:", response.status);
