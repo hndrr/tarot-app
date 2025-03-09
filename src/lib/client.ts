@@ -36,7 +36,7 @@ export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
       try {
         const data = await clonedResponse.json();
         console.log("API Response Data:", JSON.stringify(data));
-      } catch (error) {
+      } catch (_) {
         console.log("API Response is not JSON");
       }
       return response;
