@@ -3,12 +3,27 @@ import Link from "next/link";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import { cookies } from "next/headers";
+import { tarotAPI } from "@/lib/client";
 
 type Params = Promise<{ id: string }>;
 
-export const dynamic = "force-dynamic"; // キャッシュを無効化
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
+async function getTarotMessage(
+  name: string,
+  meaning: string
+): Promise<{
+  upright: string;
+  reversed: string;
+} | null> {
+  const response = await tarotAPI.tarot.$post({
+    json: { name: name, meaning: meaning },
+  });
+
+  if (!response.ok) {
+    throw new Error("タロットメッセージの取得に失敗しました");
+  }
+
+  return await response.json();
+}
 
 export default async function CardDetail({ params }: { params: Params }) {
   const { id } = await params;
@@ -32,8 +47,18 @@ export default async function CardDetail({ params }: { params: Params }) {
   // 逆位置判定を単純化
   const isReversed = Boolean(savedCard?.isReversed);
 
-  // タロットメッセージをセッションから取得
-  const result = savedCard?.tarotMessage || null;
+  let result = null;
+
+  if (card) {
+    try {
+      result = await getTarotMessage(card.name, card.meaning);
+    } catch (error) {
+      console.error("エラー:", error);
+    }
+  }
+
+  // // タロットメッセージをセッションから取得
+  // const result = savedCard?.tarotMessage || null;
 
   console.log("Tarot Message:", JSON.stringify(result, null, 2));
   console.log("Is Reversed:", isReversed);
