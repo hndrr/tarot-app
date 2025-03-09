@@ -123,7 +123,12 @@ export default async function CardDetail({ params }: { params: Params }) {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-10">
         <BackButton id={id} />
-        <TarotDebug cardName={card.name} cardMeaning={card.meaning} />
+        <TarotDebug
+          cardId={parseInt(id)}
+          cardName={card.name}
+          cardMeaning={card.meaning}
+          hasTarotMessage={Boolean(savedCard?.tarotMessage)}
+        />
 
         <div className="flex flex-col md:flex-row items-center gap-10">
           <div
