@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import { cookies } from "next/headers";
-import { tarotAPI } from "@/lib/client";
 
 type Params = Promise<{ id: string }>;
 
