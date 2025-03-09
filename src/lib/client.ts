@@ -40,15 +40,12 @@ export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
         "Content-Type": "application/json",
       },
     }).then(async (response) => {
-      const clonedResponse = response.clone();
-      try {
-        const data = await clonedResponse.json();
-        console.log("Response Body:", JSON.stringify(data, null, 2));
-      } catch {
-        console.log("Response is not JSON");
-        const text = await clonedResponse.text();
-        console.log("Response Text:", text);
-      }
+      console.log("=== Tarot API Response Received ===");
+      console.log("Response Status:", response.status);
+      console.log(
+        "Response Headers:",
+        Object.fromEntries(response.headers.entries())
+      );
       return response;
     });
   },
