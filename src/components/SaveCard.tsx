@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+import { sessionAPI } from "@/lib/client";
+import { Card } from "@/types";
 
 interface SaveCardProps {
   card: Card;
@@ -18,22 +13,16 @@ export default function SaveCard({ card, isFirstVisit = true }: SaveCardProps) {
   useEffect(() => {
     const saveSession = async () => {
       try {
-        const response = await fetch("/api/session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            card,
-            hasVisited: !isFirstVisit,
-          }),
+        const response = await sessionAPI.saveSession({
+          card,
+          hasVisited: !isFirstVisit,
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.error || "セッションの保存に失敗しました");
+          throw new Error("セッションの保存に失敗しました");
         }
+
+        const data = await response.json();
 
         if (!data.success) {
           throw new Error("セッションの保存に失敗しました");

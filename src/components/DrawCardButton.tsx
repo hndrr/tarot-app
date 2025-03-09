@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { tarotCards } from "@/data/tarotCards";
+import { sessionAPI } from "@/lib/client";
 
 interface DrawCardButtonProps {
   variant?: "primary" | "secondary";
@@ -15,20 +16,22 @@ export default function DrawCardButton({
   const router = useRouter();
 
   const drawCard = async () => {
-    // hasVisitedをリセット
-    await fetch("/api/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      // hasVisitedをリセット
+      const result = await sessionAPI.saveSession({
         hasVisited: false,
-      }),
-    });
+      });
 
-    const randomIndex = Math.floor(Math.random() * tarotCards.length);
-    const selectedCard = tarotCards[randomIndex];
-    router.push(`/reading/${selectedCard.id}`);
+      if (!result.ok) {
+        console.error("セッション保存中にエラーが発生しました");
+      }
+
+      const randomIndex = Math.floor(Math.random() * tarotCards.length);
+      const selectedCard = tarotCards[randomIndex];
+      router.push(`/reading/${selectedCard.id}`);
+    } catch (error) {
+      console.error("カードを引く際にエラーが発生しました:", error);
+    }
   };
 
   return (

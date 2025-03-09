@@ -1,13 +1,9 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { Card } from "@/types";
 
-export interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+// 以下の関数はサーバー側でのみ実行され、クライアント側ではsessionAPIを使用
 
 export async function saveCardToSession(card: Card) {
   try {
