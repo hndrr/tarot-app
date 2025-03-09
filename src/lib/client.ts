@@ -10,26 +10,7 @@ const getBaseUrl = () => {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  return "http://localhost:3000";
-};
-
-// カスタムfetch関数
-const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-  const url = input.toString();
-  const isAbsoluteUrl = url.startsWith("http://") || url.startsWith("https://");
-  const baseUrl = getBaseUrl();
-  const finalUrl = isAbsoluteUrl ? url : baseUrl ? `${baseUrl}${url}` : url;
-
-  console.log("Final URL:", finalUrl); // デバッグ用
-
-  return fetch(finalUrl, {
-    ...init,
-    credentials: "include",
-    headers: {
-      ...init?.headers,
-      "Content-Type": "application/json",
-    },
-  });
+  return "http://localhost:3000"; // ローカル環境ではHTTPを使用
 };
 
 const baseUrl = getBaseUrl();
@@ -38,11 +19,21 @@ console.log("API Base URL:", baseUrl);
 console.log("Full Tarot API URL:", `${baseUrl}/api/tarot`);
 
 // Honoクライアントの作成（クレデンシャルを含める設定を追加）
-export const sessionAPI = hc<SessionApiType>("/api", {
-  fetch: customFetch,
+export const sessionAPI = hc<SessionApiType>(`${baseUrl}/api`, {
+  fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+    const response = await fetch(input, {
+      ...init,
+      credentials: "include",
+      headers: {
+        ...init?.headers,
+        "Content-Type": "application/json",
+      },
+    });
+    return response;
+  },
 });
 
-export const tarotAPI = hc<TarotApiType>("/api", {
+export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
     console.log("=== Tarot API Request Started ===");
     console.log("Request URL:", input.toString());
@@ -53,8 +44,14 @@ export const tarotAPI = hc<TarotApiType>("/api", {
       init?.body ? JSON.parse(init.body as string) : null
     );
 
-    const response = await customFetch(input, init);
-
+    const response = await fetch(input, {
+      ...init,
+      credentials: "include",
+      headers: {
+        ...init?.headers,
+        "Content-Type": "application/json",
+      },
+    });
     console.log("=== Tarot API Response Received ===");
     console.log("Response Status:", response.status);
     console.log(
