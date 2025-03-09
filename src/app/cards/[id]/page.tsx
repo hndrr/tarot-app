@@ -54,7 +54,12 @@ export default async function CardDetail({ params }: { params: Params }) {
   } else if (card) {
     // セッションにタロットメッセージがない場合は、APIから取得（フォールバック）
     try {
-      console.log("Fetching tarot message for card:", card.name);
+      console.log("Starting API call for card:", card.name);
+      console.log("Card data:", {
+        name: card.name,
+        meaning: card.meaning,
+      });
+
       const response = await tarotAPI.tarot.$post({
         json: {
           name: card.name,
@@ -62,24 +67,34 @@ export default async function CardDetail({ params }: { params: Params }) {
         },
       });
 
-      console.log("API Response received");
+      console.log("API Response received, status:", response.status);
 
       if (!response.ok) {
         console.error("API Error Status:", response.status);
-        console.error("API Error Text:", await response.text());
-        throw new Error(`API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error("API Error Text:", errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
 
       const responseData = await response.json();
       console.log("API Response Data:", JSON.stringify(responseData));
+
+      if (!responseData.upright || !responseData.reversed) {
+        console.error("Invalid response format:", responseData);
+        throw new Error("Invalid response format");
+      }
+
       result = responseData;
+      console.log("Successfully set result:", JSON.stringify(result));
     } catch (error) {
       console.error("タロット解釈の取得に失敗:", error);
       console.error(
-        "Error details:",
-        error instanceof Error ? error.message : "Unknown error"
+        "Error stack:",
+        error instanceof Error ? error.stack : "No stack trace"
       );
     }
+  } else {
+    console.log("No card data available for API call");
   }
 
   if (!card) {

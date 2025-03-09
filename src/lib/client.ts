@@ -3,6 +3,7 @@ import type { SessionApiType, TarotApiType } from "@/app/api/api-schemas";
 
 // APIエンドポイントのベースURL
 const baseUrl = process.env.NEXT_PUBLIC_API_HOST || "";
+console.log("API Base URL:", baseUrl);
 
 // Honoクライアントの作成（クレデンシャルを含める設定を追加）
 export const sessionAPI = hc<SessionApiType>(`${baseUrl}/api`, {
