@@ -59,13 +59,7 @@ export default async function Reading({ params }: { params: Params }) {
 
   // タロットメッセージを取得
   let tarotMessage = null;
-  // 既存のカードからタロットメッセージを取得
-  // if (existingCard && existingCard.tarotMessage) {
-  //   tarotMessage = existingCard.tarotMessage;
-  //   console.log("Using existing tarot message from session");
-  // }
-  // // 新しいカードの場合、または既存のカードにタロットメッセージがない場合のみAPIを呼び出す
-  // else
+
   if (card) {
     try {
       console.log("Fetching new tarot message from API");
