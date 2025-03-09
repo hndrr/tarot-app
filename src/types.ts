@@ -21,7 +21,7 @@ export type SessionData = {
 
 // セッションAPIリクエストの型定義
 export type SessionRequest = {
-  card?: Card;
+  card?: Card | null;
   hasVisited?: boolean;
   tarotMessage?: {
     cardId: number;

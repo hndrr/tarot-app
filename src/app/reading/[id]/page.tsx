@@ -33,7 +33,12 @@ async function getTarotMessage(name: string, meaning: string) {
 
 export default async function Reading({ params }: { params: Params }) {
   const { id } = await params;
+  console.log("Reading page: id parameter:", id); // 追加: IDパラメータの確認
   const card = tarotCards.find((card) => card.id === parseInt(id));
+  console.log(
+    "Reading page: found card:",
+    card ? JSON.stringify(card) : "null"
+  ); // 追加: カード検索結果の確認
 
   // セッションからデータを取得
   const cookieStore = await cookies();
@@ -92,6 +97,10 @@ export default async function Reading({ params }: { params: Params }) {
   }
 
   // カードデータを作成
+  if (!card) {
+    console.error("Reading page: Card not found for id:", id);
+  }
+
   const cardData = card
     ? {
         id: card.id,
@@ -149,7 +158,7 @@ export default async function Reading({ params }: { params: Params }) {
               <SaveCard
                 card={cardData}
                 isFirstVisit={!sessionData.hasVisited}
-                skipSave={Boolean(existingCard?.tarotMessage)} // タロットメッセージが既に存在する場合は保存をスキップ
+                skipSave={false} // 常に保存を試みる（デバッグのため）
               />
             )}
             <div className="mt-8 text-center">

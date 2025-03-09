@@ -13,6 +13,10 @@ app.post(
     try {
       const data = c.req.valid("json");
       console.log("Session API received data:", JSON.stringify(data));
+      console.log(
+        "Session API received card:",
+        data.card ? JSON.stringify(data.card) : "null"
+      );
 
       const existingData = getCookie(c, "tarot-cards");
       console.log("Existing cookie data:", existingData);
@@ -26,8 +30,22 @@ app.post(
 
       if (data.card) {
         console.log("Processing card data:", JSON.stringify(data.card));
-        sessionData.card = data.card;
-        console.log("Updated card");
+        console.log("Card ID:", data.card.id);
+        console.log("Card isReversed:", data.card.isReversed);
+        console.log("typeof isReversed:", typeof data.card.isReversed);
+
+        sessionData.card = {
+          id: data.card.id,
+          name: data.card.name,
+          position: data.card.position,
+          isReversed: Boolean(data.card.isReversed),
+          ...(data.card.tarotMessage && {
+            tarotMessage: data.card.tarotMessage,
+          }),
+        };
+        console.log("Updated card:", JSON.stringify(sessionData.card));
+      } else {
+        console.log("No card data in request, keeping existing or null");
       }
 
       if (data.tarotMessage) {

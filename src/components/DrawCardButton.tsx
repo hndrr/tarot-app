@@ -23,7 +23,7 @@ export default function DrawCardButton({
       const result = await sessionAPI.api.session.$post({
         json: {
           hasVisited: false,
-          card: undefined, // カード情報をリセット
+          card: null, // カード情報をnullにリセット（undefinedではなく）
         },
       });
 
@@ -33,8 +33,19 @@ export default function DrawCardButton({
         console.log("DrawCardButton: Session reset successful");
       }
 
+      // ランダムにカードを選択
       const randomIndex = Math.floor(Math.random() * tarotCards.length);
       const selectedCard = tarotCards[randomIndex];
+      console.log(
+        "DrawCardButton: Selected card:",
+        JSON.stringify(selectedCard)
+      );
+      console.log(
+        "DrawCardButton: Navigating to:",
+        `/reading/${selectedCard.id}`
+      );
+
+      // 選択したカードのページに遷移
       router.push(`/reading/${selectedCard.id}`);
     } catch (error) {
       console.error("カードを引く際にエラーが発生しました:", error);

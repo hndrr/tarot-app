@@ -19,7 +19,7 @@ export const CardSchema = z.object({
 
 // セッションリクエストスキーマ
 export const SessionRequestSchema = z.object({
-  card: CardSchema.optional(),
+  card: CardSchema.optional().nullable(),
   hasVisited: z.boolean().optional(),
   tarotMessage: z
     .object({

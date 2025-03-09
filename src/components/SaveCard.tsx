@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/types";
 import { saveCardToSession } from "@/lib/actions";
 
@@ -15,20 +15,29 @@ export default function SaveCard({
   isFirstVisit = true,
   skipSave = false,
 }: SaveCardProps) {
-  console.log("SaveCard component received card:", JSON.stringify(card)); // デバッグ用
-  console.log("isReversed in card:", card.isReversed); // デバッグ用
-  console.log("typeof isReversed:", typeof card.isReversed); // デバッグ用
-  console.log("position in card:", card.position); // デバッグ用
-  console.log("isFirstVisit:", isFirstVisit); // デバッグ用
+  // 保存状態を管理するためのstate
+  const [isSaved, setIsSaved] = useState(false);
+  // 保存試行回数を追跡
+  const saveAttemptRef = useRef(0);
+  // マウント状態を追跡
+  const isMountedRef = useRef(true);
 
-  // 保存が完了したかどうかを追跡するためのref
-  const savedRef = useRef(false);
+  // カードデータの検証
+  const isValidCard = card && card.id;
 
-  // cardのisReversedが変更された場合に保存を再実行するために、前回のisReversed値を保持
-  const prevIsReversedRef = useRef(card.isReversed);
+  console.log(
+    "SaveCard component received card:",
+    isValidCard ? JSON.stringify(card) : "invalid card"
+  ); // デバッグ用
 
   const saveSession = async () => {
+    if (!isValidCard) return;
+
     try {
+      // 保存試行回数をインクリメント
+      saveAttemptRef.current += 1;
+      console.log(`保存試行回数: ${saveAttemptRef.current}`);
+
       // カードデータを準備（isReversedを確実に真偽値に変換）
       const cardToSave: Card = {
         ...card,
@@ -45,42 +54,69 @@ export default function SaveCard({
       // サーバーアクションを使用してカードデータを保存
       console.log("Using server action to save card"); // デバッグ用
       console.log("hasVisited will be set to:", !isFirstVisit); // デバッグ用
-      await saveCardToSession(cardToSave, !isFirstVisit);
-      console.log("Server action completed"); // デバッグ用
+      const result = await saveCardToSession(cardToSave, !isFirstVisit);
+      console.log("Server action completed, result:", result); // デバッグ用
 
-      // 保存が完了したことを記録
-      savedRef.current = true;
+      // コンポーネントがまだマウントされている場合のみ状態を更新
+      if (isMountedRef.current) {
+        setIsSaved(true);
+        console.log("Card saved successfully");
+      }
     } catch (error) {
       console.error("Failed to save session using server action:", error);
+      // コンポーネントがまだマウントされていて、最大3回まで再試行
+      if (isMountedRef.current && saveAttemptRef.current < 3) {
+        console.log(
+          `保存に失敗しました。再試行します (${saveAttemptRef.current}/3)`
+        );
+        setTimeout(saveSession, 1000); // 1秒後に再試行（時間を長くした）
+      }
     }
   };
 
   useEffect(() => {
-    // skipSaveがtrueの場合は何もしない
-    if (skipSave) {
-      console.log("Skipping save due to skipSave flag"); // デバッグ用
+    // コンポーネントがマウントされたことを記録
+    isMountedRef.current = true;
+
+    // 無効なカードデータまたはskipSaveがtrueの場合は何もしない
+    if (!isValidCard || skipSave) {
+      console.log("Skipping save due to invalid card or skipSave flag"); // デバッグ用
       return;
     }
 
-    // 既に保存済みで、かつisReversedが変更されていない場合は何もしない
-    if (savedRef.current && prevIsReversedRef.current === card.isReversed) {
-      console.log("Already saved and isReversed hasn't changed"); // デバッグ用
-      return;
+    if (isValidCard) {
+      console.log("isReversed in card:", card.isReversed); // デバッグ用
+      console.log("typeof isReversed:", typeof card.isReversed); // デバッグ用
+      console.log("position in card:", card.position); // デバッグ用
     }
 
-    // isReversedの値を更新
-    prevIsReversedRef.current = card.isReversed;
+    console.log("isFirstVisit:", isFirstVisit); // デバッグ用
+    console.log("skipSave:", skipSave); // デバッグ用
 
-    // 一度だけ実行
-    if (!savedRef.current) {
-      console.log("First time saving card");
-      saveSession();
+    // まだ保存されていない場合のみ保存を実行
+    if (!isSaved) {
+      console.log("カードデータをセッションに保存します");
+      // 少し遅延させて実行（レンダリング完了後に実行されるようにする）
+      const timeoutId = setTimeout(saveSession, 100);
+      return () => clearTimeout(timeoutId);
     } else {
-      console.log("Card already saved, skipping");
+      console.log("カードは既に保存されています");
     }
 
+    // コンポーネントのアンマウント時に実行されるクリーンアップ関数
+    return () => {
+      console.log("SaveCardコンポーネントがアンマウントされました");
+      isMountedRef.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skipSave, card.id, card.isReversed, isFirstVisit]); // card.isReversedを依存配列に追加
+  }, [skipSave, card, isSaved, isFirstVisit, isValidCard]); // 依存配列を修正
 
+  // 無効なカードデータの場合は早期リターン
+  if (!isValidCard) {
+    console.error("SaveCard: Invalid card data received:", card);
+    return null;
+  }
+
+  // このコンポーネントは表示要素を持たない
   return null;
 }
