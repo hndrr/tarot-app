@@ -4,10 +4,25 @@ import { handle } from "hono/vercel";
 import { zValidator } from "@hono/zod-validator";
 import { TarotRequestSchema, TarotResponseSchema } from "../api-schemas";
 
+// 環境変数のバリデーション
+const requiredEnvVars = [
+  "CLOUDFLARE_ACCOUNT_ID",
+  "CLOUDFLARE_GATEWAY_NAME",
+  "GEMINI_API_KEY",
+] as const;
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`Missing required environment variable: ${envVar}`);
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+}
+
 const app = new Hono().basePath("/api/tarot");
 
 app.post("*", zValidator("json", TarotRequestSchema), async (c) => {
   try {
+    console.log("Received request with body:", await c.req.json());
     const { name, meaning } = c.req.valid("json");
 
     const prompt = `
