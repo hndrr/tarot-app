@@ -41,19 +41,12 @@ export const TarotRequestSchema = z.object({
   meaning: z.string(),
 });
 
-// APIの基本パス
-const apiBase = "/api";
-
 // セッションAPI用のHonoインスタンス定義
 export const sessionApiDef = new Hono()
-  .post(
-    `${apiBase}/session`,
-    zValidator("json", SessionRequestSchema),
-    async (c) => {
-      return c.json({ success: true });
-    }
-  )
-  .get(`${apiBase}/session`, async (c) => {
+  .post(`/session`, zValidator("json", SessionRequestSchema), async (c) => {
+    return c.json({ success: true });
+  })
+  .get(`/session`, async (c) => {
     return c.json({
       card: null,
       hasVisited: false,
@@ -62,7 +55,7 @@ export const sessionApiDef = new Hono()
 
 // タロットAPI用のHonoインスタンス定義
 export const tarotApiDef = new Hono().post(
-  `${apiBase}/tarot`,
+  `/tarot`,
   zValidator("json", TarotRequestSchema),
   async (c) => {
     return c.json({
