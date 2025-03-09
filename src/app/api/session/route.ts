@@ -2,9 +2,41 @@ import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { getCookie, setCookie } from "hono/cookie";
 import { zValidator } from "@hono/zod-validator";
+import { cors } from "hono/cors";
 import { SessionRequestSchema, SessionDataSchema } from "../api-schemas";
 
 const app = new Hono();
+
+// CORSミドルウェアを追加
+app.use(
+  "*",
+  cors({
+    origin: [
+      "https://tarotie.hndr.dev",
+      "https://tarotie.vercel.app",
+      "http://localhost:3000",
+    ],
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type"],
+    credentials: true,
+    maxAge: 86400,
+    exposeHeaders: ["Location"],
+  })
+);
+
+// OPTIONSリクエストに対する特別な処理を追加
+app.options("*", (c) => {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": c.req.header("Origin") || "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
+});
 
 app.post(
   "/api/session",
@@ -97,3 +129,4 @@ app.get("/api/session", async (c) => {
 
 export const GET = handle(app);
 export const POST = handle(app);
+export const OPTIONS = handle(app);
