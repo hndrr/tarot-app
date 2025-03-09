@@ -48,53 +48,61 @@ export default async function CardDetail({ params }: { params: Params }) {
 
   // タロットメッセージをセッションから取得
   let result: TarotResponse | null = null;
+  console.log("Checking for tarot message...");
+  console.log("savedCard:", savedCard);
+  console.log("savedCard?.tarotMessage:", savedCard?.tarotMessage);
+
   if (savedCard?.tarotMessage) {
+    console.log("Found saved tarot message");
     result = savedCard.tarotMessage;
     console.log("Using saved tarot message:", JSON.stringify(result));
-  } else if (card) {
-    // セッションにタロットメッセージがない場合は、APIから取得（フォールバック）
-    try {
-      console.log("Starting API call for card:", card.name);
-      console.log("Card data:", {
-        name: card.name,
-        meaning: card.meaning,
-      });
-
-      const response = await tarotAPI.tarot.$post({
-        json: {
+  } else {
+    console.log("No saved tarot message found, will try API");
+    if (card) {
+      // セッションにタロットメッセージがない場合は、APIから取得
+      try {
+        console.log("Starting API call for card:", card.name);
+        console.log("Card data for API call:", {
           name: card.name,
           meaning: card.meaning,
-        },
-      });
+        });
 
-      console.log("API Response received, status:", response.status);
+        const response = await tarotAPI.tarot.$post({
+          json: {
+            name: card.name,
+            meaning: card.meaning,
+          },
+        });
 
-      if (!response.ok) {
-        console.error("API Error Status:", response.status);
-        const errorText = await response.text();
-        console.error("API Error Text:", errorText);
-        throw new Error(`API Error: ${response.status} - ${errorText}`);
+        console.log("API Response received, status:", response.status);
+
+        if (!response.ok) {
+          console.error("API Error Status:", response.status);
+          const errorText = await response.text();
+          console.error("API Error Text:", errorText);
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+
+        const responseData = await response.json();
+        console.log("API Response Data:", JSON.stringify(responseData));
+
+        if (!responseData.upright || !responseData.reversed) {
+          console.error("Invalid response format:", responseData);
+          throw new Error("Invalid response format");
+        }
+
+        result = responseData;
+        console.log("Successfully set result:", JSON.stringify(result));
+      } catch (error) {
+        console.error("タロット解釈の取得に失敗:", error);
+        console.error(
+          "Error stack:",
+          error instanceof Error ? error.stack : "No stack trace"
+        );
       }
-
-      const responseData = await response.json();
-      console.log("API Response Data:", JSON.stringify(responseData));
-
-      if (!responseData.upright || !responseData.reversed) {
-        console.error("Invalid response format:", responseData);
-        throw new Error("Invalid response format");
-      }
-
-      result = responseData;
-      console.log("Successfully set result:", JSON.stringify(result));
-    } catch (error) {
-      console.error("タロット解釈の取得に失敗:", error);
-      console.error(
-        "Error stack:",
-        error instanceof Error ? error.stack : "No stack trace"
-      );
+    } else {
+      console.log("No card data available for API call");
     }
-  } else {
-    console.log("No card data available for API call");
   }
 
   if (!card) {
