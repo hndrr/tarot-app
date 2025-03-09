@@ -3,6 +3,7 @@ import { getSessionCards } from "@/lib/actions";
 import { tarotAPI } from "@/lib/client";
 import Link from "next/link";
 import Image from "next/image";
+import BackButton from "@/components/BackButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -63,12 +64,7 @@ export default async function CardDetail({ params }: { params: Params }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-10">
-        <Link
-          href={`/reading/${id}`}
-          className="inline-block mb-8 text-purple-300 hover:text-purple-100 transition duration-300"
-        >
-          戻る
-        </Link>
+        <BackButton id={id} />
 
         <div className="flex flex-col md:flex-row items-center gap-10">
           <div
