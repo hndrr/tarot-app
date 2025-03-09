@@ -14,8 +14,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Access-Control-Allow-Origin",
-            value:
-              "https://tarotie-git-feat-hono-api-routes-hndrs-projects.vercel.app", // 特定のオリジンに制限
+            value: process.env.NEXT_PUBLIC_API_HOST || "*", // より柔軟なオリジン設定
           },
           {
             key: "Access-Control-Allow-Methods",
