@@ -8,7 +8,7 @@ const getBaseUrl = () => {
   }
   // サーバーサイドでは完全なURLを構築
   if (process.env.VERCEL_URL) {
-    return `${process.env.VERCEL_URL}`;
+    return `https://${process.env.VERCEL_URL}`;
   }
   return "http://localhost:3000";
 };
@@ -17,7 +17,10 @@ const getBaseUrl = () => {
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = input.toString();
   const isAbsoluteUrl = url.startsWith("http://") || url.startsWith("https://");
-  const finalUrl = isAbsoluteUrl ? url : `${getBaseUrl()}${url}`;
+  const baseUrl = getBaseUrl();
+  const finalUrl = isAbsoluteUrl ? url : baseUrl ? `${baseUrl}${url}` : url;
+
+  console.log("Final URL:", finalUrl); // デバッグ用
 
   return fetch(finalUrl, {
     ...init,
