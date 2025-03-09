@@ -65,10 +65,6 @@ export default async function Reading({ params }: { params: Params }) {
       console.log("Fetching new tarot message from API");
       const response = await getTarotMessage(card.name, card.meaning);
 
-      // if (!response.ok) {
-      //   throw new Error("タロットメッセージの取得に失敗しました");
-      // }
-
       tarotMessage = response;
     } catch (error) {
       console.error("タロットメッセージの取得に失敗:", error);
