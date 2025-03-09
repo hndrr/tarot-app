@@ -13,9 +13,8 @@ app.use(
   "*",
   cors({
     origin: [
-      "https://tarotie.hndr.dev",
-      "https://tarotie.vercel.app",
-      "https://tarotie-git-feat-hono-api-routes-hndrs-projects.vercel.app",
+      `${process.env.NEXT_PUBLIC_API_HOST}`,
+      `https://${process.env.VERCEL_URL}`,
       "http://localhost:3000",
     ],
     allowMethods: ["GET", "POST", "OPTIONS"],
