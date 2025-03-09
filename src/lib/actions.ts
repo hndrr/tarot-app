@@ -56,27 +56,6 @@ export async function saveCardToSession(
       throw new Error("Failed to set cookie");
     }
 
-    // APIを使用する方法（バックアップとして残しておく）
-    try {
-      const response = await sessionAPI.session.$post({
-        json: sessionData,
-      });
-      console.log("Server action: API response status:", response.status);
-
-      if (!response.ok) {
-        console.warn(
-          "Server action: API response not OK, but cookie was set directly"
-        );
-      } else {
-        console.log("Server action: API response OK");
-      }
-    } catch (apiError) {
-      console.warn(
-        "Server action: API call failed, but cookie was set directly:",
-        apiError
-      );
-    }
-
     // パスを再検証して、変更を反映
     revalidatePath("/reading/[id]", "page");
     revalidatePath("/cards/[id]", "page");
