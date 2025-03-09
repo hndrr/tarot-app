@@ -5,7 +5,7 @@ import type { SessionApiType, TarotApiType } from "@/app/api/api-schemas";
 const baseUrl = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
 
 // Honoクライアントの作成（クレデンシャルを含める設定を追加）
-export const sessionAPI = hc<SessionApiType>(baseUrl, {
+export const sessionAPI = hc<SessionApiType>(`${baseUrl}/api`, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {
     return fetch(input, {
       ...init,
@@ -18,7 +18,7 @@ export const sessionAPI = hc<SessionApiType>(baseUrl, {
   },
 });
 
-export const tarotAPI = hc<TarotApiType>(baseUrl, {
+export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {
     return fetch(input, {
       ...init,
