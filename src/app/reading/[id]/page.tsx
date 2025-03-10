@@ -24,9 +24,9 @@ async function getTarotMessage(
     json: { name: name, meaning: meaning },
   });
 
-  if (!response.ok) {
-    throw new Error("タロットメッセージの取得に失敗しました");
-  }
+  // if (!response.ok) {
+  //   throw new Error("タロットメッセージの取得に失敗しました");
+  // }
 
   return await response.json();
 }
