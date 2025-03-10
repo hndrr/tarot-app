@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { tarotCards } from "@/data/tarotCards";
+import { client } from "@/lib/client";
 
 interface DrawCardButtonProps {
   variant?: "primary" | "secondary";
@@ -16,14 +17,10 @@ export default function DrawCardButton({
 
   const drawCard = async () => {
     // hasVisitedをリセット
-    await fetch("/api/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    await client.api.session.$post({
+      json: {
         hasVisited: false,
-      }),
+      },
     });
 
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
