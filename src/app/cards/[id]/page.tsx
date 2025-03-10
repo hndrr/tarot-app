@@ -2,45 +2,33 @@ import { tarotCards } from "@/data/tarotCards";
 import { getSessionCards } from "@/lib/actions";
 import Link from "next/link";
 import Image from "next/image";
+import { client } from "@/lib/client";
+import type { TarotResponse } from "@/app/api/api-schema";
+import { BackButton } from "@/components/BackButton";
 
 type Params = Promise<{ id: string }>;
-
-type TarotResponse = {
-  upright: string;
-  reversed: string;
-};
 
 async function getTarotMessage(
   name: string,
   meaning: string
 ): Promise<TarotResponse> {
-  const apiHost = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
-
-  console.log("Requesting API:", `${apiHost}/api/tarot`);
-
-  const res = await fetch(`${apiHost}/api/tarot`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name, meaning }),
+  const response = await client.api.tarot.$post({
+    json: { name, meaning },
   });
 
-  if (!res.ok) {
-    const errorText = await res.text();
+  if (!response.ok) {
+    const errorText = await response.text();
     console.error("API Error:", {
-      status: res.status,
-      statusText: res.statusText,
+      status: response.status,
+      statusText: response.statusText,
       body: errorText,
     });
     throw new Error(
-      `文言生成に失敗しました。Status: ${res.status}, Body: ${errorText}`
+      `文言生成に失敗しました。Status: ${response.status}, Body: ${errorText}`
     );
   }
 
-  return res.json();
+  return response.json();
 }
 
 export default async function CardDetail({ params }: { params: Params }) {
@@ -77,17 +65,12 @@ export default async function CardDetail({ params }: { params: Params }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4 py-10">
-        <Link
-          href={`/reading/${id}`}
-          className="inline-block mb-8 text-purple-300 hover:text-purple-100 transition duration-300"
-        >
-          戻る
-        </Link>
+        <BackButton />
 
         <div className="flex flex-col md:flex-row items-center gap-10">
           <div
-            className={`relative aspect-[2/3] w-64 ${
-              isReversed && "rotate-180"
+            className={`relative aspect-[2/3] w-64 transform transition-transform ${
+              isReversed ? "rotate-180" : ""
             }`}
           >
             <Image

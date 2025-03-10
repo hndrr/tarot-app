@@ -4,8 +4,10 @@ import { Card } from "@/lib/actions";
 import TarotCard from "@components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import DrawCardButton from "@/components/DrawCardButton";
+import { client } from "@/lib/client";
+import { SessionData } from "@/app/api/api-schema";
+import { BackButton } from "@/components/BackButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -13,12 +15,11 @@ export default async function Reading({ params }: { params: Params }) {
   const { id } = await params;
   const card = tarotCards.find((card) => card.id === parseInt(id));
 
-  // セッションからデータを取得
-  const cookieStore = await cookies();
-  const sessionStr = cookieStore?.get("tarot-cards")?.value;
-  const sessionData = sessionStr
-    ? JSON.parse(sessionStr)
-    : { cards: [], hasVisited: false };
+  // Honoクライアントを使用してセッションデータを取得
+  const response = await client.api.session.$get();
+  const data = await response.json();
+  const sessionData: SessionData =
+    "error" in data ? { cards: [], hasVisited: false } : data;
 
   // 既存のカードがあればその状態を使用、なければランダムに決定
   const existingCard = sessionData.cards?.find(
@@ -45,9 +46,7 @@ export default async function Reading({ params }: { params: Params }) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-purple-900 to-indigo-900 text-white flex flex-col items-center justify-center">
         <p>カードが見つかりません</p>
-        <Link href="/" className="text-purple-300 hover:text-purple-100 mt-4">
-          トップに戻る
-        </Link>
+        <BackButton label="トップに戻る" />
       </div>
     );
   }
@@ -83,12 +82,7 @@ export default async function Reading({ params }: { params: Params }) {
 
           <div className="flex gap-8 flex-col text-center">
             <DrawCardButton variant="secondary" label="もう一度引く" />
-            <Link
-              href="/"
-              className="text-purple-300 hover:text-purple-100 transition duration-300"
-            >
-              トップに戻る
-            </Link>
+            <BackButton label="トップに戻る" />
           </div>
         </div>
       </div>

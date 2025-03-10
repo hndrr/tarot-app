@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+import type { Card } from "@/lib/actions";
+import { client } from "@/lib/client";
 
 interface SaveCardProps {
   card: Card;
@@ -18,15 +13,11 @@ export default function SaveCard({ card, isFirstVisit = true }: SaveCardProps) {
   useEffect(() => {
     const saveSession = async () => {
       try {
-        const response = await fetch("/api/session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const response = await client.api.session.$post({
+          json: {
             card,
             hasVisited: true,
-          }),
+          },
         });
 
         if (!response.ok) {
