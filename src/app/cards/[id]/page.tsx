@@ -14,9 +14,7 @@ async function getTarotMessage(
   name: string,
   meaning: string
 ): Promise<TarotResponse> {
-  const apiHost = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3000";
-
-  const res = await fetch(`${apiHost}/api/tarot`, {
+  const res = await fetch(`/api/tarot`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
