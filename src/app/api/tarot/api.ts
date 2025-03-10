@@ -9,6 +9,8 @@ export const tarotApi = new Hono().post(
   async (c) => {
     try {
       const { name, meaning } = await c.req.valid("json");
+      console.log("Received request:", { name, meaning });
+
       const prompt = `
       あなたはタロットカード占い師です。
 
@@ -18,7 +20,15 @@ export const tarotApi = new Hono().post(
 
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
       const gatewayId = process.env.CLOUDFLARE_GATEWAY_NAME;
+
+      if (!accountId || !gatewayId) {
+        console.error("Missing Cloudflare credentials");
+        return c.json({ error: "サーバーの設定が不適切です" }, { status: 500 });
+      }
+
       const geminiApiEndpoint = `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/google-ai-studio/v1beta/models/gemini-1.5-flash-002:generateContent`;
+
+      console.log("Calling Gemini API");
 
       const schema = {
         description: "タロットカードの正位置と逆位置の文言を生成する",
@@ -60,18 +70,33 @@ export const tarotApi = new Hono().post(
       });
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error("Gemini API Error:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
+        return c.json(
+          { error: "AI APIでエラーが発生しました" },
+          { status: 500 }
+        );
       }
 
       const data = await response.json();
-      console.log(data);
+      console.log("Gemini API Response:", data);
+
       const responseText = data.candidates[0].content.parts[0].text.trim();
       const tarotResponse: TarotResponse = JSON.parse(responseText)?.[0];
+
+      if (!tarotResponse || !tarotResponse.upright || !tarotResponse.reversed) {
+        console.error("Invalid response format:", tarotResponse);
+        return c.json({ error: "不正なレスポンス形式です" }, { status: 500 });
+      }
 
       return c.json(tarotResponse);
     } catch (error) {
       console.error("文言生成エラー:", error);
-      return c.json({ error: "文言生成に失敗しました。" }, { status: 500 });
+      return c.json({ error: "文言生成に失敗しました" }, { status: 500 });
     }
   }
 );

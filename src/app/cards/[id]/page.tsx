@@ -18,6 +18,8 @@ async function getTarotMessage(
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
 
+  console.log("Requesting API:", `${apiHost}/api/tarot`);
+
   const res = await fetch(`${apiHost}/api/tarot`, {
     method: "POST",
     headers: {
@@ -27,7 +29,15 @@ async function getTarotMessage(
   });
 
   if (!res.ok) {
-    throw new Error("文言生成に失敗しました。");
+    const errorText = await res.text();
+    console.error("API Error:", {
+      status: res.status,
+      statusText: res.statusText,
+      body: errorText,
+    });
+    throw new Error(
+      `文言生成に失敗しました。Status: ${res.status}, Body: ${errorText}`
+    );
   }
 
   return res.json();
