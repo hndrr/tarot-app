@@ -26,6 +26,7 @@ export const tarotApi = new Hono().post(
         return c.json({ error: "サーバーの設定が不適切です" }, { status: 500 });
       }
 
+      // "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent";
       const geminiApiEndpoint = `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/google-ai-studio/v1beta/models/gemini-1.5-flash-002:generateContent`;
 
       console.log("Calling Gemini API");
