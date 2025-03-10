@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Access-Control-Allow-Origin",
-            value: process.env.NEXT_PUBLIC_API_HOST || "*", // より柔軟なオリジン設定
+            value: process.env.VERCEL_URL || "*", // より柔軟なオリジン設定
           },
           {
             key: "Access-Control-Allow-Methods",
