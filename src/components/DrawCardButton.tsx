@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { tarotCards } from "@/data/tarotCards";
+import { sessionAPI } from "@/lib/client";
 
 interface DrawCardButtonProps {
   variant?: "primary" | "secondary";
@@ -15,20 +16,40 @@ export default function DrawCardButton({
   const router = useRouter();
 
   const drawCard = async () => {
-    // hasVisitedをリセット
-    await fetch("/api/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        hasVisited: false,
-      }),
-    });
+    try {
+      console.log("DrawCardButton: Resetting session data");
 
-    const randomIndex = Math.floor(Math.random() * tarotCards.length);
-    const selectedCard = tarotCards[randomIndex];
-    router.push(`/reading/${selectedCard.id}`);
+      // hasVisitedをリセットし、カード情報も完全にnullにする
+      const result = await sessionAPI.session.$post({
+        json: {
+          hasVisited: false,
+          card: null, // カード情報をnullにリセット（undefinedではなく）
+        },
+      });
+
+      if (!result.ok) {
+        console.error("セッション保存中にエラーが発生しました");
+      } else {
+        console.log("DrawCardButton: Session reset successful");
+      }
+
+      // ランダムにカードを選択
+      const randomIndex = Math.floor(Math.random() * tarotCards.length);
+      const selectedCard = tarotCards[randomIndex];
+      console.log(
+        "DrawCardButton: Selected card:",
+        JSON.stringify(selectedCard)
+      );
+      console.log(
+        "DrawCardButton: Navigating to:",
+        `/reading/${selectedCard.id}`
+      );
+
+      // 選択したカードのページに遷移
+      router.push(`/reading/${selectedCard.id}`);
+    } catch (error) {
+      console.error("カードを引く際にエラーが発生しました:", error);
+    }
   };
 
   return (

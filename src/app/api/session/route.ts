@@ -1,109 +1,129 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { Hono } from "hono";
+import { handle } from "hono/vercel";
+import { getCookie, setCookie } from "hono/cookie";
+import { zValidator } from "@hono/zod-validator";
+import { cors } from "hono/cors";
+import { SessionRequestSchema, SessionDataSchema } from "../api-schemas";
 
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+// ベースパスを設定
+const app = new Hono().basePath("/api");
 
-interface SessionData {
-  cards: Card[];
-  hasVisited: boolean;
-}
+// CORSミドルウェアを追加
+app.use(
+  "*",
+  cors({
+    origin: [
+      `${process.env.NEXT_PUBLIC_API_HOST}`,
+      `https://${process.env.VERCEL_URL}`,
+      "http://localhost:3000",
+    ],
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type"],
+    credentials: true,
+    maxAge: 86400,
+    exposeHeaders: ["Location"],
+  })
+);
 
-// セッションデータを保存するPOSTエンドポイント
-export async function POST(request: Request) {
+// OPTIONSリクエストに対する特別な処理を追加
+app.options("*", (c) => {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": c.req.header("Origin") || "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
+});
+
+app.post("/session", zValidator("json", SessionRequestSchema), async (c) => {
   try {
-    const data = (await request.json()) as {
-      card?: Card;
-      hasVisited?: boolean;
-    };
+    const data = c.req.valid("json");
+    console.log("Session API received data:", JSON.stringify(data));
+    console.log(
+      "Session API received card:",
+      data.card ? JSON.stringify(data.card) : "null"
+    );
 
-    // 現在のセッションデータを取得
-    const cookieStore = await cookies();
-    const existingData = cookieStore.get("tarot-cards")?.value;
-    let sessionData: SessionData = { cards: [], hasVisited: false };
+    const existingData = getCookie(c, "tarot-cards");
+    console.log("Existing cookie data:", existingData);
 
-    if (existingData) {
-      try {
-        const parsed = JSON.parse(existingData);
-        sessionData = {
-          cards: Array.isArray(parsed.cards) ? parsed.cards : [],
-          hasVisited: Boolean(parsed.hasVisited),
-        };
-      } catch (error) {
-        console.error("Failed to parse existing session data:", error);
-      }
-    }
+    const sessionData = SessionDataSchema.parse(
+      existingData
+        ? JSON.parse(existingData)
+        : { card: null, hasVisited: false }
+    );
+    console.log("Parsed session data:", JSON.stringify(sessionData));
 
-    // カードの更新または追加
     if (data.card) {
-      const existingIndex = sessionData.cards.findIndex(
-        (c) => c.id === data.card!.id
-      );
-      if (existingIndex >= 0) {
-        // 既存のカードを更新
-        sessionData.cards[existingIndex] = data.card;
+      console.log("Processing card data:", JSON.stringify(data.card));
+      console.log("Card ID:", data.card.id);
+      console.log("Card isReversed:", data.card.isReversed);
+      console.log("typeof isReversed:", typeof data.card.isReversed);
+
+      sessionData.card = {
+        id: data.card.id,
+        name: data.card.name,
+        position: data.card.position,
+        isReversed: Boolean(data.card.isReversed),
+        ...(data.card.tarotMessage && {
+          tarotMessage: data.card.tarotMessage,
+        }),
+      };
+      console.log("Updated card:", JSON.stringify(sessionData.card));
+    } else {
+      console.log("No card data in request, keeping existing or null");
+    }
+
+    if (data.tarotMessage) {
+      const { cardId, message } = data.tarotMessage;
+      if (sessionData.card && sessionData.card.id === cardId) {
+        sessionData.card.tarotMessage = message;
+        console.log("Updated tarot message for card:", cardId);
       } else {
-        // 新しいカードを追加
-        sessionData.cards.push(data.card);
+        console.log("No matching card found for tarot message:", cardId);
       }
     }
 
-    // hasVisitedフラグの更新
     if (data.hasVisited !== undefined) {
       sessionData.hasVisited = data.hasVisited;
     }
 
-    // セッションの保存
-    const response = NextResponse.json({ success: true });
-    response.cookies.set({
-      name: "tarot-cards",
-      value: JSON.stringify(sessionData),
+    console.log("Saving session data:", JSON.stringify(sessionData));
+
+    setCookie(c, "tarot-cards", JSON.stringify(sessionData), {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "Lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1週間
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    return response;
+    return c.json({ success: true });
   } catch (error) {
     console.error("Error saving session data:", error);
-    return NextResponse.json(
-      { error: "セッションの保存に失敗しました" },
-      { status: 500 }
-    );
+    return c.json({ error: "セッションの保存に失敗しました" }, 500);
   }
-}
+});
 
-// セッションデータを取得するGETエンドポイント
-export async function GET() {
+app.get("/session", async (c) => {
   try {
-    const cookieStore = await cookies();
-    const sessionStr = cookieStore.get("tarot-cards")?.value;
-
+    const sessionStr = getCookie(c, "tarot-cards");
     if (!sessionStr) {
-      return NextResponse.json({ cards: [], hasVisited: false });
+      return c.json({ card: null, hasVisited: false });
     }
 
-    try {
-      const data = JSON.parse(sessionStr);
-      return NextResponse.json({
-        cards: Array.isArray(data.cards) ? data.cards : [],
-        hasVisited: Boolean(data.hasVisited),
-      });
-    } catch (error) {
-      console.error("Error parsing session data:", error);
-      return NextResponse.json({ cards: [], hasVisited: false });
-    }
+    const sessionData = SessionDataSchema.parse(JSON.parse(sessionStr));
+    return c.json(sessionData);
   } catch (error) {
     console.error("Error reading session:", error);
-    return NextResponse.json(
-      { error: "セッションの読み込みに失敗しました" },
-      { status: 500 }
-    );
+    return c.json({ error: "セッションの読み込みに失敗しました" }, 500);
   }
-}
+});
+
+export const GET = handle(app);
+export const POST = handle(app);
+export const OPTIONS = handle(app);
