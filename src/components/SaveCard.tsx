@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-
-interface Card {
-  id: number;
-  name: string;
-  position: string;
-  isReversed: boolean;
-}
+import type { Card } from "@/lib/actions";
 
 interface SaveCardProps {
   card: Card;
