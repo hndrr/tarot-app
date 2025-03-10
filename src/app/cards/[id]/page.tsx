@@ -14,7 +14,9 @@ async function getTarotMessage(
   name: string,
   meaning: string
 ): Promise<TarotResponse> {
-  const res = await fetch(`/api/tarot`, {
+  const apiHost = process.env.VERCEL_URL || "http://localhost:3000";
+
+  const res = await fetch(`${apiHost}/api/tarot`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
