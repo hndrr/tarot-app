@@ -50,6 +50,7 @@ export const tarotAPI = hc<TarotApiType>(`${baseUrl}/api`, {
       headers: {
         ...init?.headers,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GEMINI_API_KEY || ""}`,
       },
     });
     console.log("=== Tarot API Response Received ===");

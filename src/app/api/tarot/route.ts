@@ -23,6 +23,20 @@ const app = new Hono().basePath("/api/tarot");
 app.post("*", zValidator("json", TarotRequestSchema), async (c) => {
   try {
     console.log("Received request with body:", await c.req.json());
+
+    // 認証チェックを追加
+    const authHeader = c.req.header("Authorization");
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (
+      !authHeader ||
+      !authHeader.startsWith("Bearer ") ||
+      authHeader.replace("Bearer ", "") !== apiKey
+    ) {
+      console.error("認証エラー: 無効なAPIキー");
+      return c.json({ error: "認証に失敗しました。" }, 401);
+    }
+
     const { name, meaning } = c.req.valid("json");
 
     const prompt = `
