@@ -18,7 +18,7 @@ export default function VideoPlayer({ videos }: Props) {
   }, [videos]);
 
   return (
-    <div>
+    <div className="rounded-lg object-cover shadow-lg overflow-hidden">
       {videoSrc && (
         <video src={videoSrc} autoPlay muted loop style={{ width: "100%" }}>
           お使いのブラウザは video タグに対応していません。
