@@ -1,6 +1,5 @@
 import VideoPlayer from "./VideoPlayer";
-import fs from "fs";
-import path from "path";
+import { getVideoPath } from "@/lib/videoPath";
 
 type TarotCardProps = {
   card: {
@@ -12,58 +11,37 @@ type TarotCardProps = {
   isReversed: boolean;
 };
 
-// カード名の日本語から英語へのマッピング
-const cardNameMapping: { [key: string]: string } = {
-  愚者: "fool",
-  魔術師: "magician",
-  女教皇: "high-priestess",
-  女帝: "empress",
-  皇帝: "emperor",
-  教皇: "hierophant",
-  恋人: "lovers",
-  戦車: "chariot",
-  力: "strength",
-  隠者: "hermit",
-  運命の輪: "wheel-of-fortune",
-  正義: "justice",
-  吊るされた男: "hanged-man",
-  死神: "death",
-  節制: "temperance",
-  悪魔: "devil",
-  塔: "tower",
-  星: "star",
-  月: "moon",
-  太陽: "sun",
-  審判: "judgement",
-  世界: "world",
-};
-
-const getVideos = (cardName: string): string[] => {
-  const englishName =
-    cardNameMapping[cardName] || cardName.toLowerCase().replace(/\s+/g, "-");
-  const videosPath = path.join(
-    process.cwd(),
-    "public",
-    "assets",
-    "videos",
-    englishName
-  );
-  let videos: string[] = [];
+const getVideos = (card: { id: number }): string[] => {
+  const videos: string[] = [];
 
   try {
-    const files = fs.readdirSync(videosPath);
-    videos = files
-      .filter((file) => /\.(mp4|webm)$/.test(file))
-      .map((file) => `/assets/videos/${englishName}/${file}`);
+    // カードに対応する動画ファイルを取得
+    // 最大3つまで取得を試みる
+    for (let i = 0; i < 3; i++) {
+      try {
+        const videoPath = getVideoPath(card.id, i);
+        videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/${videoPath}`);
+      } catch (error) {
+        console.error(`動画ファイル ${i + 1} の取得エラー:`, error);
+      }
+    }
+
+    // 動画が1つも取得できなかった場合は、デフォルトの動画を使用
+    if (videos.length === 0) {
+      const defaultPath = getVideoPath(1, 0); // 愚者カードの最初の動画
+      videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/${defaultPath}`);
+    }
   } catch (error) {
-    console.error("動画ディレクトリの読み込みエラー:", error);
+    console.error("動画パスの取得に失敗しました:", error);
+    // 最終的なフォールバック
+    videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/fool/Wan_00032.mp4`);
   }
 
   return videos;
 };
 
 export default function TarotCard({ card, isReversed }: TarotCardProps) {
-  const videos = getVideos(card.name);
+  const videos = getVideos(card);
 
   return (
     <div className="flex flex-col items-center gap-3">
