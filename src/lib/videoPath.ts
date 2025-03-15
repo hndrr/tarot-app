@@ -14,7 +14,13 @@ const cardVideos: { [key: number]: CardVideo } = {
   },
   3: {
     path: "high-priestess",
-    files: ["Wan_00036.mp4", "Wan_00080.mp4", "Wan_00102.mp4"],
+    files: [
+      "Wan_00036.mp4",
+      "Wan_00080.mp4",
+      "Wan_00102.mp4",
+      "Wan_00146.mp4",
+      "Wan_00181.mp4",
+    ],
   },
   4: {
     path: "empress",
@@ -30,19 +36,19 @@ const cardVideos: { [key: number]: CardVideo } = {
   },
   7: {
     path: "lovers",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: ["Wan_00061.mp4", "Wan_00127.mp4", "Wan_00148.mp4", "Wan_00183.mp4"],
   },
   8: {
     path: "chariot",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: ["Wan_00029.mp4", "Wan_00049.mp4", "Wan_00093.mp4"],
   },
   9: {
     path: "strength",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: ["Wan_00001.mp4", "Wan_00043.mp4", "Wan_00065.mp4"],
   },
   10: {
     path: "hermit",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: ["Wan_00034.mp4", "Wan_00078.mp4", "Wan_00122.mp4", "Wan_00165.mp4"],
   },
   11: {
     path: "wheel-of-fortune",
@@ -50,19 +56,25 @@ const cardVideos: { [key: number]: CardVideo } = {
   },
   12: {
     path: "justice",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: [
+      "Wan_00104.mp4",
+      "Wan_00126.mp4",
+      "Wan_00147.mp4",
+      "Wan_00169.mp4",
+      "Wan_00182.mp4",
+    ],
   },
   13: {
     path: "hanged-man",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00076.mp4"],
+    files: ["Wan_00055.mp4", "Wan_00178.mp4"],
   },
   14: {
     path: "death",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00042.mp4"],
+    files: ["Wan_00006.mp4", "Wan_00007.mp4", "Wan_00008.mp4"],
   },
   15: {
     path: "temperance",
-    files: ["Wan_00032.mp4", "Wan_00054.mp4", "Wan_00045.mp4"],
+    files: ["Wan_00067.mp4", "Wan_00133.mp4", "Wan_00154.mp4"],
   },
   16: {
     path: "devil",
