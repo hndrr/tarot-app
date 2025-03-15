@@ -67,7 +67,7 @@ export default function TarotCard({ card, isReversed }: TarotCardProps) {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative aspect-[10/16] max-w-96 rounded-2xl overflow-hidden">
+      <div className="relative aspect-[9/16] max-w-96 rounded-2xl overflow-hidden">
         <VideoPlayer videos={videos} isReversed={isReversed} />
       </div>
       <h3 className="text-3xl font-bold">{card.name}</h3>

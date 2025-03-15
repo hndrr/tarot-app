@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { getCookie, setCookie } from "hono/cookie";
-import { CardSchema } from "../api-schema";
+import { CardSchema, SessionData } from "../api-schema";
 
 // セッションリクエストスキーマ
 const SessionRequestSchema = z.object({
@@ -46,7 +46,7 @@ export const sessionApi = new Hono()
 
       // 現在のセッションデータを取得
       const existingData = getCookie(c, "tarot-cards");
-      let sessionData = { card: null, hasVisited: false };
+      let sessionData: SessionData = { card: null, hasVisited: false };
 
       if (existingData) {
         try {

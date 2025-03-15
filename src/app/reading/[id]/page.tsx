@@ -1,6 +1,5 @@
 import { tarotCards } from "@/data/tarotCards";
 import { delay } from "@/lib/delay";
-import { Card } from "@/lib/actions";
 import TarotCard from "@components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
@@ -61,7 +60,7 @@ export default async function Reading({ params }: { params: Params }) {
         </div>
 
         <div className="flex flex-col items-center gap-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-2xl w-full">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-xl w-full">
             <TarotCard card={card} isReversed={isReversed} />
             {cardData && (
               <SaveCard
