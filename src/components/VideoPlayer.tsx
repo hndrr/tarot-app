@@ -21,10 +21,6 @@ export default function VideoPlayer({ videos, isReversed }: VideoPlayerProps) {
     playRandomVideo();
   }, [playRandomVideo]);
 
-  const handleVideoEnd = () => {
-    playRandomVideo();
-  };
-
   return (
     <div
       className={`rounded-2xl object-cover shadow-lg overflow-hidden ${
@@ -33,12 +29,10 @@ export default function VideoPlayer({ videos, isReversed }: VideoPlayerProps) {
     >
       {videoSrc && (
         <video
-          key={videoSrc}
           src={videoSrc}
           autoPlay
           muted
-          loop={false}
-          onEnded={handleVideoEnd}
+          loop
           style={{ width: "100%" }}
           playsInline
         >
