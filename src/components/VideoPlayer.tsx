@@ -1,7 +1,7 @@
 // app/video/VideoPlayer.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 type VideoPlayerProps = {
   videos: string[];
@@ -11,12 +11,19 @@ type VideoPlayerProps = {
 export default function VideoPlayer({ videos, isReversed }: VideoPlayerProps) {
   const [videoSrc, setVideoSrc] = useState<string>("");
 
-  // ページロード時に自動的にランダムな動画を再生する
-  useEffect(() => {
+  const playRandomVideo = useCallback(() => {
     if (videos.length === 0) return;
     const randomIndex = Math.floor(Math.random() * videos.length);
     setVideoSrc(videos[randomIndex]);
   }, [videos]);
+
+  useEffect(() => {
+    playRandomVideo();
+  }, [playRandomVideo]);
+
+  const handleVideoEnd = () => {
+    playRandomVideo();
+  };
 
   return (
     <div
@@ -25,7 +32,16 @@ export default function VideoPlayer({ videos, isReversed }: VideoPlayerProps) {
       }`}
     >
       {videoSrc && (
-        <video src={videoSrc} autoPlay muted loop style={{ width: "100%" }}>
+        <video
+          key={videoSrc}
+          src={videoSrc}
+          autoPlay
+          muted
+          loop={false}
+          onEnded={handleVideoEnd}
+          style={{ width: "100%" }}
+          playsInline
+        >
           お使いのブラウザは video タグに対応していません。
         </video>
       )}
