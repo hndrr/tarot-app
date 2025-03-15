@@ -1,6 +1,5 @@
 import { tarotCards } from "@/data/tarotCards";
 import { delay } from "@/lib/delay";
-import { Card } from "@/lib/actions";
 import TarotCard from "@components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
@@ -18,18 +17,16 @@ export default async function Reading({ params }: { params: Params }) {
   const sessionStr = cookieStore?.get("tarot-cards")?.value;
   const sessionData = sessionStr
     ? JSON.parse(sessionStr)
-    : { cards: [], hasVisited: false };
+    : { card: null, hasVisited: false };
 
   // 既存のカードがあればその状態を使用、なければランダムに決定
-  const existingCard = sessionData.cards?.find(
-    (c: Card) => c.id === parseInt(id)
-  );
-  const isReversed = existingCard
-    ? existingCard.isReversed
-    : Math.random() < 0.5;
+  const isReversed =
+    sessionData.card?.id === parseInt(id)
+      ? sessionData.card.isReversed
+      : Math.random() < 0.3;
 
   if (!sessionData.hasVisited) {
-    await delay(6000);
+    await delay(1000);
   }
 
   const cardData = card
@@ -63,7 +60,7 @@ export default async function Reading({ params }: { params: Params }) {
         </div>
 
         <div className="flex flex-col items-center gap-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-2xl w-full">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 max-w-xl w-full">
             <TarotCard card={card} isReversed={isReversed} />
             {cardData && (
               <SaveCard

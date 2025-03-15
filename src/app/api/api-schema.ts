@@ -29,7 +29,7 @@ export const SessionRequestSchema = z.object({
 
 // セッションデータスキーマ
 export const SessionDataSchema = z.object({
-  cards: z.array(CardSchema),
+  card: CardSchema.nullable(),
   hasVisited: z.boolean(),
 });
 
