@@ -1,5 +1,5 @@
 import VideoPlayer from "./VideoPlayer";
-import { getVideoPath } from "@/lib/videoPath";
+import { getVideoPath, getVideoCount } from "@/lib/videoPath";
 
 type TarotCardProps = {
   card: {
@@ -16,37 +16,45 @@ const getVideos = (card: { id: number }): string[] => {
   const videos: string[] = [];
 
   try {
-    // 利用可能な動画ファイルからランダムに1つ選択
-    // 各カードの利用可能な動画ファイル数を取得
-    try {
-      // 利用可能な動画の総数を取得
-      let availableCount = 0;
-      // 十分な数の動画を確認（最大値は大きめに設定）
-      const maxCheck = 30;
-      for (let i = 0; i < maxCheck; i++) {
-        try {
-          getVideoPath(card.id, i);
-          availableCount++;
-        } catch {
-          // このインデックスに動画がない場合はスキップ
-        }
-      }
+    // カードの動画ファイル数を取得
+    const videoCount = getVideoCount(card.id);
 
-      // 利用可能な動画がある場合
-      if (availableCount > 0) {
-        // ランダムなインデックスを生成（利用可能な動画数の範囲内）
-        const randomIndex = Math.floor(Math.random() * availableCount);
+    // 動画がある場合
+    if (videoCount > 0) {
+      // ランダムなインデックスを生成
+      const randomIndex = Math.floor(Math.random() * videoCount);
+
+      try {
+        // 選択されたインデックスの動画を取得
         const videoPath = getVideoPath(card.id, randomIndex);
         videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/${videoPath}`);
+
+        console.log(
+          `カードID: ${card.id}, 動画数: ${videoCount}, 選択されたインデックス: ${randomIndex}`
+        );
+      } catch (error) {
+        console.error(`動画の取得に失敗しました: ${error}`);
       }
-    } catch (error) {
-      console.error("利用可能な動画数の取得に失敗しました:", error);
+    } else {
+      console.log(`カードID: ${card.id} には動画がありません`);
     }
 
     // 動画が1つも取得できなかった場合は、デフォルトの動画を使用
     if (videos.length === 0) {
-      const defaultPath = getVideoPath(1, 0); // 愚者カードの最初の動画
-      videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/${defaultPath}`);
+      // 愚者カードの動画数を取得
+      const foolVideoCount = getVideoCount(1);
+      if (foolVideoCount > 0) {
+        const defaultIndex = Math.floor(Math.random() * foolVideoCount);
+        const defaultPath = getVideoPath(1, defaultIndex);
+        videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/${defaultPath}`);
+        console.log(
+          `デフォルト動画を使用: カードID: 1, インデックス: ${defaultIndex}`
+        );
+      } else {
+        // 最終的なフォールバック
+        videos.push(`${process.env.NEXT_PUBLIC_CDN_URL}/fool/Wan_00032.mp4`);
+        console.log(`固定フォールバック動画を使用`);
+      }
     }
   } catch (error) {
     console.error("動画パスの取得に失敗しました:", error);

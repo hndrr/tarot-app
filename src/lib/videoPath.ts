@@ -170,10 +170,19 @@ export function getVideoPath(id: number, index: number): string {
     throw new Error(`Card not found for id ${id}`);
   }
 
-  // インデックスが範囲外の場合は、最初のファイルを返す
+  // インデックスが範囲外の場合は例外をスロー
   if (index < 0 || index >= card.files.length) {
-    return `${card.path}/${card.files[0]}`;
+    throw new Error(`Video index out of range: ${index} for card ${id}`);
   }
 
   return `${card.path}/${card.files[index]}`;
+}
+
+// 新しい関数: カードの動画ファイル数を取得
+export function getVideoCount(id: number): number {
+  const card = cardVideos[id];
+  if (!card) {
+    return 0;
+  }
+  return card.files.length;
 }
