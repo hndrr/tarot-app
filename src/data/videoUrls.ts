@@ -1,5 +1,4 @@
 import { getVideoPath } from "@/lib/videoPath";
-import { map } from "zod";
 
 export type CardVideoData = {
   id: number;
