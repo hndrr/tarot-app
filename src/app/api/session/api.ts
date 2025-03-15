@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { getCookie, setCookie } from "hono/cookie";
-import { CardSchema, SessionData } from "../api-schema";
+import { CardSchema } from "../api-schema";
 
 // セッションリクエストスキーマ
 const SessionRequestSchema = z.object({
@@ -18,18 +18,18 @@ export const sessionApi = new Hono()
       const sessionStr = getCookie(c, "tarot-cards");
 
       if (!sessionStr) {
-        return c.json({ cards: [], hasVisited: false });
+        return c.json({ card: null, hasVisited: false });
       }
 
       try {
         const data = JSON.parse(sessionStr);
         return c.json({
-          cards: Array.isArray(data.cards) ? data.cards : [],
+          card: data.card || null,
           hasVisited: Boolean(data.hasVisited),
         });
       } catch (error) {
         console.error("Error parsing session data:", error);
-        return c.json({ cards: [], hasVisited: false });
+        return c.json({ card: null, hasVisited: false });
       }
     } catch (error) {
       console.error("Error reading session:", error);
@@ -46,32 +46,19 @@ export const sessionApi = new Hono()
 
       // 現在のセッションデータを取得
       const existingData = getCookie(c, "tarot-cards");
-      let sessionData: SessionData = { cards: [], hasVisited: false };
+      let sessionData = { card: null, hasVisited: false };
 
       if (existingData) {
         try {
-          const parsed = JSON.parse(existingData);
-          sessionData = {
-            cards: Array.isArray(parsed.cards) ? parsed.cards : [],
-            hasVisited: Boolean(parsed.hasVisited),
-          };
+          sessionData = JSON.parse(existingData);
         } catch (error) {
           console.error("Failed to parse existing session data:", error);
         }
       }
 
-      // カードの更新または追加
+      // カードの更新
       if (data.card) {
-        const existingIndex = sessionData.cards.findIndex(
-          (card) => card.id === data.card!.id
-        );
-        if (existingIndex >= 0) {
-          // 既存のカードを更新
-          sessionData.cards[existingIndex] = data.card;
-        } else {
-          // 新しいカードを追加
-          sessionData.cards.push(data.card);
-        }
+        sessionData.card = data.card;
       }
 
       // hasVisitedフラグの更新
