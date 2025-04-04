@@ -12,13 +12,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18.19.0"
-      - name: Install node modules
-        run: npm install
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # pnpmのバージョンを指定（プロジェクトに合わせて変更可能）
+      - name: Install dependencies
+        run: pnpm install
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm turbo run lint
       - name: Run TypeScript type check
-        run: npm run tsc --noEmit
-      # - name: Run tests
-      #   run: npm run test:ci
-      - name: Build Next.js project
-        run: npm run build
+        run: pnpm turbo run typecheck # typecheck スクリプトを想定
+      - name: Run tests
+        run: pnpm turbo run test # test スクリプトを想定 (test:ci がなければ test)
+      - name: Build projects
+        run: pnpm turbo run build
