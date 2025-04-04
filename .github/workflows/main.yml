@@ -21,7 +21,7 @@ jobs:
       - name: Run ESLint
         run: pnpm turbo run lint --filter=@tarrot/web...
       - name: Run TypeScript type check
-        run: pnpm turbo run typecheck --filter=@tarrot/web... # typecheck スクリプトを想定
+        run: pnpm turbo run type-check --filter=@tarrot/web... # 正しいスクリプト名に修正
       - name: Run tests
         run: pnpm turbo run test --filter=@tarrot/web... # test スクリプトを想定 (test:ci がなければ test)
       - name: Build projects
