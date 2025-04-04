@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "TAROTIE",
+    "slug": "tarrot-app-expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hndr.tarrotappexpo"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.hndr.tarrotappexpo"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./src/assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "cover",
+          "backgroundColor": "#4338ca"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "81b31eb6-1141-4fbf-83b6-0b9786f18703"
+      }
+    }
+  }
+}
