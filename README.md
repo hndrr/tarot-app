@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tarrot Monorepo
+
+This repository contains the source code for the Tarrot application, managed as a monorepo using pnpm workspaces and Turborepo.
+
+## Project Structure
+
+The repository is organized as follows:
+
+-   `apps/`: Contains the individual applications.
+    -   `web`: The Next.js web application.
+    -   `mobile`: The Expo (React Native) mobile application.
+-   `packages/`: Contains shared packages used across applications.
+    -   `api-schema`: Defines the shared API schema (e.g., using Zod).
+    -   `constants`: Shared constants like colors, card data, etc.
+    -   `eslint-config`: Shared ESLint configuration.
+    -   `tarot-logic`: Core Tarot reading logic.
+    -   `types`: Shared TypeScript types.
+    -   `typescript-config`: Shared TypeScript configurations.
+    -   `ui`: Shared React/React Native UI components.
+    -   `utils`: Shared utility functions and hooks.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+-   [Node.js](https://nodejs.org/) (Version specified in `.volta` or `package.json`)
+-   [pnpm](https://pnpm.io/)
+
+### Installation
+
+Install dependencies for all packages and applications:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run all applications in development mode:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev
+```
+
+This command uses Turborepo to efficiently run the development servers for both the web and mobile apps concurrently.
+
+-   **Web App:** Typically available at [http://localhost:3000](http://localhost:3000).
+-   **Mobile App:** Follow the Expo CLI instructions to open the app on a simulator or physical device.
+
+To run a specific application or package script, use Turborepo's filtering capabilities or run the script directly within the respective directory. For example, to run only the web app:
+
+```bash
+pnpm dev --filter=@tarrot/web
+```
+
+## Building
+
+Build all applications and packages:
+
+```bash
+pnpm build
+```
+
+## Linting and Type Checking
+
+Lint all code:
+
+```bash
+pnpm lint
+```
+
+Check TypeScript types:
+
+```bash
+pnpm type-check
+```
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   [pnpm Workspaces](https://pnpm.io/workspaces)
+-   [Turborepo Documentation](https://turbo.build/repo/docs)
+-   [Next.js Documentation](https://nextjs.org/docs) (for the `apps/web` application)
+-   [Expo Documentation](https://docs.expo.dev/) (for the `apps/mobile` application)
