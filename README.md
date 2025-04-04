@@ -57,18 +57,18 @@ graph TD
     B --> Const;
     B --> Types;
     B --> Utils;
-    B --> AI; # Webアプリから直接AIへ
+    B --> AI;
 
     C --> UI;
     C --> Const;
     C --> Types;
     C --> Utils;
-    C --> AI; # Mobileアプリから直接AIへ
+    C --> AI;
 
     B -.-> Lint & TSConfig;
     C -.-> Lint & TSConfig;
     UI -.-> Lint & TSConfig;
-    Logic -.-> Lint & TSConfig; # Logic自体は残すが依存はされない
+    Logic -.-> Lint & TSConfig;
     Const -.-> Lint & TSConfig;
     Types -.-> Lint & TSConfig;
     Utils -.-> Lint & TSConfig;
