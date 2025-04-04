@@ -26,28 +26,28 @@ The repository is organized as follows:
 ```mermaid
 graph TD
     subgraph "User Facing Apps"
-        B[apps/web (Next.js)];
-        C[apps/mobile (React Native/Expo)];
+        B["apps/web (Next.js)"];
+        C["apps/mobile (React Native/Expo)"];
     end
 
     subgraph "Shared Packages"
         UI[packages/ui];
-        Logic[packages/tarot-logic (unused)];
+        Logic["packages/tarot-logic (unused)"];
         Const[packages/constants];
         Types[packages/types];
         Utils[packages/utils];
-        Schema[packages/api-schema (unused)];
+        Schema["packages/api-schema (unused)"];
         Lint[packages/eslint-config];
         TSConfig[packages/typescript-config];
     end
 
     subgraph "External Services"
-        AI[External AI (Gemini/Cloudflare?)];
+        AI["External AI (Gemini/Cloudflare?)"];
     end
 
     subgraph "Development Tools"
-        PNPM[pnpm workspaces];
-        Turbo[Turbo Repo];
+        PNPM["pnpm workspaces"];
+        Turbo["Turbo Repo"];
     end
 
     User --> B;
