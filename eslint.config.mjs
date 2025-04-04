@@ -104,7 +104,15 @@ const eslintConfig = [
   {
     files: ["packages/**/*.{ts,tsx}"],
     // 必要に応じてパッケージ固有のルールを追加
+  }, // <- カンマを追加
+
+  // React Native (.native.tsx) ファイル用設定
+  {
+    files: ["**/*.native.tsx"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off", // require() を許可
+    },
   },
-];
+]; // <- 正しい閉じ括弧
 
 export default eslintConfig;
