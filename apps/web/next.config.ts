@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  transpilePackages: ["@repo/constants", "@repo/types"], // トランスパイル対象のパッケージを追加
   rewrites: async () => {
     return [
       {
