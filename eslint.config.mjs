@@ -42,6 +42,20 @@ const eslintConfig = [
 
   // TypeScript 設定 (ts, tsx ファイルに適用)
   ...tseslint.configs.recommended, // typescript-eslint の推奨設定
+  {
+    // ルールを明示的に設定
+    files: ["**/*.{ts,tsx}"], // TS/TSX ファイルに適用
+    rules: {
+      "@typescript-eslint/no-unused-expressions": [
+        "error",
+        {
+          allowShortCircuit: true,
+          allowTernary: true,
+          allowTaggedTemplates: true,
+        },
+      ],
+    },
+  },
 
   // React 設定 (tsx ファイルに適用)
   {
