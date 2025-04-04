@@ -19,10 +19,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run ESLint
-        run: pnpm turbo run lint
+        run: pnpm turbo run lint --filter=@tarrot/web...
       - name: Run TypeScript type check
-        run: pnpm turbo run typecheck # typecheck スクリプトを想定
+        run: pnpm turbo run typecheck --filter=@tarrot/web... # typecheck スクリプトを想定
       - name: Run tests
-        run: pnpm turbo run test # test スクリプトを想定 (test:ci がなければ test)
+        run: pnpm turbo run test --filter=@tarrot/web... # test スクリプトを想定 (test:ci がなければ test)
       - name: Build projects
-        run: pnpm turbo run build
+        run: pnpm turbo run build --filter=@tarrot/web...
