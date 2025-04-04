@@ -10,14 +10,95 @@ The repository is organized as follows:
     -   `web`: The Next.js web application.
     -   `mobile`: The Expo (React Native) mobile application.
 -   `packages/`: Contains shared packages used across applications.
-    -   `api-schema`: Defines the shared API schema (e.g., using Zod).
+    -   `api-schema`: (Currently unused) Defines the shared API schema.
     -   `constants`: Shared constants like colors, card data, etc.
     -   `eslint-config`: Shared ESLint configuration.
-    -   `tarot-logic`: Core Tarot reading logic.
+    -   `tarot-logic`: (Currently unused) Core Tarot reading logic. Intended for future use.
     -   `types`: Shared TypeScript types.
     -   `typescript-config`: Shared TypeScript configurations.
     -   `ui`: Shared React/React Native UI components.
     -   `utils`: Shared utility functions and hooks.
+
+## Architecture Overview
+
+### Diagram
+
+```mermaid
+graph TD
+    subgraph "User Facing Apps"
+        B[apps/web (Next.js)];
+        C[apps/mobile (React Native/Expo)];
+    end
+
+    subgraph "Shared Packages"
+        UI[packages/ui];
+        Logic[packages/tarot-logic (unused)];
+        Const[packages/constants];
+        Types[packages/types];
+        Utils[packages/utils];
+        Schema[packages/api-schema (unused)];
+        Lint[packages/eslint-config];
+        TSConfig[packages/typescript-config];
+    end
+
+    subgraph "External Services"
+        AI[External AI (Gemini/Cloudflare?)];
+    end
+
+    subgraph "Development Tools"
+        PNPM[pnpm workspaces];
+        Turbo[Turbo Repo];
+    end
+
+    User --> B;
+    User --> C;
+
+    B --> UI;
+    B --> Const;
+    B --> Types;
+    B --> Utils;
+    B --> AI; # Webアプリから直接AIへ
+
+    C --> UI;
+    C --> Const;
+    C --> Types;
+    C --> Utils;
+    C --> AI; # Mobileアプリから直接AIへ
+
+    B -.-> Lint & TSConfig;
+    C -.-> Lint & TSConfig;
+    UI -.-> Lint & TSConfig;
+    Logic -.-> Lint & TSConfig; # Logic自体は残すが依存はされない
+    Const -.-> Lint & TSConfig;
+    Types -.-> Lint & TSConfig;
+    Utils -.-> Lint & TSConfig;
+    Schema -.-> Lint & TSConfig;
+
+    PNPM & Turbo -- Manages --> B & C & UI & Logic & Const & Types & Utils & Schema & Lint & TSConfig;
+
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style AI fill:#ccf,stroke:#333,stroke-width:2px
+    style PNPM fill:#eee,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+    style Turbo fill:#eee,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+```
+
+### Data Flow
+
+- **Tarot Reading (Web):**
+  1. User interacts with the Web App (`apps/web`).
+  2. `apps/web` calls `apps/web/src/lib/generateTarotMessageGemini.ts`.
+  3. `generateTarotMessageGemini.ts` sends a request to the Gemini AI service.
+  4. Gemini AI returns the interpretation.
+  5. `generateTarotMessageGemini.ts` formats the result.
+  6. `apps/web` displays the result using components from `packages/ui`.
+
+- **Tarot Reading (Mobile):**
+  1. User interacts with the Mobile App (`apps/mobile`).
+  2. `apps/mobile` calls `apps/mobile/src/lib/generateTarotMessageGemini.ts` (or Cloudflare version).
+  3. `generateTarotMessage...ts` sends a request to the corresponding AI service.
+  4. The AI service returns the interpretation.
+  5. `generateTarotMessage...ts` formats the result.
+  6. `apps/mobile` displays the result using components from `packages/ui`.
 
 ## Getting Started
 
