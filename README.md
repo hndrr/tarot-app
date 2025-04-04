@@ -82,23 +82,39 @@ graph TD
     style Turbo fill:#eee,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
-### Data Flow
+### Data Flow (Sequence Diagram)
 
-- **Tarot Reading (Web):**
-  1. User interacts with the Web App (`apps/web`).
-  2. `apps/web` calls `apps/web/src/lib/generateTarotMessageGemini.ts`.
-  3. `generateTarotMessageGemini.ts` sends a request to the Gemini AI service.
-  4. Gemini AI returns the interpretation.
-  5. `generateTarotMessageGemini.ts` formats the result.
-  6. `apps/web` displays the result using components from `packages/ui`.
+```mermaid
+sequenceDiagram
+    participant User
+    participant WebApp as "apps/web"
+    participant WebLib as "generateTarotMessageGemini.ts (in web)"
+    participant GeminiAI as "Gemini AI"
+    participant MobileApp as "apps/mobile"
+    participant MobileLib as "generateTarotMessage...ts (in mobile)"
+    participant AIService as "AI Service (Gemini/Cloudflare)"
+    participant UI as "packages/ui"
 
-- **Tarot Reading (Mobile):**
-  1. User interacts with the Mobile App (`apps/mobile`).
-  2. `apps/mobile` calls `apps/mobile/src/lib/generateTarotMessageGemini.ts` (or Cloudflare version).
-  3. `generateTarotMessage...ts` sends a request to the corresponding AI service.
-  4. The AI service returns the interpretation.
-  5. `generateTarotMessage...ts` formats the result.
-  6. `apps/mobile` displays the result using components from `packages/ui`.
+    Note over User, WebApp: Tarot Reading (Web)
+    User->>WebApp: Interact (Request Reading)
+    WebApp->>WebLib: Call generateTarotMessageGemini()
+    WebLib->>GeminiAI: Send request (card info, etc.)
+    GeminiAI-->>WebLib: Return interpretation
+    WebLib-->>WebApp: Return formatted result
+    WebApp->>UI: Use UI components
+    UI-->>WebApp: Rendered components
+    WebApp-->>User: Display reading result
+
+    Note over User, MobileApp: Tarot Reading (Mobile)
+    User->>MobileApp: Interact (Request Reading)
+    MobileApp->>MobileLib: Call generateTarotMessage...()
+    MobileLib->>AIService: Send request (card info, etc.)
+    AIService-->>MobileLib: Return interpretation
+    MobileLib-->>MobileApp: Return formatted result
+    MobileApp->>UI: Use UI components
+    UI-->>MobileApp: Rendered components
+    MobileApp-->>User: Display reading result
+```
 
 ## Getting Started
 
