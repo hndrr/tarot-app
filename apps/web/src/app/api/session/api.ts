@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { getCookie, setCookie } from "hono/cookie";
-import { CardSchema, SessionData } from "../api-schema";
+import { CardSchema, SessionData } from "@tarrot/api-schema";
 
 // セッションリクエストスキーマ
 const SessionRequestSchema = z.object({

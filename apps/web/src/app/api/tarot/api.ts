@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { TarotRequestSchema, TarotResponse } from "../api-schema";
+import { TarotRequestSchema, TarotResponse } from "@tarrot/api-schema";
 
 // タロットAPI
 export const tarotApi = new Hono().post(

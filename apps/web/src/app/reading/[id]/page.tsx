@@ -1,7 +1,7 @@
-import { tarotCards } from "@/data/tarotCards";
-import { delay } from "@/lib/delay";
+import { tarotCards } from "@repo/constants";
+import { delay } from "@repo/utils";
 import { Card } from "@/lib/actions";
-import TarotCard from "@components/TarotCard";
+import { TarotCardWeb as TarotCard } from "@repo/ui"; // Use renamed web export
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
 import { cookies } from "next/headers";

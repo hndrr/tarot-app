@@ -1,11 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
+    "composite": true, // Enable project references
     "outDir": "dist",
-    "rootDir": "src",
-    "composite": true,
-    "jsx": "react-native"
+    "rootDir": "src"
   },
-  "include": ["src/**/*"],
+  "references": [
+    // Add reference to types package
+    { "path": "../types" }
+  ],
+  "include": ["src", "src/nativewind-env.d.ts"], // Include nativewind types
   "exclude": ["node_modules", "dist"]
 }

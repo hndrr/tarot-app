@@ -13,7 +13,15 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "noEmit": true, // 基本的に各パッケージ/アプリでビルドするので noEmit
+    // "noEmit": true, // Removed as it might interfere with project references build
+    "baseUrl": ".",
+    "paths": {
+      "@repo/ui": ["packages/ui/src"],
+      "@repo/types": ["packages/types/src"],
+      "@repo/constants": ["packages/constants/src"],
+      "@repo/utils": ["packages/utils/src"],
+      "@repo/tarot-logic": ["packages/tarot-logic/src"]
+    },
     "composite": false // ルートは composite ではない
   },
   "exclude": ["node_modules"]

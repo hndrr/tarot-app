@@ -8,8 +8,8 @@ import {
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { TarotCard } from "components/TarotCard"; // TarotCardコンポーネントをNative版に合わせて作成
-import { tarotCards } from "data/tarotCards";
+import { TarotCard } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
+import { tarotCards } from "@repo/constants";
 import { useRouter } from "expo-router";
 import { TarotLoading } from "components/TarotLoading";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text } from "react-native";
 import { useRouter } from "expo-router";
-import { tarotCards } from "data/tarotCards";
+import { tarotCards } from "@repo/constants";
 
 export default function DrawCardButton() {
   const router = useRouter();

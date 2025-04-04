@@ -2,8 +2,11 @@ import type { Config } from "tailwindcss";
 import sharedConfig from "../../packages/ui/tailwind.config"; // 共通設定をインポート
 
 const config: Config = {
-  content: [], // content は必須だが、スキャンは preset に任せるので空配列
-  presets: [sharedConfig], // 共通設定をプリセットとして適用
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}", // Scan web app source files
+    "../../packages/ui/src/**/*.{js,jsx,ts,tsx}", // Scan ui package source files
+  ],
+  presets: [sharedConfig],
   theme: {
     extend: {
       // web 固有のテーマ拡張があればここに追加

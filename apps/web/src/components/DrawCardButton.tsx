@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { tarotCards } from "@/data/tarotCards";
+import { tarotCards } from "@repo/constants";
 
 interface DrawCardButtonProps {
   variant?: "primary" | "secondary";

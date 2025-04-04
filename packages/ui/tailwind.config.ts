@@ -1,29 +1,14 @@
 import type { Config } from "tailwindcss";
 
-// この設定は apps/web と apps/mobile から preset として読み込まれる想定
-const config: Config = {
-  content: [
-    // アプリケーションのファイルパス (apps/*)
-    "../../apps/web/src/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../apps/mobile/src/**/*.{js,ts,jsx,tsx}",
-    // このパッケージ (packages/ui) 内のファイルパス
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+// We want each package to be responsible for its own content.
+const config: Omit<Config, "content"> = {
   theme: {
-    extend: {
-      // ここに共通のテーマ拡張を定義
-      colors: {
-        primary: "#FF6347", // 例: トマト色
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
-    },
+    extend: {},
   },
-  plugins: [
-    // ここに共通のプラグインを追加 (例: typography)
-  ],
+  plugins: [],
 };
 export default config;
+
+// Note: The 'content' field is configured in the root tailwind.config.js
+// or in the app-specific tailwind configs that consume this package.
+// This package itself doesn't need to scan files for classes.

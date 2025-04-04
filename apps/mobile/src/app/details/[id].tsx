@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { tarotCards } from "data/tarotCards";
-import { imagePaths } from "components/TarotCard";
+import { tarotCards } from "@repo/constants";
+import { imagePaths } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { generateTarotMessage } from "lib/generateTarotMessageGemini";
@@ -133,11 +133,13 @@ export default function CardDetail() {
                 isReversed ? "rotate-180" : ""
               }`}
             >
-              <Image
-                source={resolvedImage}
-                className="w-full h-full rounded-lg"
-                resizeMode="cover"
-              />
+              {resolvedImage && ( // Add null check
+                <Image
+                  source={resolvedImage}
+                  className="w-full h-full rounded-lg"
+                  resizeMode="cover"
+                />
+              )}
             </View>
 
             <View className="flex-1">
