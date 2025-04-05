@@ -12,3 +12,4 @@ apps/mobile/android/settings.gradle
 apps/mobile/android/app/*
 apps/mobile/ios/*
 apps/mobile/.expo/*
+apps/mobile/*.aab
