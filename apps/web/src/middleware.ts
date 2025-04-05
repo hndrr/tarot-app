@@ -11,7 +11,9 @@ const allowedOrigins =
         "capacitor://localhost", // Capacitor iOS/Android
         "ionic://localhost", // Ionic iOS/Android
         // 必要に応じて本番Webアプリのオリジンを追加
-        // 'https://your-production-app.com'
+        // 'https://your-production-app.com',
+        "http://localhost:8081", // Expo Go Web (開発用に一時的に許可)
+        "http://localhost", // Expo Android ネイティブビルド等で使われる可能性
       ]
     : [
         // 開発環境
