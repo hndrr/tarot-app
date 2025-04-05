@@ -64,7 +64,12 @@ export default function CardDetail() {
         try {
           setError(null); // エラー状態をリセット
           // 新しい関数を使用
+          console.log(
+            '[CardDetail] Calling generateTarotMessageFromWebApi for card:',
+            foundCard.name
+          ); // ログ追加
           const message = await generateTarotMessageFromWebApi(foundCard.name, foundCard.meaning);
+          console.log('[CardDetail] Received message:', message); // ログ追加
           // 明示的にオブジェクトを作成して状態を更新
           setTarotMessage({
             upright: message.upright || '正位置の解釈を取得できませんでした',
@@ -75,7 +80,12 @@ export default function CardDetail() {
           // キーを更新して再マウントを強制
           setRenderKey((prev) => prev + 1);
         } catch (error) {
-          console.error('文言生成エラー:', error);
+          console.error('[CardDetail] Error generating tarot message:', error); // ログ追加 (詳細化)
+          // エラーオブジェクト全体をログに出力
+          console.error(
+            '[CardDetail] Full error object:',
+            JSON.stringify(error, Object.getOwnPropertyNames(error))
+          );
           setError(error instanceof Error ? error.message : '文言生成に失敗しました');
         }
       }
