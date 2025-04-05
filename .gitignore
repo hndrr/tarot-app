@@ -7,3 +7,9 @@ node_modules
 packages/constants/dist/*
 apps/web/.turbo/turbo-build.log
 apps/my-expo-app/*
+apps/mobile/android/gradle.properties
+apps/mobile/android/settings.gradle
+apps/mobile/android/app/*
+apps/mobile/ios/*
+apps/mobile/.expo/*
+apps/mobile/*.aab
