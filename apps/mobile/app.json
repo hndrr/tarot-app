@@ -41,9 +41,9 @@
     },
     "extra": {
       "webApiUrl": {
-        "development": "http://localhost:3000/api"
+        "development": "http://localhost:3000/api",
+        "production": "https://tarotie.hndr.dev/api"
       },
-      "apiKey": "DEV_API_KEY_12345",
       "router": {
         "origin": false
       },

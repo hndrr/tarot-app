@@ -18,18 +18,24 @@ const getApiUrl = () => {
   return process.env.EXPO_PUBLIC_WEB_API_URL || "http://localhost:3000/api";
 };
 
-// APIキーを取得
+// APIキーを取得 (環境変数からのみ)
 const getApiKey = () => {
-  const extra = Constants.expoConfig?.extra;
-  console.log("[getApiKey] Constants.expoConfig.extra:", extra);
-  let apiKey = "";
-  if (extra?.apiKey) {
-    apiKey = extra.apiKey;
-    console.log("[getApiKey] Found API key in app.json extra:", apiKey);
-  } else {
-    apiKey = process.env.EXPO_PUBLIC_API_KEY || "";
-    console.log("[getApiKey] API key from env var:", apiKey);
+  // const extra = Constants.expoConfig?.extra; // app.jsonからは取得しない
+  // console.log("[getApiKey] Constants.expoConfig.extra:", extra);
+  const apiKey = process.env.EXPO_PUBLIC_API_KEY || "";
+  if (!apiKey) {
+    // キーが見つからない場合の警告（開発中のみ）
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        "[getApiKey] EXPO_PUBLIC_API_KEY environment variable is not set. API calls might fail."
+      );
+    }
   }
+  console.log(
+    "[getApiKey] API key from env var:",
+    apiKey ? "******" : "(empty)"
+  ); // キー自体はログに出さない
+  // 閉じ括弧と重複ログを削除
   return apiKey;
 };
 
