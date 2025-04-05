@@ -112,11 +112,11 @@ export default function CardDetail() {
           </Pressable>
 
           <View className="flex-col items-center gap-10">
-            <View className={`aspect-[2/3] ${isReversed ? 'rotate-180' : ''}`}>
+            <View className={`aspect-[2/3] w-80 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
               {resolvedImage && (
                 <Image
                   source={resolvedImage}
-                  className="aspect-[2/3] max-h-fit max-w-80 rounded-lg"
+                  className="h-full w-full rounded-lg shadow-lg web:aspect-[2/3] web:max-h-fit web:max-w-80"
                   resizeMode="cover"
                 />
               )}
