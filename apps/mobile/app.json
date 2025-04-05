@@ -43,6 +43,7 @@
       "webApiUrl": {
         "development": "http://localhost:3000/api"
       },
+      "apiKey": "DEV_API_KEY_12345",
       "router": {
         "origin": false
       },

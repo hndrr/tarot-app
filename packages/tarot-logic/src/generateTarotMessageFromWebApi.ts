@@ -1,21 +1,41 @@
-import axios from "axios";
-import { TarotResponse } from "@tarrot/api-schema";
+import axios, { AxiosError } from "axios";
+import { TarotResponse } from "@tarrot/api-schema"; // 正しいパッケージ名を使用
 import Constants from "expo-constants";
+// import { generateTarotMessageMobile } from "./generateTarotMessageMobile"; // フォールバック削除
 
-// 環境に応じたAPIのURLを取得 (フェーズ1では開発用URLを優先)
+// 環境に応じたAPIのURLを取得
 const getApiUrl = () => {
-  // app.jsonのextraから取得を試みる
+  const env = process.env.NODE_ENV || "development";
   const extra = Constants.expoConfig?.extra;
-  if (extra?.webApiUrl?.development) {
-    return extra.webApiUrl.development;
+
+  if (extra?.webApiUrl) {
+    return (
+      extra.webApiUrl[env] ||
+      extra.webApiUrl.development ||
+      "http://localhost:3000/api"
+    );
   }
-  // 環境変数から取得 (フォールバック)
   return process.env.EXPO_PUBLIC_WEB_API_URL || "http://localhost:3000/api";
+};
+
+// APIキーを取得
+const getApiKey = () => {
+  const extra = Constants.expoConfig?.extra;
+  console.log("[getApiKey] Constants.expoConfig.extra:", extra);
+  let apiKey = "";
+  if (extra?.apiKey) {
+    apiKey = extra.apiKey;
+    console.log("[getApiKey] Found API key in app.json extra:", apiKey);
+  } else {
+    apiKey = process.env.EXPO_PUBLIC_API_KEY || "";
+    console.log("[getApiKey] API key from env var:", apiKey);
+  }
+  return apiKey;
 };
 
 /**
  * Web API (/api/tarot) を呼び出してタロットメッセージを生成します。
- * (フェーズ1: 基本的な実装)
+ * エラーハンドリングを含みます（フォールバックは削除）。
  */
 export const generateTarotMessageFromWebApi = async (
   name: string,
@@ -23,16 +43,35 @@ export const generateTarotMessageFromWebApi = async (
 ): Promise<TarotResponse> => {
   try {
     const apiUrl = getApiUrl();
+    const apiKey = getApiKey();
     console.log(
       `[generateTarotMessageFromWebApi] Calling API: ${apiUrl}/tarot`
     );
 
-    const response = await axios.post<TarotResponse>(`${apiUrl}/tarot`, {
-      name,
-      meaning,
-    });
+    if (!apiKey && process.env.NODE_ENV !== "development") {
+      console.warn(
+        "[generateTarotMessageFromWebApi] API Key is missing in production environment."
+      );
+      // 本番でキーがない場合はエラーにする
+      throw new Error("API Key is required for production environment.");
+    }
 
-    // レスポンス形式の基本的な検証
+    const response = await axios.post<TarotResponse>(
+      `${apiUrl}/tarot`,
+      {
+        name,
+        meaning,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+        timeout: 15000, // タイムアウトを15秒に設定
+      }
+    );
+
+    // レスポンス形式の検証
     if (
       !response.data ||
       typeof response.data.upright !== "string" ||
@@ -50,16 +89,22 @@ export const generateTarotMessageFromWebApi = async (
   } catch (error) {
     console.error(
       "[generateTarotMessageFromWebApi] Error calling Web API:",
-      error
+      error instanceof Error ? error.message : error
     );
+
+    // Axiosエラーの詳細ログ
     if (axios.isAxiosError(error)) {
-      console.error(
-        "Axios error details:",
-        error.response?.status,
-        error.response?.data
-      );
+      const axiosError = error as AxiosError;
+      console.error("Axios error details:", {
+        status: axiosError.response?.status,
+        data: axiosError.response?.data,
+        code: axiosError.code,
+      });
     }
-    // フェーズ1ではエラーをそのままスローする
-    throw new Error("Failed to generate tarot message from Web API");
+
+    // エラーをスローして呼び出し元で処理させる
+    throw new Error(
+      `Failed to generate tarot message from Web API: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
   }
 };
