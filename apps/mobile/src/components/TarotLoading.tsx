@@ -5,11 +5,11 @@ export const TarotLoading = () => {
   return (
     <View className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-purple-900 to-indigo-900 text-white">
       {/* background */}
-      <View className="absolute inset-0 z-0">
+      <View className="absolute inset-0 z-0 overflow-hidden">
         <Image
           source={require('assets/images/mystic-background.jpg')}
           resizeMode="cover"
-          className="h-full w-full object-cover opacity-70"
+          className="h-full w-full opacity-70"
         />
       </View>
 
