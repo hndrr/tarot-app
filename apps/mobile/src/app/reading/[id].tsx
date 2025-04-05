@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-} from "react-native";
-import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
-import { TarotCard } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
-import { tarotCards } from "@repo/constants";
-import { useRouter } from "expo-router";
-import { TarotLoading } from "components/TarotLoading";
+import React, { useEffect, useState } from 'react';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { TarotCard } from '../../components/TarotCard';
+import { tarotCards } from '../../data/tarotCards';
+import { useRouter } from 'expo-router';
+import { TarotLoading } from '../../components/TarotLoading';
+import { Card } from '../../types';
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -27,13 +22,6 @@ type ReadingRouteParams = {
   index: undefined;
 };
 
-type Card = {
-  id: number;
-  name: string;
-  image: string;
-  meaning: string;
-};
-
 type NavigationProps = {
   navigate: (screen: keyof ReadingRouteParams, params?: any) => void;
   replace: (screen: keyof ReadingRouteParams, params?: any) => void;
@@ -41,13 +29,13 @@ type NavigationProps = {
 
 export default function Reading() {
   const router = useRouter();
-  const route = useRoute<RouteProp<ReadingRouteParams, "reading">>();
+  const route = useRoute<RouteProp<ReadingRouteParams, 'reading'>>();
   const navigation = useNavigation<NavigationProps>();
   const { id, reversed, back } = route.params || {};
   const [loading, setLoading] = useState(true);
   const [card, setCard] = useState<Card | null>(null);
-  const isReversed = reversed === "true";
-  const isBack = back === "true";
+  const isReversed = reversed === 'true';
+  const isBack = back === 'true';
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -61,7 +49,7 @@ export default function Reading() {
     };
 
     fetchCard();
-  }, [id, back]);
+  }, [id, isBack]);
 
   if (loading) {
     return <TarotLoading />;
@@ -69,16 +57,12 @@ export default function Reading() {
 
   if (!card) {
     return (
-      <LinearGradient
-        colors={["#5b21b6", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
+      <LinearGradient colors={['#5b21b6', '#4338ca']} style={styles.container}>
         <Text className="text-lg text-white">カードが見つかりません</Text>
         <Pressable
-          onPress={() => navigation.navigate("index")}
-          className="mt-4 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700"
-        >
-          <Text className="text-white">トップに戻る</Text>
+          onPress={() => navigation.navigate('index')}
+          className="mt-4 rounded-full bg-purple-600 px-4 py-2">
+          <Text className="text-center text-white">トップに戻る</Text>
         </Pressable>
       </LinearGradient>
     );
@@ -88,61 +72,51 @@ export default function Reading() {
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
     const selectedCard = tarotCards[randomIndex];
     router.replace({
-      pathname: "/reading/[id]",
+      pathname: '/reading/[id]',
       params: {
         id: selectedCard.id,
-        reversed: Math.random() < 0.5 ? "true" : "false",
-        back: "false",
+        reversed: Math.random() < 0.5 ? 'true' : 'false',
+        back: 'false',
       },
     });
   };
 
   return (
-    <LinearGradient
-      colors={["#1e293b", "#4338ca"]}
-      className="flex-1 px-5 py-10 justify-center items-center"
-    >
+    <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
       <ScrollView>
-        <View className="container mx-auto px-4 py-10">
-          <View className="mb-6 text-center">
-            <Text className="text-3xl font-bold text-white mb-2">
-              あなたのカード
-            </Text>
-            <Text className="text-purple-300">
-              このカードがあなたに伝えるメッセージ
-            </Text>
+        <View className="items-center px-5 py-10">
+          <View className="mb-6 items-center">
+            <Text className="mb-2 text-2xl font-bold text-white">あなたのカード</Text>
+            <Text className="text-base text-purple-200">このカードがあなたに伝えるメッセージ</Text>
           </View>
 
-          <View className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mb-6 w-full">
+          <View className="mb-6 w-full items-center rounded-lg bg-white/10 p-6">
             <TarotCard card={card} isReversed={isReversed} />
             <Pressable
               onPress={() =>
                 router.replace({
-                  pathname: "/details/[id]",
+                  pathname: '/details/[id]',
                   params: {
                     id: card.id,
                     reversed: reversed,
-                    back: "false",
+                    back: 'false',
                   },
                 })
               }
-              className="mt-4 px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-700"
-            >
-              <Text className="text-white text-center">詳細を見る</Text>
+              className="mt-4 rounded-full bg-purple-600 px-6 py-3">
+              <Text className="text-center text-white">詳細を見る</Text>
             </Pressable>
           </View>
 
-          <View className="gap-4">
+          <View className="w-full gap-4">
             <Pressable
               onPress={drawCard}
-              className="px-6 py-3 rounded-full bg-slate-600 hover:bg-slate-700"
-            >
-              <Text className="text-white text-center">もう一度引く</Text>
+              className="items-center rounded-full bg-slate-600 px-6 py-3">
+              <Text className="text-center text-white">もう一度引く</Text>
             </Pressable>
             <Pressable
-              onPress={() => navigation.navigate("index")}
-              className="px-6 py-3 rounded-full text-purple-300 hover:text-purple-100"
-            >
+              onPress={() => navigation.navigate('index')}
+              className="items-center rounded-full px-6 py-3">
               <Text className="text-center text-white">トップに戻る</Text>
             </Pressable>
           </View>
@@ -151,3 +125,9 @@ export default function Reading() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

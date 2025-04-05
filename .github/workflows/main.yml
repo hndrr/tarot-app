@@ -1,27 +1,30 @@
 name: tests
 
-on: [push]
+on:
+  push:
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/main.yml" # ワークフロー自体の変更もトリガーに含める
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18.19.0"
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8 # pnpmのバージョンを指定（プロジェクトに合わせて変更可能）
+        uses: pnpm/action-setup@v4
+        # version指定を削除し、package.jsonのpackageManagerを使用
       - name: Install dependencies
         run: pnpm install
       - name: Run ESLint
         run: pnpm turbo run lint --filter=@tarrot/web...
       - name: Run TypeScript type check
-        run: pnpm turbo run type-check --filter=@tarrot/web... # 正しいスクリプト名に修正
+        run: pnpm turbo run type-check --filter=@tarrot/web...
       - name: Run tests
         run: pnpm turbo run test --filter=@tarrot/web... # test スクリプトを想定 (test:ci がなければ test)
       - name: Build projects

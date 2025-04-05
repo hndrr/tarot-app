@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, ImageSourcePropType } from "react-native";
+import { View, Text, Image, ImageSourcePropType } from "react-native"; // Add StyleSheet
 import type { TarotCard as TarotCardType } from "@repo/types"; // Use shared type
 
 type TarotCardProps = {
@@ -39,11 +39,17 @@ export const imagePaths: {
 
 export const TarotCard = ({ card, isReversed }: TarotCardProps) => {
   // Export named component
-  // Resolve image using the mobile-specific path map
-  const resolvedImage = imagePaths[card.image];
+  // Extract card name from the image path (e.g., "tower" from "/assets/cards/tower.webp")
+  const cardName = card.image.split("/").pop()?.split(".")[0];
+
+  // Resolve image using the extracted card name as the key
+  const resolvedImage = cardName ? imagePaths[cardName] : undefined;
 
   if (!resolvedImage) {
-    console.warn(`Image not found for card: ${card.image}`);
+    // Log the original path and the extracted name for debugging
+    console.warn(
+      `Image not found for card. Path: ${card.image}, Extracted Name: ${cardName}`
+    );
     // Optionally return a placeholder or null
   }
 

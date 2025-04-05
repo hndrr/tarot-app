@@ -7,7 +7,7 @@ module.exports = {
     "prettier", // Add prettier last to override other formatting rules
     "turbo", // Recommended for Turborepo projects
   ],
-  plugins: ["@typescript-eslint", "react"],
+  plugins: ["react"], // @typescript-eslint は extends でロードされるため削除
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",

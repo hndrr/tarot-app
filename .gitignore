@@ -6,3 +6,4 @@ node_modules
 .turbo/*
 packages/constants/dist/*
 apps/web/.turbo/turbo-build.log
+apps/my-expo-app/*

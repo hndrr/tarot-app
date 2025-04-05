@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image } from "react-native"; // Add StyleSheet
 // Keep the image path resolution logic specific to mobile for now
 // This might need adjustment depending on how assets are handled in the monorepo
 // Export imagePaths for use in other mobile components if needed
@@ -29,10 +29,13 @@ export const imagePaths = {
 };
 export const TarotCard = ({ card, isReversed }) => {
     // Export named component
-    // Resolve image using the mobile-specific path map
-    const resolvedImage = imagePaths[card.image];
+    // Extract card name from the image path (e.g., "tower" from "/assets/cards/tower.webp")
+    const cardName = card.image.split("/").pop()?.split(".")[0];
+    // Resolve image using the extracted card name as the key
+    const resolvedImage = cardName ? imagePaths[cardName] : undefined;
     if (!resolvedImage) {
-        console.warn(`Image not found for card: ${card.image}`);
+        // Log the original path and the extracted name for debugging
+        console.warn(`Image not found for card. Path: ${card.image}, Extracted Name: ${cardName}`);
         // Optionally return a placeholder or null
     }
     return (_jsxs(View, { className: "flex flex-col items-center", children: [_jsx(View, { className: `relative aspect-[2/3] w-64 mb-6 ${isReversed ? "rotate-180" : ""}`, children: resolvedImage && ( // Render image only if found

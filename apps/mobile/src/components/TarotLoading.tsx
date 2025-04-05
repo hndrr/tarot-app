@@ -1,15 +1,15 @@
-import React from "react";
-import { View, Text, Image } from "react-native";
+import React from 'react';
+import { View, Text, Image } from 'react-native';
 
 export const TarotLoading = () => {
   return (
-    <View className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-900 to-indigo-900 text-white relative overflow-hidden">
+    <View className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-purple-900 to-indigo-900 text-white">
       {/* background */}
-      <View className="absolute inset-0 z-0">
+      <View className="absolute inset-0 z-0 overflow-hidden">
         <Image
-          source={require("assets/images/mystic-background.jpg")}
+          source={require('assets/images/mystic-background.jpg')}
           resizeMode="cover"
-          className="object-cover opacity-70 w-full h-full"
+          className="h-full w-full opacity-70"
         />
       </View>
 
@@ -32,17 +32,17 @@ export const TarotLoading = () => {
       </View> */}
 
       {/* main */}
-      <View className="flex flex-col items-center z-10">
-        <View className="relative w-40 h-40 mb-4">
+      <View className="z-10 flex flex-col items-center">
+        <View className="relative mb-4 h-40 w-40">
           <Image
-            source={require("assets/images/crystal-ball.png")}
+            source={require('assets/images/crystal-ball.png')}
             resizeMode="cover"
-            className="object-contain opacity-80 w-full h-full"
+            className="h-full w-full object-contain opacity-80"
           />
         </View>
 
         {/* text */}
-        <Text className="ml-6 mt-6 text-amber-200 text-2xl animate-fade font-bold bg-black bg-opacity-40 px-2 py-1.5 rounded-md">
+        <Text className="ml-6 mt-6 animate-fade rounded-md bg-black bg-opacity-40 px-2 py-1.5 text-2xl font-bold text-amber-200">
           あなたの運命を占っています...
         </Text>
       </View>

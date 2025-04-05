@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,15 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
-} from "react-native";
-import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { tarotCards } from "@repo/constants";
-import { imagePaths } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
-import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { generateTarotMessage } from "lib/generateTarotMessageGemini";
+  StyleSheet,
+} from 'react-native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { tarotCards } from '../../data/tarotCards';
+import { imagePaths } from '../../components/TarotCard';
+import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { generateTarotMessage } from '../../lib/generateTarotMessageGemini';
+import { Card } from '../../types';
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -28,20 +30,13 @@ type ReadingRouteParams = {
   index: undefined;
 };
 
-type Card = {
-  id: number;
-  name: string;
-  image: string;
-  meaning: string;
-};
-
 type NavigationProps = {
   navigate: (screen: keyof ReadingRouteParams, params?: any) => void;
   replace: (screen: keyof ReadingRouteParams, params?: any) => void;
 };
 
 export default function CardDetail() {
-  const route = useRoute<RouteProp<ReadingRouteParams, "reading">>();
+  const route = useRoute<RouteProp<ReadingRouteParams, 'reading'>>();
   const navigation = useNavigation<NavigationProps>();
   const { id, reversed } = route.params as { id: string; reversed?: string };
   const [loading, setLoading] = useState(true);
@@ -50,8 +45,7 @@ export default function CardDetail() {
     upright: string;
     reversed: string;
   } | null>(null);
-  const resolvedImage = card ? imagePaths[card.image] : null;
-  const isReversed = reversed === "true";
+  const isReversed = reversed === 'true';
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -60,13 +54,10 @@ export default function CardDetail() {
 
       if (foundCard) {
         try {
-          const message = await generateTarotMessage(
-            foundCard.name,
-            foundCard.meaning
-          );
+          const message = await generateTarotMessage(foundCard.name, foundCard.meaning);
           setTarotMessage(message);
         } catch (error) {
-          console.error("文言生成エラー:", error);
+          console.error('文言生成エラー:', error);
         }
       }
 
@@ -78,93 +69,76 @@ export default function CardDetail() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={["#1e293b", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
+      <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
         <ActivityIndicator size="large" color="#ffffff" />
-        <Text className="text-lg text-white mt-4">
-          カードを読み込んでいます...
-        </Text>
+        <Text className="mt-4 text-lg text-white">カードを読み込んでいます...</Text>
       </LinearGradient>
     );
   }
 
   if (!card) {
     return (
-      <LinearGradient
-        colors={["#1e293b", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
+      <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
         <Text className="text-lg text-white">カードが見つかりません</Text>
         <Pressable
-          onPress={() => navigation.navigate("index")}
-          className="mt-4 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700"
-        >
+          onPress={() => navigation.navigate('index')}
+          className="mt-4 rounded-full bg-purple-600 px-4 py-2">
           <Text className="text-white">トップに戻る</Text>
         </Pressable>
       </LinearGradient>
     );
   }
 
+  // カード画像を取得
+  const resolvedImage = imagePaths[card.image];
+
   return (
-    <LinearGradient colors={["#1e293b", "#4338ca"]} className="flex-1">
+    <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
       <ScrollView>
-        <View className="container mx-auto px-4 py-10">
+        <View className="p-4">
           <Pressable
             onPress={() =>
               router.replace({
-                pathname: "/reading/[id]",
+                pathname: '/reading/[id]',
                 params: {
                   id: card.id,
                   reversed: reversed,
-                  back: "true",
+                  back: 'true',
                 },
               })
             }
-            className="inline-block mb-8 text-purple-300 hover:text-purple-100"
-          >
+            className="mb-8">
             <Text className="text-white">戻る</Text>
           </Pressable>
 
-          <View className="flex flex-col md:flex-row items-center gap-10">
-            <View
-              className={`relative aspect-[2/3] w-64 ${
-                isReversed ? "rotate-180" : ""
-              }`}
-            >
-              {resolvedImage && ( // Add null check
+          <View className="flex-col items-center gap-10">
+            <View className={`aspect-[2/3] w-80 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
+              {resolvedImage && (
                 <Image
                   source={resolvedImage}
-                  className="w-full h-full rounded-lg"
+                  className="h-full w-full rounded-lg shadow-lg web:aspect-[2/3] web:max-h-fit web:max-w-80"
                   resizeMode="cover"
                 />
               )}
             </View>
 
             <View className="flex-1">
-              <Text className="mb-4 text-white text-center">
-                <Text className="text-3xl font-bold">{card.name} </Text>
-                <Text className="text-2xl font-normal">
-                  {isReversed ? `逆位置` : `正位置`}
-                </Text>
+              <Text className="mb-4 text-center text-white">
+                <Text className="text-2xl font-bold">{card.name} </Text>
+                <Text className="text-xl font-normal">{isReversed ? `逆位置` : `正位置`}</Text>
               </Text>
-              <View className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <Text className="text-xl font-semibold mb-2 text-white">
-                  カードの意味
-                </Text>
-                <Text className="text-gray-200">{card.meaning}</Text>
-                <Text className="text-xl font-semibold mt-6 mb-2 text-white">
-                  詳細な解釈
-                </Text>
-                <View className="space-y-4">
+              <View className="rounded-lg bg-white/10 p-6">
+                <Text className="mb-2 text-xl font-semibold text-white">カードの意味</Text>
+                <Text className="mb-6 text-slate-200">{card.meaning}</Text>
+                <Text className="mb-2 text-xl font-semibold text-white">詳細な解釈</Text>
+                <View className="mt-4">
                   <View>
-                    <Text className="text-gray-200">
+                    <Text className="text-slate-200">
                       {tarotMessage
                         ? isReversed
                           ? tarotMessage.reversed
                           : tarotMessage.upright
-                        : "生成中..."}
+                        : '生成中...'}
                     </Text>
                   </View>
                 </View>
@@ -176,3 +150,11 @@ export default function CardDetail() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
