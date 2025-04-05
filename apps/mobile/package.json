@@ -68,7 +68,9 @@
     "react-test-renderer": "18.3.1",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.3.3",
-    "@expo/cli": "^0.19.5"
+    "babel-preset-expo": "^11.0.12",
+    "@expo/cli": "^0.19.5",
+    "@babel/plugin-transform-react-jsx": "^7.25.0"
   },
   "eslintConfig": {
     "extends": "universe/native",
