@@ -50,6 +50,9 @@ importers:
       '@react-navigation/native':
         specifier: ^7.0.14
         version: 7.1.5(react-native@0.76.9)(react@18.3.1)
+      '@repo/tarot-logic':
+        specifier: workspace:*
+        version: link:../../packages/tarot-logic
       axios:
         specifier: ^1.7.9
         version: 1.8.4
@@ -185,7 +188,7 @@ importers:
     dependencies:
       expo:
         specifier: ^52.0.44
-        version: 52.0.44(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react-native-webview@13.12.5)(react-native@0.76.9)(react@18.3.1)
+        version: 52.0.44(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react-native@0.76.9)(react@18.3.1)
       expo-status-bar:
         specifier: ~2.0.1
         version: 2.0.1(react-native@0.76.9)(react@18.3.1)
@@ -358,9 +361,15 @@ importers:
 
   packages/tarot-logic:
     dependencies:
+      '@tarrot/api-schema':
+        specifier: workspace:*
+        version: link:../api-schema
       axios:
         specifier: ^1.7.9
         version: 1.8.4
+      expo-constants:
+        specifier: ~17.0.3
+        version: 17.0.8(expo@52.0.44)(react-native@0.76.9)
       openai:
         specifier: ^4.77.3
         version: 4.91.1(zod@3.24.2)
@@ -3592,6 +3601,23 @@ packages:
       nullthrows: 1.1.1
       react: 18.3.1
       react-native: 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(@types/react@18.3.20)(react@18.3.1)
+
+  /@react-native/virtualized-lists@0.76.9(react-native@0.76.9)(react@18.3.1):
+    resolution: {integrity: sha512-2neUfZKuqMK2LzfS8NyOWOyWUJOWgDym5fUph6fN9qF+LNPjAvnc4Zr9+o+59qjNu/yXwQgVMWNU4+8WJuPVWw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/react': ^18.2.6
+      react: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      invariant: 2.2.4
+      nullthrows: 1.1.1
+      react: 18.3.1
+      react-native: 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react@18.3.1)
+    dev: false
 
   /@react-navigation/bottom-tabs@7.3.9(@react-navigation/native@7.1.5)(react-native-safe-area-context@4.12.0)(react-native-screens@4.4.0)(react-native@0.76.9)(react@18.3.1):
     resolution: {integrity: sha512-m5RPLtvzCvxf/6iVU5sBeLP7FJMhDqZZ8sAjG5n/4caNPl3Xa+YkzKV5cNwAGYO/HquIQeG5zna2Mdt8YeQLjQ==}
@@ -7367,6 +7393,55 @@ packages:
       - supports-color
       - utf-8-validate
 
+  /expo@52.0.44(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react-native@0.76.9)(react@18.3.1):
+    resolution: {integrity: sha512-qj3+MWxmqLyBaYQ8jDOvVLEgSqNplH3cf+nDhxCo4C1cpTPD1u/HGh1foibtaeuCYLHsE5km1lrcOpRbFJ4luQ==}
+    hasBin: true
+    peerDependencies:
+      '@expo/dom-webview': '*'
+      '@expo/metro-runtime': '*'
+      react: '*'
+      react-native: '*'
+      react-native-webview: '*'
+    peerDependenciesMeta:
+      '@expo/dom-webview':
+        optional: true
+      '@expo/metro-runtime':
+        optional: true
+      react-native-webview:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.27.0
+      '@expo/cli': 0.22.24
+      '@expo/config': 10.0.11
+      '@expo/config-plugins': 9.0.17
+      '@expo/fingerprint': 0.11.11
+      '@expo/metro-config': 0.19.12
+      '@expo/vector-icons': 14.0.4
+      babel-preset-expo: 12.0.11(@babel/core@7.26.10)(@babel/preset-env@7.26.9)
+      expo-asset: 11.0.5(expo@52.0.44)(react-native@0.76.9)(react@18.3.1)
+      expo-constants: 17.0.8(expo@52.0.44)(react-native@0.76.9)
+      expo-file-system: 18.0.12(expo@52.0.44)(react-native@0.76.9)
+      expo-font: 13.0.4(expo@52.0.44)(react@18.3.1)
+      expo-keep-awake: 14.0.3(expo@52.0.44)(react@18.3.1)
+      expo-modules-autolinking: 2.0.8
+      expo-modules-core: 2.2.3
+      fbemitter: 3.0.0
+      react: 18.3.1
+      react-native: 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react@18.3.1)
+      web-streams-polyfill: 3.3.3
+      whatwg-url-without-unicode: 8.0.0-3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - babel-plugin-react-compiler
+      - bufferutil
+      - encoding
+      - graphql
+      - react-compiler-runtime
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /exponential-backoff@3.1.2:
     resolution: {integrity: sha512-8QxYTVXUkuy7fIIoitQkPwGonB8F3Zj8eEO8Sqg9Zv/bkI7RJAzowee4gr81Hak/dUTpA2Z7VfQgoijjPNlUZA==}
 
@@ -11052,6 +11127,66 @@ packages:
       - encoding
       - supports-color
       - utf-8-validate
+
+  /react-native@0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9)(react@18.3.1):
+    resolution: {integrity: sha512-+LRwecWmTDco7OweGsrECIqJu0iyrREd6CTCgC/uLLYipiHvk+MH9nd6drFtCw/6Blz6eoKTcH9YTTJusNtrWg==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      '@types/react': ^18.2.6
+      react: ^18.2.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@jest/create-cache-key-function': 29.7.0
+      '@react-native/assets-registry': 0.76.9
+      '@react-native/codegen': 0.76.9(@babel/preset-env@7.26.9)
+      '@react-native/community-cli-plugin': 0.76.9(@babel/core@7.26.10)(@babel/preset-env@7.26.9)
+      '@react-native/gradle-plugin': 0.76.9
+      '@react-native/js-polyfills': 0.76.9
+      '@react-native/normalize-colors': 0.76.9
+      '@react-native/virtualized-lists': 0.76.9(react-native@0.76.9)(react@18.3.1)
+      abort-controller: 3.0.0
+      anser: 1.4.10
+      ansi-regex: 5.0.1
+      babel-jest: 29.7.0(@babel/core@7.26.10)
+      babel-plugin-syntax-hermes-parser: 0.23.1
+      base64-js: 1.5.1
+      chalk: 4.1.2
+      commander: 12.1.0
+      event-target-shim: 5.0.1
+      flow-enums-runtime: 0.0.6
+      glob: 7.2.3
+      invariant: 2.2.4
+      jest-environment-node: 29.7.0
+      jsc-android: 250231.0.0
+      memoize-one: 5.2.1
+      metro-runtime: 0.81.4
+      metro-source-map: 0.81.4
+      mkdirp: 0.5.6
+      nullthrows: 1.1.1
+      pretty-format: 29.7.0
+      promise: 8.3.0
+      react: 18.3.1
+      react-devtools-core: 5.3.2
+      react-refresh: 0.14.2
+      regenerator-runtime: 0.13.11
+      scheduler: 0.24.0-canary-efb381bbf-20230505
+      semver: 7.7.1
+      stacktrace-parser: 0.1.11
+      whatwg-fetch: 3.6.20
+      ws: 6.2.3
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - '@react-native-community/cli'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
 
   /react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}

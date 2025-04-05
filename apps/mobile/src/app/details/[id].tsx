@@ -13,7 +13,8 @@ import { tarotCards } from '../../data/tarotCards';
 import { imagePaths } from '../../components/TarotCard';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { generateTarotMessage } from '../../lib/generateTarotMessageGemini';
+// import { generateTarotMessage } from '../../lib/generateTarotMessageGemini'; // 元のインポートをコメントアウト
+import { generateTarotMessageFromWebApi } from '@repo/tarot-logic'; // 正しいパッケージ名をインポート
 import { Card } from '../../types';
 
 // Routeの型定義
@@ -31,7 +32,9 @@ type ReadingRouteParams = {
 };
 
 type NavigationProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigate: (screen: keyof ReadingRouteParams, params?: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   replace: (screen: keyof ReadingRouteParams, params?: any) => void;
 };
 
@@ -54,7 +57,8 @@ export default function CardDetail() {
 
       if (foundCard) {
         try {
-          const message = await generateTarotMessage(foundCard.name, foundCard.meaning);
+          // 新しい関数を使用
+          const message = await generateTarotMessageFromWebApi(foundCard.name, foundCard.meaning);
           setTarotMessage(message);
         } catch (error) {
           console.error('文言生成エラー:', error);
