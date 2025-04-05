@@ -1,19 +1,23 @@
 name: tests
 
-on: [push]
+on:
+  push:
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/main.yml" # ワークフロー自体の変更もトリガーに含める
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18.19.0"
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 8 # pnpmのバージョンを指定
       - name: Install dependencies
