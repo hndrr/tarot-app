@@ -71,7 +71,7 @@
     "typescript": "~5.3.3",
     "@expo/cli": "^0.19.5",
     "babel-preset-expo": "~12.0.0",
-    "@babel/plugin-transform-react-jsx": "^7.25.0"
+    "@babel/plugin-transform-react-jsx": "^7.25.0",
   },
   "eslintConfig": {
     "extends": "universe/native",
