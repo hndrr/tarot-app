@@ -16,13 +16,14 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@repo/tarot-logic": "workspace:*",
     "@babel/runtime": "^7.27.0",
     "@expo/vector-icons": "^14.0.2",
     "@google/generative-ai": "^0.21.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "@repo/tarot-logic": "workspace:*",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "expo": "~52.0.23",
     "expo-asset": "^11.0.1",
     "expo-blur": "~14.0.1",
@@ -58,15 +59,15 @@
     "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",
     "eslint-config-universe": "^12.0.1",
-    "prettier": "^3.2.5",
-    "prettier-plugin-tailwindcss": "^0.5.11",
     "jest": "^29.2.1",
     "jest-expo": "~52.0.2",
-    "react-test-renderer": "18.3.1",
-    "typescript": "~5.3.3",
     "nativewind": "^4.1.23",
+    "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "react-test-renderer": "18.3.1",
     "tailwindcss": "^3.4.17",
-    "postcss": "^8.4.38"
+    "typescript": "~5.3.3"
   },
   "eslintConfig": {
     "extends": "universe/native",
