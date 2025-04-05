@@ -24,6 +24,8 @@ async function getTarotMessage(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      // ALLOWED_API_KEYSに設定された単一のキーを使用する
+      "x-api-key": process.env.ALLOWED_API_KEYS || "",
     },
     body: JSON.stringify({ name, meaning }),
   });
