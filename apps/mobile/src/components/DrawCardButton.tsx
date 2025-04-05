@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Pressable, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { tarotCards } from "../data/tarotCards";
 
@@ -20,24 +20,13 @@ export default function DrawCardButton() {
   };
 
   return (
-    <Pressable onPress={drawCard} style={styles.button}>
-      <Text style={styles.text}>カードを引く</Text>
+    <Pressable
+      onPress={drawCard}
+      className="bg-purple-600 py-4 px-8 rounded-full mb-8"
+    >
+      <Text className="text-white text-lg text-center font-bold">
+        カードを引く
+      </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "#7c3aed",
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 9999,
-    marginBottom: 32,
-  },
-  text: {
-    color: "white",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-});

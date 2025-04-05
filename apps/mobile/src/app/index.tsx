@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import DrawCardButton from "../components/DrawCardButton";
 
@@ -7,52 +7,28 @@ export default function Index() {
   return (
     <LinearGradient
       colors={["#1e293b", "#4338ca"]} // スレート900からインディゴ900に対応
-      style={styles.container}
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 20,
+      }}
     >
-      <Text style={styles.title}>タロット占い</Text>
+      <Text className="text-3xl font-bold text-white mb-8">タロット占い</Text>
 
-      <View style={styles.imageContainer}>
+      <View className="w-96 h-96 rounded-lg overflow-hidden mb-8">
         <Image
           source={require("../assets/images/cover.png")}
           resizeMode="cover"
-          style={styles.image}
+          className="w-full h-full"
         />
       </View>
 
-      <Text style={styles.subtitle}>今日のあなたの運勢は...?</Text>
+      <Text className="text-xl text-purple-100 mb-8">
+        今日のあなたの運勢は...?
+      </Text>
 
       <DrawCardButton />
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 32,
-  },
-  imageContainer: {
-    width: 384,
-    height: 384,
-    borderRadius: 8,
-    overflow: "hidden",
-    marginBottom: 32,
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  subtitle: {
-    fontSize: 20,
-    color: "#ddd6fe",
-    marginBottom: 32,
-  },
-});

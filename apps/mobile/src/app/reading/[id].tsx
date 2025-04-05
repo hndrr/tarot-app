@@ -58,12 +58,12 @@ export default function Reading() {
   if (!card) {
     return (
       <LinearGradient colors={["#5b21b6", "#4338ca"]} style={styles.container}>
-        <Text style={styles.text}>カードが見つかりません</Text>
+        <Text className="text-lg text-white">カードが見つかりません</Text>
         <Pressable
           onPress={() => navigation.navigate("index")}
-          style={styles.button}
+          className="mt-4 py-2 px-4 bg-purple-600 rounded-full"
         >
-          <Text style={styles.buttonText}>トップに戻る</Text>
+          <Text className="text-white text-center">トップに戻る</Text>
         </Pressable>
       </LinearGradient>
     );
@@ -85,15 +85,17 @@ export default function Reading() {
   return (
     <LinearGradient colors={["#1e293b", "#4338ca"]} style={styles.container}>
       <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>あなたのカード</Text>
-            <Text style={styles.subtitle}>
+        <View className="px-5 py-10 items-center">
+          <View className="mb-6 items-center">
+            <Text className="text-2xl font-bold text-white mb-2">
+              あなたのカード
+            </Text>
+            <Text className="text-base text-purple-200">
               このカードがあなたに伝えるメッセージ
             </Text>
           </View>
 
-          <View style={styles.cardContainer}>
+          <View className="bg-white/10 rounded-lg p-6 w-full max-w-[400px] mb-6 items-center">
             <TarotCard card={card} isReversed={isReversed} />
             <Pressable
               onPress={() =>
@@ -106,21 +108,24 @@ export default function Reading() {
                   },
                 })
               }
-              style={styles.detailButton}
+              className="mt-4 py-3 px-6 bg-purple-600 rounded-full"
             >
-              <Text style={styles.buttonText}>詳細を見る</Text>
+              <Text className="text-white text-center">詳細を見る</Text>
             </Pressable>
           </View>
 
-          <View style={styles.buttonGroup}>
-            <Pressable onPress={drawCard} style={styles.drawAgainButton}>
-              <Text style={styles.buttonText}>もう一度引く</Text>
+          <View className="w-full gap-4">
+            <Pressable
+              onPress={drawCard}
+              className="py-3 px-6 bg-slate-600 rounded-full items-center"
+            >
+              <Text className="text-white text-center">もう一度引く</Text>
             </Pressable>
             <Pressable
               onPress={() => navigation.navigate("index")}
-              style={styles.homeButton}
+              className="py-3 px-6 rounded-full items-center"
             >
-              <Text style={styles.buttonText}>トップに戻る</Text>
+              <Text className="text-white text-center">トップに戻る</Text>
             </Pressable>
           </View>
         </View>
@@ -132,72 +137,5 @@ export default function Reading() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingVertical: 40,
-    alignItems: "center",
-  },
-  header: {
-    marginBottom: 24,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#c4b5fd",
-  },
-  cardContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 8,
-    padding: 24,
-    width: "100%",
-    maxWidth: 400,
-    marginBottom: 24,
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 18,
-    color: "white",
-  },
-  button: {
-    marginTop: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: "#7c3aed",
-    borderRadius: 9999,
-  },
-  detailButton: {
-    marginTop: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: "#7c3aed",
-    borderRadius: 9999,
-  },
-  buttonGroup: {
-    width: "100%",
-    gap: 16,
-  },
-  drawAgainButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: "#475569",
-    borderRadius: 9999,
-    alignItems: "center",
-  },
-  homeButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 9999,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    textAlign: "center",
   },
 });

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-} from "react-native";
+import { View, Text, Image, ImageSourcePropType } from "react-native";
 import type { Card } from "../types";
 
 type TarotCardProps = {
@@ -50,56 +44,23 @@ export const TarotCard = ({ card, isReversed }: TarotCardProps) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.imageContainer, isReversed && styles.reversed]}>
+    <View className="flex-col items-center">
+      <View
+        className={`aspect-[2/3] w-64 mb-6 ${isReversed ? "rotate-180" : ""}`}
+      >
         {resolvedImage && (
           <Image
             source={resolvedImage}
-            style={styles.image}
+            className="w-full h-full rounded-lg"
             resizeMode="cover"
           />
         )}
       </View>
-      <Text style={styles.name}>{card.name}</Text>
-      <Text style={styles.position}>{isReversed ? "逆位置" : "正位置"}</Text>
-      <Text style={styles.meaning}>{card.meaning}</Text>
+      <Text className="text-2xl font-bold mb-3 text-white">{card.name}</Text>
+      <Text className="text-xl text-slate-200 mb-3 font-bold">
+        {isReversed ? "逆位置" : "正位置"}
+      </Text>
+      <Text className="text-xl text-slate-200 text-center">{card.meaning}</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  imageContainer: {
-    aspectRatio: 2 / 3,
-    width: 256,
-    marginBottom: 24,
-  },
-  reversed: {
-    transform: [{ rotate: "180deg" }],
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: "white",
-  },
-  position: {
-    fontSize: 20,
-    color: "#e2e8f0",
-    marginBottom: 12,
-    fontWeight: "bold",
-  },
-  meaning: {
-    fontSize: 20,
-    color: "#e2e8f0",
-    textAlign: "center",
-  },
-});
