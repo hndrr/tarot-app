@@ -15,11 +15,11 @@ export default function Index() {
       }}>
       <Text className="mb-8 text-3xl font-bold text-white">タロット占い</Text>
 
-      <View className="mb-8 h-96 w-96 overflow-hidden rounded-lg">
+      <View className="mb-8 aspect-square h-96 w-96 overflow-hidden rounded-lg">
         <Image
           source={require('../assets/images/cover.png')}
           resizeMode="cover"
-          className="h-full w-full"
+          className="aspect-square max-h-fit max-w-96"
         />
       </View>
 
