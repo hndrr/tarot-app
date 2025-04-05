@@ -9,13 +9,18 @@ const getApiUrl = () => {
   const extra = Constants.expoConfig?.extra;
 
   if (extra?.webApiUrl) {
-    return (
+    const url =
       extra.webApiUrl[env] ||
       extra.webApiUrl.development ||
-      "http://localhost:3000/api"
-    );
+      process.env.EXPO_PUBLIC_WEB_API_URL ||
+      "http://localhost:3000/api";
+    console.log("[getApiUrl] Using URL:", url);
+    return url;
   }
-  return process.env.EXPO_PUBLIC_WEB_API_URL || "http://localhost:3000/api";
+
+  const url =
+    process.env.EXPO_PUBLIC_WEB_API_URL || "http://localhost:3000/api";
+  return url;
 };
 
 // APIキーを取得 (環境変数からのみ)
@@ -53,13 +58,15 @@ export const generateTarotMessageFromWebApi = async (
     console.log(
       `[generateTarotMessageFromWebApi] Calling API: ${apiUrl}/tarot`
     );
-
-    if (!apiKey && process.env.NODE_ENV !== "development") {
+    // APIキーのチェック（開発環境でも警告を出す）
+    if (!apiKey) {
       console.warn(
-        "[generateTarotMessageFromWebApi] API Key is missing in production environment."
+        "[generateTarotMessageFromWebApi] API Key is missing. This will likely cause authentication failure."
       );
-      // 本番でキーがない場合はエラーにする
-      throw new Error("API Key is required for production environment.");
+      if (process.env.NODE_ENV !== "development") {
+        // 本番でキーがない場合はエラーにする
+        throw new Error("API Key is required for production environment.");
+      }
     }
 
     const response = await axios.post<TarotResponse>(

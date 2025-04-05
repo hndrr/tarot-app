@@ -48,7 +48,11 @@ export default function CardDetail() {
     upright: string;
     reversed: string;
   } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const isReversed = reversed === 'true';
+
+  // 強制的に再レンダリングするためのキー
+  const [renderKey, setRenderKey] = useState(0);
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -57,11 +61,21 @@ export default function CardDetail() {
 
       if (foundCard) {
         try {
+          setError(null); // エラー状態をリセット
           // 新しい関数を使用
           const message = await generateTarotMessageFromWebApi(foundCard.name, foundCard.meaning);
-          setTarotMessage(message);
+          // 明示的にオブジェクトを作成して状態を更新
+          setTarotMessage({
+            upright: message.upright || '正位置の解釈を取得できませんでした',
+            reversed: message.reversed || '逆位置の解釈を取得できませんでした',
+          });
+          // 強制的に再レンダリングを促す
+          setLoading(false);
+          // キーを更新して再マウントを強制
+          setRenderKey((prev) => prev + 1);
         } catch (error) {
           console.error('文言生成エラー:', error);
+          setError(error instanceof Error ? error.message : '文言生成に失敗しました');
         }
       }
 
@@ -98,7 +112,7 @@ export default function CardDetail() {
 
   return (
     <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View className="p-4">
           <Pressable
             onPress={() =>
@@ -112,7 +126,9 @@ export default function CardDetail() {
               })
             }
             className="mb-8">
-            <Text className="text-white">戻る</Text>
+            <Text className="text-xl text-white">
+              <ChevronLeftIcon color="white" size={24} /> 戻る
+            </Text>
           </Pressable>
 
           <View className="flex-col items-center gap-10">
@@ -126,24 +142,35 @@ export default function CardDetail() {
               )}
             </View>
 
-            <View className="flex-1">
+            <View className="w-full flex-1">
               <Text className="mb-4 text-center text-white">
                 <Text className="text-2xl font-bold">{card.name} </Text>
                 <Text className="text-xl font-normal">{isReversed ? `逆位置` : `正位置`}</Text>
               </Text>
-              <View className="rounded-lg bg-white/10 p-6">
+              <View className="mb-10 w-full rounded-lg bg-white/10 p-5">
                 <Text className="mb-2 text-xl font-semibold text-white">カードの意味</Text>
                 <Text className="mb-6 text-slate-200">{card.meaning}</Text>
                 <Text className="mb-2 text-xl font-semibold text-white">詳細な解釈</Text>
-                <View className="mt-4">
-                  <View>
-                    <Text className="text-slate-200">
-                      {tarotMessage
-                        ? isReversed
-                          ? tarotMessage.reversed
-                          : tarotMessage.upright
-                        : '生成中...'}
-                    </Text>
+                <View className="w-full">
+                  <View key={`tarot-message-${renderKey}`}>
+                    {error ? (
+                      <View>
+                        <Text className="mb-2 text-red-400">エラーが発生しました</Text>
+                        <Text className="text-red-200">{error}</Text>
+                      </View>
+                    ) : (
+                      <View style={{ padding: 4 }}>
+                        {tarotMessage ? (
+                          <Text className="text-lg leading-6 text-white" selectable={true}>
+                            {isReversed
+                              ? tarotMessage.reversed || '逆位置の解釈を取得できませんでした'
+                              : tarotMessage.upright || '正位置の解釈を取得できませんでした'}
+                          </Text>
+                        ) : (
+                          <Text className="text-white">生成中...</Text>
+                        )}
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -158,7 +185,5 @@ export default function CardDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
