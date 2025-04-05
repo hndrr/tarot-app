@@ -16,6 +16,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@repo/tarot-logic": "workspace:*",
     "@babel/runtime": "^7.27.0",
     "@expo/vector-icons": "^14.0.2",
     "@google/generative-ai": "^0.21.0",
