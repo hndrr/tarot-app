@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { Geist, Geist_Mono } from "next/font/google";
 // GoogleTagManager は dynamic import するため、通常の import は削除
 import "./globals.css";
+import GoogleTagManagerWrapper from "@/components/GoogleTagManagerWrapper";
 
 // GoogleTagManagerを動的にインポートし、SSRを無効にする
-const DynamicGoogleTagManager = dynamic(
-  () =>
-    import("@next/third-parties/google").then((mod) => mod.GoogleTagManager),
-  { ssr: false }
-);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,8 +42,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      {/* GTM_IDが存在する場合のみ、動的にインポートしたコンポーネントをレンダリング */}
-      {GTM_ID && <DynamicGoogleTagManager gtmId={GTM_ID} />}
+      {/* 作成したクライアントコンポーネントを使用 */}
+      <GoogleTagManagerWrapper gtmId={GTM_ID} />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
