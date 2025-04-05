@@ -1,0 +1,5 @@
+
+
+> @repo/ui@0.0.0 lint /Users/hndr/workspace/tarrot_app/packages/ui
+> eslint .
+
