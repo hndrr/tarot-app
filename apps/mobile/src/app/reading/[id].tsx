@@ -103,8 +103,8 @@ export default function Reading() {
                   },
                 })
               }
-              className="mt-4 rounded-full bg-purple-600 px-6 py-3">
-              <Text className="text-center text-white">詳細を見る</Text>
+              className="mt-4 w-full rounded-full bg-purple-600 px-6 py-3">
+              <Text className="text-center text-lg text-white">詳細を見る</Text>
             </Pressable>
           </View>
 

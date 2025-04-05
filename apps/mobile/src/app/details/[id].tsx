@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 // import { generateTarotMessage } from '../../lib/generateTarotMessageGemini'; // 元のインポートをコメントアウト
 import { generateTarotMessageFromWebApi } from '@repo/tarot-logic'; // 正しいパッケージ名をインポート
 import { Card } from '../../types';
+import { ChevronLeftIcon } from 'lucide-react-native';
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -125,13 +126,12 @@ export default function CardDetail() {
                 },
               })
             }
-            className="mb-8">
-            <Text className="text-xl text-white">
-              <ChevronLeftIcon color="white" size={24} /> 戻る
-            </Text>
+            className="mb-4 w-24 flex-row items-center gap-2 rounded-full bg-purple-600 p-1">
+            <ChevronLeftIcon color="white" size={24} />
+            <Text className="text-lg text-white">戻る</Text>
           </Pressable>
 
-          <View className="flex-col items-center gap-10">
+          <View className="flex-col items-center gap-6">
             <View className={`aspect-[2/3] w-80 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
               {resolvedImage && (
                 <Image
@@ -148,9 +148,9 @@ export default function CardDetail() {
                 <Text className="text-xl font-normal">{isReversed ? `逆位置` : `正位置`}</Text>
               </Text>
               <View className="mb-10 w-full rounded-lg bg-white/10 p-5">
-                <Text className="mb-2 text-xl font-semibold text-white">カードの意味</Text>
-                <Text className="mb-6 text-slate-200">{card.meaning}</Text>
-                <Text className="mb-2 text-xl font-semibold text-white">詳細な解釈</Text>
+                <Text className="mb-2 text-center text-2xl font-bold text-white">カードの意味</Text>
+                <Text className="mb-6 text-center text-slate-200">{card.meaning}</Text>
+                <Text className="mb-2 text-center text-2xl font-bold text-white">詳細な解釈</Text>
                 <View className="w-full">
                   <View key={`tarot-message-${renderKey}`}>
                     {error ? (
