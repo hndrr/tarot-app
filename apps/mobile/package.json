@@ -67,7 +67,8 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "react-test-renderer": "18.3.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "@expo/cli": "^0.19.5"
   },
   "eslintConfig": {
     "extends": "universe/native",
