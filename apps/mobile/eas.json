@@ -9,19 +9,22 @@
       "distribution": "internal",
       "channel": "development",
       "node": "20.11.0",
-      "pnpm": "9.1.0"
+      "pnpm": "9.1.0",
+      "prebuildCommand": "npx expo prebuild --platform android --clean"
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
       "node": "20.11.0",
-      "pnpm": "9.1.0"
+      "pnpm": "9.1.0",
+      "prebuildCommand": "npx expo prebuild --platform android --clean"
     },
     "production": {
       "autoIncrement": true,
       "channel": "production",
       "node": "20.11.0",
-      "pnpm": "9.1.0"
+      "pnpm": "9.1.0",
+      "prebuildCommand": "npx expo prebuild --platform android --clean"
     }
   },
   "submit": {
