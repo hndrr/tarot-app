@@ -86,7 +86,7 @@ export default function CardDetail() {
             '[CardDetail] Full error object:',
             JSON.stringify(error, Object.getOwnPropertyNames(error))
           );
-          setError(error instanceof Error ? error.message : '文言生成に失敗しました');
+          // setError(error instanceof Error ? error.message : '文言生成に失敗しました');
         }
       }
 
@@ -132,24 +132,8 @@ export default function CardDetail() {
     <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View className="p-4">
-          <Pressable
-            onPress={() =>
-              router.replace({
-                pathname: '/reading/[id]',
-                params: {
-                  id: card.id,
-                  reversed: reversed,
-                  back: 'true',
-                },
-              })
-            }
-            className="mb-4 w-24 flex-row items-center gap-2 rounded-full bg-purple-600 p-1">
-            <ChevronLeftIcon color="white" size={24} />
-            <Text className="text-lg text-white">戻る</Text>
-          </Pressable>
-
           <View className="flex-col items-center gap-6">
-            <View className={`aspect-[2/3] w-80 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
+            <View className={`aspect-[2/3] w-60 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
               {resolvedImage && (
                 <Image
                   source={resolvedImage}
@@ -164,7 +148,7 @@ export default function CardDetail() {
                 <Text className="text-2xl font-bold">{card.name} </Text>
                 <Text className="text-xl font-normal">{isReversed ? `逆位置` : `正位置`}</Text>
               </Text>
-              <View className="mb-10 w-full rounded-lg bg-white/10 p-5">
+              <View className="mb-1 w-full rounded-lg bg-white/10 p-5">
                 <Text className="mb-2 text-center text-2xl font-bold text-white">カードの意味</Text>
                 <Text className="mb-6 text-center text-slate-200">{card.meaning}</Text>
                 <Text className="mb-2 text-center text-2xl font-bold text-white">詳細な解釈</Text>
@@ -192,6 +176,21 @@ export default function CardDetail() {
                 </View>
               </View>
             </View>
+            <Pressable
+              onPress={() =>
+                router.replace({
+                  pathname: '/reading/[id]',
+                  params: {
+                    id: card.id,
+                    reversed: reversed,
+                    back: 'true',
+                  },
+                })
+              }
+              className="relative mb-4 w-full flex-row items-center justify-center gap-2 rounded-full bg-purple-600 px-6 py-2">
+              <ChevronLeftIcon color="white" size={24} className="absolute" />
+              <Text className="w-full pr-8 text-center text-xl text-white">戻る</Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
