@@ -88,7 +88,14 @@ export default function CardDetail() {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
+      <LinearGradient
+        colors={['#1e293b', '#4338ca']}
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+        }}>
         <ActivityIndicator size="large" color="#ffffff" />
         <Text className="mt-4 text-lg text-white">カードを読み込んでいます...</Text>
       </LinearGradient>
