@@ -3,19 +3,15 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": "./src",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@app/*": [
-        "./src/app/*"
-      ],
-      "@lib/*": [
-        "./src/lib/*"
-      ]
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@app/*": ["./app/*"],
+      "@lib/*": ["./lib/*"]
     }
   },
   "include": [

@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-} from "react-native";
+import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { TarotCard } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
-import { tarotCards } from "@repo/constants";
+import { TarotCard } from "../../components/TarotCard";
+import { tarotCards } from "../../data/tarotCards";
 import { useRouter } from "expo-router";
-import { TarotLoading } from "components/TarotLoading";
+import { TarotLoading } from "../../components/TarotLoading";
+import { Card } from "../../types";
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -25,13 +20,6 @@ type ReadingRouteParams = {
     reversed: boolean;
   };
   index: undefined;
-};
-
-type Card = {
-  id: number;
-  name: string;
-  image: string;
-  meaning: string;
 };
 
 type NavigationProps = {
@@ -61,7 +49,7 @@ export default function Reading() {
     };
 
     fetchCard();
-  }, [id, back]);
+  }, [id, isBack]);
 
   if (loading) {
     return <TarotLoading />;
@@ -69,16 +57,13 @@ export default function Reading() {
 
   if (!card) {
     return (
-      <LinearGradient
-        colors={["#5b21b6", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
-        <Text className="text-lg text-white">カードが見つかりません</Text>
+      <LinearGradient colors={["#5b21b6", "#4338ca"]} style={styles.container}>
+        <Text style={styles.text}>カードが見つかりません</Text>
         <Pressable
           onPress={() => navigation.navigate("index")}
-          className="mt-4 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700"
+          style={styles.button}
         >
-          <Text className="text-white">トップに戻る</Text>
+          <Text style={styles.buttonText}>トップに戻る</Text>
         </Pressable>
       </LinearGradient>
     );
@@ -98,22 +83,17 @@ export default function Reading() {
   };
 
   return (
-    <LinearGradient
-      colors={["#1e293b", "#4338ca"]}
-      className="flex-1 px-5 py-10 justify-center items-center"
-    >
+    <LinearGradient colors={["#1e293b", "#4338ca"]} style={styles.container}>
       <ScrollView>
-        <View className="container mx-auto px-4 py-10">
-          <View className="mb-6 text-center">
-            <Text className="text-3xl font-bold text-white mb-2">
-              あなたのカード
-            </Text>
-            <Text className="text-purple-300">
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>あなたのカード</Text>
+            <Text style={styles.subtitle}>
               このカードがあなたに伝えるメッセージ
             </Text>
           </View>
 
-          <View className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mb-6 w-full">
+          <View style={styles.cardContainer}>
             <TarotCard card={card} isReversed={isReversed} />
             <Pressable
               onPress={() =>
@@ -126,24 +106,21 @@ export default function Reading() {
                   },
                 })
               }
-              className="mt-4 px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-700"
+              style={styles.detailButton}
             >
-              <Text className="text-white text-center">詳細を見る</Text>
+              <Text style={styles.buttonText}>詳細を見る</Text>
             </Pressable>
           </View>
 
-          <View className="gap-4">
-            <Pressable
-              onPress={drawCard}
-              className="px-6 py-3 rounded-full bg-slate-600 hover:bg-slate-700"
-            >
-              <Text className="text-white text-center">もう一度引く</Text>
+          <View style={styles.buttonGroup}>
+            <Pressable onPress={drawCard} style={styles.drawAgainButton}>
+              <Text style={styles.buttonText}>もう一度引く</Text>
             </Pressable>
             <Pressable
               onPress={() => navigation.navigate("index")}
-              className="px-6 py-3 rounded-full text-purple-300 hover:text-purple-100"
+              style={styles.homeButton}
             >
-              <Text className="text-center text-white">トップに戻る</Text>
+              <Text style={styles.buttonText}>トップに戻る</Text>
             </Pressable>
           </View>
         </View>
@@ -151,3 +128,76 @@ export default function Reading() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    alignItems: "center",
+  },
+  header: {
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#c4b5fd",
+  },
+  cardContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  text: {
+    fontSize: 18,
+    color: "white",
+  },
+  button: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#7c3aed",
+    borderRadius: 9999,
+  },
+  detailButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: "#7c3aed",
+    borderRadius: 9999,
+  },
+  buttonGroup: {
+    width: "100%",
+    gap: 16,
+  },
+  drawAgainButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: "#475569",
+    borderRadius: 9999,
+    alignItems: "center",
+  },
+  homeButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 9999,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+  },
+});

@@ -9,9 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { useColorScheme } from "hooks/useColorScheme";
-
-import "../global.css";
+import { useColorScheme } from "../hooks/useColorScheme";
 
 SplashScreen.preventAutoHideAsync();
 

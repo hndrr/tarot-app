@@ -6,13 +6,15 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { tarotCards } from "@repo/constants";
-import { imagePaths } from "@repo/ui/src/TarotCard.native"; // Import directly from native source
+import { tarotCards } from "../../data/tarotCards";
+import { imagePaths } from "../../components/TarotCard";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { generateTarotMessage } from "lib/generateTarotMessageGemini";
+import { generateTarotMessage } from "../../lib/generateTarotMessageGemini";
+import { Card } from "../../types";
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -26,13 +28,6 @@ type ReadingRouteParams = {
     reversed: boolean;
   };
   index: undefined;
-};
-
-type Card = {
-  id: number;
-  name: string;
-  image: string;
-  meaning: string;
 };
 
 type NavigationProps = {
@@ -50,7 +45,6 @@ export default function CardDetail() {
     upright: string;
     reversed: string;
   } | null>(null);
-  const resolvedImage = card ? imagePaths[card.image] : null;
   const isReversed = reversed === "true";
 
   useEffect(() => {
@@ -78,39 +72,34 @@ export default function CardDetail() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={["#1e293b", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
+      <LinearGradient colors={["#1e293b", "#4338ca"]} style={styles.container}>
         <ActivityIndicator size="large" color="#ffffff" />
-        <Text className="text-lg text-white mt-4">
-          カードを読み込んでいます...
-        </Text>
+        <Text style={styles.loadingText}>カードを読み込んでいます...</Text>
       </LinearGradient>
     );
   }
 
   if (!card) {
     return (
-      <LinearGradient
-        colors={["#1e293b", "#4338ca"]}
-        className="flex-1 justify-center items-center"
-      >
-        <Text className="text-lg text-white">カードが見つかりません</Text>
+      <LinearGradient colors={["#1e293b", "#4338ca"]} style={styles.container}>
+        <Text style={styles.text}>カードが見つかりません</Text>
         <Pressable
           onPress={() => navigation.navigate("index")}
-          className="mt-4 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700"
+          style={styles.button}
         >
-          <Text className="text-white">トップに戻る</Text>
+          <Text style={styles.buttonText}>トップに戻る</Text>
         </Pressable>
       </LinearGradient>
     );
   }
 
+  // カード画像を取得
+  const resolvedImage = imagePaths[card.image];
+
   return (
-    <LinearGradient colors={["#1e293b", "#4338ca"]} className="flex-1">
+    <LinearGradient colors={["#1e293b", "#4338ca"]} style={styles.container}>
       <ScrollView>
-        <View className="container mx-auto px-4 py-10">
+        <View style={styles.content}>
           <Pressable
             onPress={() =>
               router.replace({
@@ -122,44 +111,38 @@ export default function CardDetail() {
                 },
               })
             }
-            className="inline-block mb-8 text-purple-300 hover:text-purple-100"
+            style={styles.backButton}
           >
-            <Text className="text-white">戻る</Text>
+            <Text style={styles.backButtonText}>戻る</Text>
           </Pressable>
 
-          <View className="flex flex-col md:flex-row items-center gap-10">
+          <View style={styles.cardDetail}>
             <View
-              className={`relative aspect-[2/3] w-64 ${
-                isReversed ? "rotate-180" : ""
-              }`}
+              style={[styles.imageContainer, isReversed && styles.reversed]}
             >
-              {resolvedImage && ( // Add null check
+              {resolvedImage && (
                 <Image
                   source={resolvedImage}
-                  className="w-full h-full rounded-lg"
+                  style={styles.image}
                   resizeMode="cover"
                 />
               )}
             </View>
 
-            <View className="flex-1">
-              <Text className="mb-4 text-white text-center">
-                <Text className="text-3xl font-bold">{card.name} </Text>
-                <Text className="text-2xl font-normal">
+            <View style={styles.infoContainer}>
+              <Text style={styles.cardTitle}>
+                <Text style={styles.cardName}>{card.name} </Text>
+                <Text style={styles.cardPosition}>
                   {isReversed ? `逆位置` : `正位置`}
                 </Text>
               </Text>
-              <View className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <Text className="text-xl font-semibold mb-2 text-white">
-                  カードの意味
-                </Text>
-                <Text className="text-gray-200">{card.meaning}</Text>
-                <Text className="text-xl font-semibold mt-6 mb-2 text-white">
-                  詳細な解釈
-                </Text>
-                <View className="space-y-4">
+              <View style={styles.meaningContainer}>
+                <Text style={styles.sectionTitle}>カードの意味</Text>
+                <Text style={styles.meaningText}>{card.meaning}</Text>
+                <Text style={styles.sectionTitle}>詳細な解釈</Text>
+                <View style={styles.interpretationContainer}>
                   <View>
-                    <Text className="text-gray-200">
+                    <Text style={styles.interpretationText}>
                       {tarotMessage
                         ? isReversed
                           ? tarotMessage.reversed
@@ -176,3 +159,91 @@ export default function CardDetail() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    padding: 16,
+  },
+  backButton: {
+    marginBottom: 32,
+  },
+  backButtonText: {
+    color: "white",
+  },
+  cardDetail: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 40,
+  },
+  imageContainer: {
+    aspectRatio: 2 / 3,
+    width: 256,
+  },
+  reversed: {
+    transform: [{ rotate: "180deg" }],
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  cardTitle: {
+    marginBottom: 16,
+    color: "white",
+    textAlign: "center",
+  },
+  cardName: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  cardPosition: {
+    fontSize: 20,
+    fontWeight: "normal",
+  },
+  meaningContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+    padding: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "white",
+  },
+  meaningText: {
+    color: "#e2e8f0",
+    marginBottom: 24,
+  },
+  interpretationContainer: {
+    marginTop: 16,
+  },
+  interpretationText: {
+    color: "#e2e8f0",
+  },
+  text: {
+    fontSize: 18,
+    color: "white",
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "white",
+    marginTop: 16,
+  },
+  button: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#7c3aed",
+    borderRadius: 9999,
+  },
+  buttonText: {
+    color: "white",
+  },
+});

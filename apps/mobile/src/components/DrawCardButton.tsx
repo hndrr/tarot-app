@@ -1,7 +1,7 @@
 import React from "react";
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { tarotCards } from "@repo/constants";
+import { tarotCards } from "../data/tarotCards";
 
 export default function DrawCardButton() {
   const router = useRouter();
@@ -9,7 +9,6 @@ export default function DrawCardButton() {
   const drawCard = () => {
     const randomIndex = Math.floor(Math.random() * tarotCards.length);
     const selectedCard = tarotCards[randomIndex];
-    // router.push(`/reading/${selectedCard.id}`);
     router.replace({
       pathname: "/reading/[id]",
       params: {
@@ -21,11 +20,24 @@ export default function DrawCardButton() {
   };
 
   return (
-    <Pressable
-      onPress={drawCard}
-      className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-full mb-8 transition duration-300"
-    >
-      <Text className="text-white text-lg text-center">カードを引く</Text>
+    <Pressable onPress={drawCard} style={styles.button}>
+      <Text style={styles.text}>カードを引く</Text>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#7c3aed",
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 9999,
+    marginBottom: 32,
+  },
+  text: {
+    color: "white",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+});
