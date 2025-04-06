@@ -27,7 +27,7 @@ export const generateTarotMessageGemini = async (
   // API呼び出し
   try {
     const completion = await client.beta.chat.completions.parse({
-      model: "gemini-1.5-flash-002",
+      model: "gemini-2.0-flash-lite",
       messages: [{ role: "system", content: prompt }],
       response_format: zodResponseFormat(jsonSchema, "tarot_response"),
       // max_tokens: 300,
