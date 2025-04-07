@@ -12,9 +12,10 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
 タロットカード「${name}」に基づいて正位置と逆位置の文言を生成してください。
 キーワード: ${meaning}
 `;
-  const api_token = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+  const api_key = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
   const account_id = process.env.EXPO_PUBLIC_CLOUDFLARE_ACCOUNT_ID || '';
   const gateway_name = process.env.EXPO_PUBLIC_CLOUDFLARE_GATEWAY_NAME || '';
+  const token = process.env.EXPO_PUBLIC_CLOUDFLARE_TOKEN || '';
 
   const geminiApiEndpoint =
     // "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
@@ -40,7 +41,7 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
   };
 
   try {
-    // const genAI = new GoogleGenerativeAI(api_token);
+    // const genAI = new GoogleGenerativeAI(api_key);
     // const model = await genAI.getGenerativeModel(
     //   {
     //     model: "gemini-2.0-flash-lite",
@@ -78,7 +79,8 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': api_token,
+          'x-goog-api-key': api_key,
+          'cf-aig-authorization': `Bearer ${token}`,
         },
       }
     );
