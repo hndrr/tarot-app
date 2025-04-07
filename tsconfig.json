@@ -1,21 +1,43 @@
 {
-  // This file is used by 'tsc -b' at the root to build all packages/apps
-  "files": [], // No input files, relies on references
+  "files": [],
   "references": [
-    // Packages
-    { "path": "./packages/types" },
-    { "path": "./packages/constants" },
-    { "path": "./packages/utils" },
-    { "path": "./packages/tarot-logic" },
-    { "path": "./packages/ui" },
-    { "path": "./packages/api-client" }, // Include existing packages
-    { "path": "./packages/api-schema" },
-    { "path": "./packages/auth" },
-    { "path": "./packages/eslint-config" }, // Config packages might not need building, but include for completeness
-    { "path": "./packages/typescript-config" },
-
-    // Apps
-    { "path": "./apps/mobile" },
-    { "path": "./apps/web" }
-  ]
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/constants"
+    },
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/tarot-logic"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/api-client"
+    },
+    {
+      "path": "./packages/api-schema"
+    },
+    {
+      "path": "./packages/auth"
+    },
+    {
+      "path": "./packages/eslint-config"
+    },
+    {
+      "path": "./packages/typescript-config"
+    },
+    {
+      "path": "./apps/mobile"
+    },
+    {
+      "path": "./apps/web"
+    }
+  ],
+  "compilerOptions": {},
+  "extends": "expo/tsconfig.base"
 }

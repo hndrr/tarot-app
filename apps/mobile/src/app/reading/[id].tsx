@@ -23,8 +23,8 @@ type ReadingRouteParams = {
 };
 
 type NavigationProps = {
-  navigate: (screen: keyof ReadingRouteParams, params?: any) => void;
-  replace: (screen: keyof ReadingRouteParams, params?: any) => void;
+  navigate: (screen: keyof ReadingRouteParams, params?: unknown) => void;
+  replace: (screen: keyof ReadingRouteParams, params?: unknown) => void;
 };
 
 export default function Reading() {
