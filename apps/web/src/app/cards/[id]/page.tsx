@@ -9,7 +9,6 @@ import ReactMarkdown from "react-markdown";
 // For basic usage, just accepting children might be enough
 type MarkdownWrapperProps = {
   children: string;
-  className?: string; // Add className to allow passing it down
 };
 
 type Params = Promise<{ id: string }>;
@@ -126,8 +125,8 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <div className="text-gray-200">
-                  <MarkdownWrapper className="whitespace-pre-wrap">
+                <div className="text-gray-200 whitespace-pre-wrap">
+                  <MarkdownWrapper>
                     {isReversed
                       ? result?.reversed || ""
                       : result?.upright || ""}
