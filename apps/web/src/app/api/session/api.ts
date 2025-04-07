@@ -9,6 +9,7 @@ const SessionRequestSchema = z.object({
   card: CardSchema.optional(),
   hasVisited: z.boolean().optional(),
 });
+
 export const sessionApi = new Hono()
   // セッションデータを取得するGETエンドポイント
   .get("/", async (c) => {

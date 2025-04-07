@@ -3,11 +3,6 @@ import type { NextRequest } from "next/server";
 import { handle } from "hono/vercel";
 import api from "./app/api";
 
-const apiHost = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-// セッションAPI
-
 // 許可するオリジンのリスト
 const allowedOrigins =
   process.env.NODE_ENV === "production"
