@@ -18,14 +18,30 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    // この useEffect は初回マウント時にのみ実行される
+    console.log('RootLayout effect runs ONCE.');
+    // loaded が true になった時点で SplashScreen を隠す処理は
+    // この useEffect の外、または loaded を監視する別の useEffect で行う
+    return () => {
+      console.log('RootLayout cleanup runs ONCE'); // アンマウント時にログ出力
+    };
+  }, []); // 依存配列を空にして、初回マウント時のみ実行
+
+  // loaded 状態が true になったら SplashScreen を隠す
+  // このチェックはレンダリングごとに行われる
+  useEffect(() => {
     if (loaded) {
+      console.log('Hiding SplashScreen because loaded is true');
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded]); // loaded の変化を監視
 
   if (!loaded) {
-    return null;
+    console.log('RootLayout rendering null (waiting for fonts)');
+    return null; // フォントロード中は何も表示しない
   }
+  // フォントがロードされたら、メインコンテンツをレンダリング
+  console.log('RootLayout rendering main content');
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
