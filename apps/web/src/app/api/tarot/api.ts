@@ -5,6 +5,16 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"; // Vercel AI SDK の 
 import { generateText, tool } from "ai"; // generateText と tool をインポート
 import { z } from "zod"; // zod を再度インポート
 
+// Zod スキーマを定義 (tool と検証で再利用)
+const tarotInterpretationSchema = z.object({
+  upright: z
+    .string()
+    .describe("タロットカードの正位置の詳細な解釈文とアドバイス"),
+  reversed: z
+    .string()
+    .describe("タロットカードの逆位置の詳細な解釈文とアドバイス"),
+});
+
 // タロットAPI
 export const tarotApi = new Hono().post(
   "/",
@@ -46,11 +56,10 @@ export const tarotApi = new Hono().post(
 以下のタロットカード「${name}」について、指定されたキーワード「${meaning}」を踏まえ、tarotInterpretation ツールの **upright** フィールドと **reversed** フィールドに、それぞれ対応する解釈とアドバイスを生成してください。
 
 *   **指示:**
-    *   **upright** フィールドには、正位置の解釈を記述してください。キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような**詳細な解説文**と、それに基づいた**具体的なアドバイス**を**自然な文章で**含めてください。単なるキーワードの羅列は避けてください。
-    *   **reversed** フィールドには、逆位置の解釈を記述してください。同様に、キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような**詳細な解説文**と、それに基づいた**具体的なアドバイス**を**自然な文章で**含めてください。単なるキーワードの羅列は避けてください。
+    *   **upright** フィールドには、正位置の解釈を記述してください。キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。
+    *   **reversed** フィールドには、逆位置の解釈を記述してください。同様に、キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。
 
 必ず tarotInterpretation ツールを呼び出して、上記の指示に従った内容を各フィールドに設定してください。`;
-      // console.log("Generated Prompt:", prompt); // 必要ならコメント解除
 
       // Vercel AI SDK の generateText と tool を使用して構造化されたレスポンスを取得
       const result = await generateText({
@@ -62,14 +71,7 @@ export const tarotApi = new Hono().post(
           tarotInterpretation: tool({
             description:
               "タロットカードの正位置と逆位置の詳細な解釈文とアドバイスを生成する", // description を更新
-            parameters: z.object({
-              upright: z
-                .string()
-                .describe("タロットカードの正位置の詳細な解釈文とアドバイス"), // description を更新
-              reversed: z
-                .string()
-                .describe("タロットカードの逆位置の詳細な解釈文とアドバイス"), // description を更新
-            }),
+            parameters: tarotInterpretationSchema, // 定義済みのスキーマを使用
           }),
         },
         toolChoice: "required", // tool を必須にする
@@ -89,18 +91,23 @@ export const tarotApi = new Hono().post(
         return c.json({ error: "AIからの応答形式が不正です" }, { status: 500 });
       }
 
-      // toolCall.args から TarotResponse を取得
-      const tarotResponse: TarotResponse = toolCall.args;
+      // toolCall.args を zod スキーマで安全にパース（検証）
+      const parseResult = tarotInterpretationSchema.safeParse(toolCall.args);
 
-      if (
-        !tarotResponse ||
-        typeof tarotResponse.upright !== "string" ||
-        typeof tarotResponse.reversed !== "string"
-      ) {
-        // 型チェックを少し厳密に
-        console.error("Invalid response format from tool call:", tarotResponse);
-        return c.json({ error: "不正なレスポンス形式です" }, { status: 500 });
+      if (!parseResult.success) {
+        console.error(
+          "Failed to parse tool call arguments:",
+          parseResult.error.errors // zod のエラー詳細を出力
+        );
+        console.error("Raw arguments:", toolCall.args); // 生の引数もログに出力
+        return c.json(
+          { error: "AIからの応答形式がスキーマと一致しません" },
+          { status: 500 }
+        );
       }
+
+      // 検証済みのデータを TarotResponse として使用
+      const tarotResponse: TarotResponse = parseResult.data;
 
       console.log(
         "Successfully generated tarot interpretation:",
