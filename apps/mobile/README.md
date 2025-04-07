@@ -21,7 +21,26 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo run:android
    npx expo run:ios
   ```
+4. Open the app in a simulator or on your device
+
+   - For Android, you can use an emulator or a physical device.
+   - For iOS, you can use a simulator or a physical device.
+
+   If you're using a physical device, make sure to install the [Expo Go](https://expo.dev/go) app from the App Store or Google Play.
  
+ 5. EAS upload
+   ```bash
+   eas build --platform android
+   eas build --platform ios
+   ```
+
+   local build
+   ```bash
+   eas build --platform android --local
+   eas build --platform ios --local
+   ```
+
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
