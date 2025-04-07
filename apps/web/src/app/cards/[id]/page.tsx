@@ -2,6 +2,7 @@ import { tarotCards } from "@repo/constants";
 import { getSessionCards } from "@/lib/actions";
 import Link from "next/link";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 
 type Params = Promise<{ id: string }>;
 
@@ -113,9 +114,13 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <p className="text-gray-200 whitespace-pre-wrap">
-                  {isReversed ? result?.reversed : result?.upright}
-                </p>
+                <div className="text-gray-200 whitespace-pre-wrap">
+                  {isReversed ? (
+                    <ReactMarkdown>{result?.reversed || ""}</ReactMarkdown>
+                  ) : (
+                    <ReactMarkdown>{result?.upright || ""}</ReactMarkdown>
+                  )}
+                </div>
               </div>
             </div>
           </div>

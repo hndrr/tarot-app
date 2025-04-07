@@ -26,6 +26,7 @@
     "openai": "^4.77.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-markdown": "^10.1.0",
     "styled-jsx": "^5.1.6",
     "zod": "^3.24.1"
   },
