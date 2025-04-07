@@ -13,3 +13,6 @@ apps/mobile/android/app/*
 apps/mobile/ios/*
 apps/mobile/.expo/*
 apps/mobile/*.aab
+apps/web/.turbo/*
+apps/mobile/.turbo/*
+packages/api-schema/.turbo/*
