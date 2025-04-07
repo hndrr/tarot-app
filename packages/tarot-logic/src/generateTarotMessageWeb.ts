@@ -16,6 +16,7 @@ type TarotResponse = z.infer<typeof TarotResponseSchema>;
 const apiKey = process.env.OPENAI_API_KEY;
 const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 const gatewayId = process.env.CLOUDFLARE_GATEWAY_NAME;
+const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 const baseURL =
   accountId && gatewayId
     ? `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/openai`
@@ -24,6 +25,9 @@ const baseURL =
 const client = new OpenAI({
   apiKey,
   baseURL, // baseURL will be undefined if env vars are missing, OpenAI client might handle this or throw error
+  defaultHeaders: {
+    "cf-aig-authorization": `Bearer ${apiToken}`,
+  },
 });
 
 export const generateTarotMessageWeb = async (
