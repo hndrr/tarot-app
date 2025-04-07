@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { TarotRequestSchema, TarotResponse } from "@tarrot/api-schema";
 import { createGoogleGenerativeAI } from "@ai-sdk/google"; // Vercel AI SDK の Google Provider をインポート
 import { generateText, tool } from "ai"; // generateText と tool をインポート
-import { z } from "zod";
+import { z } from "zod"; // zod を再度インポート
 
 // タロットAPI
 export const tarotApi = new Hono().post(
@@ -37,44 +37,67 @@ export const tarotApi = new Hono().post(
         apiKey: googleApiKey,
         baseURL: cloudflareBaseUrl,
         headers: {
-          // "Content-Type": "application/json",
-          // "x-goog-api-key": process.env.GEMINI_API_KEY!,
           "cf-aig-authorization": `Bearer ${apiToken}`,
         },
       });
 
-      const prompt = `あなたはタロットカード占い師です。タロットカード「${name}」に基づいてキーワード「${meaning}」を含む正位置と逆位置の解釈文を生成し、アドバイスしてください。`;
+      // プロンプトを修正し、tool の各フィールドに対する詳細な指示を追加
+      const prompt = `あなたはプロのタロットカード占い師です。
+以下のタロットカード「${name}」について、指定されたキーワード「${meaning}」を踏まえ、tarotInterpretation ツールの **upright** フィールドと **reversed** フィールドに、それぞれ対応する解釈とアドバイスを生成してください。
+
+*   **指示:**
+    *   **upright** フィールドには、正位置の解釈を記述してください。キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような**詳細な解説文**と、それに基づいた**具体的なアドバイス**を**自然な文章で**含めてください。単なるキーワードの羅列は避けてください。
+    *   **reversed** フィールドには、逆位置の解釈を記述してください。同様に、キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような**詳細な解説文**と、それに基づいた**具体的なアドバイス**を**自然な文章で**含めてください。単なるキーワードの羅列は避けてください。
+
+必ず tarotInterpretation ツールを呼び出して、上記の指示に従った内容を各フィールドに設定してください。`;
+      // console.log("Generated Prompt:", prompt); // 必要ならコメント解除
 
       // Vercel AI SDK の generateText と tool を使用して構造化されたレスポンスを取得
       const result = await generateText({
         model: google("gemini-2.0-flash-lite"), // 使用するモデルを指定
         prompt: prompt,
+        temperature: 0.7, // Temperature を少し上げて創造性を許容
         tools: {
+          // tools を再度追加
           tarotInterpretation: tool({
-            description: "タロットカードの正位置と逆位置の解釈を生成する",
+            description:
+              "タロットカードの正位置と逆位置の詳細な解釈文とアドバイスを生成する", // description を更新
             parameters: z.object({
-              upright: z.string().describe("タロットカードの正位置の文言"),
-              reversed: z.string().describe("タロットカードの逆位置の文言"),
+              upright: z
+                .string()
+                .describe("タロットカードの正位置の詳細な解釈文とアドバイス"), // description を更新
+              reversed: z
+                .string()
+                .describe("タロットカードの逆位置の詳細な解釈文とアドバイス"), // description を更新
             }),
-            // execute: async ({ upright, reversed }) => {
-            //   // 必要であればここで何らかの処理を行うことも可能
-            //   return { upright, reversed };
-            // }
           }),
         },
-        toolChoice: "required", // tarotInterpretation ツールを必ず使用させる
+        toolChoice: "required", // tool を必須にする
       });
 
-      // toolCalls から結果を取得
-      const toolCall = result.toolCalls[0];
+      // console.log("Raw AI Result:", JSON.stringify(result, null, 2)); // 必要ならコメント解除
+
+      // toolCalls から結果を取得するように戻す
+      const toolCall = result.toolCalls?.[0]; // Optional chaining を追加
       if (!toolCall || toolCall.toolName !== "tarotInterpretation") {
         console.error("AI did not return the expected tool call:", result);
+        // フォールバックとしてテキストを返す試み (必要に応じて)
+        if (result.text) {
+          console.warn("Tool call failed, returning raw text as fallback.");
+          return c.json({ upright: result.text, reversed: "" }); // 仮のフォールバック
+        }
         return c.json({ error: "AIからの応答形式が不正です" }, { status: 500 });
       }
 
+      // toolCall.args から TarotResponse を取得
       const tarotResponse: TarotResponse = toolCall.args;
 
-      if (!tarotResponse || !tarotResponse.upright || !tarotResponse.reversed) {
+      if (
+        !tarotResponse ||
+        typeof tarotResponse.upright !== "string" ||
+        typeof tarotResponse.reversed !== "string"
+      ) {
+        // 型チェックを少し厳密に
         console.error("Invalid response format from tool call:", tarotResponse);
         return c.json({ error: "不正なレスポンス形式です" }, { status: 500 });
       }
