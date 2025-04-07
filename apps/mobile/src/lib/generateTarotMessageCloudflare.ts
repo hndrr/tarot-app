@@ -15,7 +15,7 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
   const api_key = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
   const account_id = process.env.EXPO_PUBLIC_CLOUDFLARE_ACCOUNT_ID || '';
   const gateway_name = process.env.EXPO_PUBLIC_CLOUDFLARE_GATEWAY_NAME || '';
-  const token = process.env.EXPO_PUBLIC_CLOUDFLARE_TOKEN || '';
+  // const token = process.env.EXPO_PUBLIC_CLOUDFLARE_API_TOKEN || '';
 
   const geminiApiEndpoint =
     // "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
@@ -80,7 +80,7 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
         headers: {
           'Content-Type': 'application/json',
           'x-goog-api-key': api_key,
-          'cf-aig-authorization': `Bearer ${token}`,
+          // 'cf-aig-authorization': `Bearer ${token}`,
         },
       }
     );
