@@ -5,6 +5,9 @@ import { zodResponseFormat } from "openai/helpers/zod";
 const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+  defaultHeaders: {
+    "cf-aig-authorization": `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+  },
 });
 
 export const generateTarotMessageGemini = async (
