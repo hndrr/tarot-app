@@ -3,15 +3,18 @@ import type { NextRequest } from "next/server";
 import { handle } from "hono/vercel";
 import api from "./app/api";
 
+const apiHost = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+// セッションAPI
+
 // 許可するオリジンのリスト
 const allowedOrigins =
   process.env.NODE_ENV === "production"
     ? [
         // 本番環境
-        "capacitor://localhost", // Capacitor iOS/Android
-        "ionic://localhost", // Ionic iOS/Android
-        // 必要に応じて本番Webアプリのオリジンを追加
-        // 'https://your-production-app.com',
+        `https://${process.env.VERCEL_URL}`, // VercelのURL
+        process.env.NEXT_PUBLIC_API_HOST, // 本番URL
         "http://localhost:8081", // Expo Go Web (開発用に一時的に許可)
         "http://localhost", // Expo Android ネイティブビルド等で使われる可能性
       ]
@@ -19,6 +22,7 @@ const allowedOrigins =
         // 開発環境
         "http://localhost:8081", // Expo Go Web
         "http://localhost:19006", // Expo Web
+        "http://localhost:3000", // Next.js Web (ローカル)
         // 必要に応じてExpo GoのネイティブIPを追加 (例: 'exp://192.168.1.100:19000')
       ];
 
