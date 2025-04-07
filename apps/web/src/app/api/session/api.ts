@@ -10,18 +10,16 @@ const SessionRequestSchema = z.object({
   card: CardSchema.optional(),
   hasVisited: z.boolean().optional(),
 });
-
 const apiHost = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
-
 // セッションAPI
 export const sessionApi = new Hono()
   // CORSミドルウェアを適用
   .use(
     "/*", // すべてのパスに適用
     cors({
-      origin: [apiHost], // 許可するオリジン
+      origin: [apiHost, "https://tarotie.hndr.dev"], // apiHost (プレビュー or ローカル) と 本番URL を許可
       allowMethods: ["GET", "POST", "OPTIONS"], // 許可するメソッド
       allowHeaders: ["Content-Type", "Authorization"], // 許可するヘッダー
       credentials: true, // Cookieを含むリクエストを許可
