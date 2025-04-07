@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { generateTarotMessageFromWebApi } from '@repo/tarot-logic'; // 正しいパッケージ名をインポート
 import { Card } from '../../types';
 import { ChevronLeftIcon } from 'lucide-react-native';
+import MarkdownDisplay from 'react-native-markdown-display'; // MarkdownDisplayをインポート
 
 // Routeの型定義
 type ReadingRouteParams = {
@@ -162,11 +163,16 @@ export default function CardDetail() {
                     ) : (
                       <View style={{ padding: 4 }}>
                         {tarotMessage ? (
-                          <Text className="text-lg leading-6 text-white" selectable={true}>
+                          <MarkdownDisplay
+                            style={{
+                              body: { fontSize: 18, lineHeight: 24, color: 'white' },
+                            }}
+                            // selectable={true} // selectableプロパティはMarkdownDisplayに存在しないため削除
+                          >
                             {isReversed
-                              ? tarotMessage.reversed || '逆位置の解釈を取得できませんでした'
-                              : tarotMessage.upright || '正位置の解釈を取得できませんでした'}
-                          </Text>
+                              ? tarotMessage?.reversed || '逆位置の解釈を取得できませんでした'
+                              : tarotMessage?.upright || '正位置の解釈を取得できませんでした'}
+                          </MarkdownDisplay>
                         ) : (
                           <Text className="text-white">生成中...</Text>
                         )}
