@@ -28,7 +28,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    If you're using a physical device, make sure to install the [Expo Go](https://expo.dev/go) app from the App Store or Google Play.
  
- 5. EAS upload
+ 5. EAS deployment
    ```bash
    eas build --platform android
    eas build --platform ios
@@ -39,7 +39,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    eas build --platform android --local
    eas build --platform ios --local
    ```
-
+5. AppStore submission
+   ```bash
+   eas submit --platform android
+   eas submit --platform ios
+   ```
 
 In the output, you'll find options to open the app in a
 
