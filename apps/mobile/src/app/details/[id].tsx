@@ -131,7 +131,7 @@ export default function CardDetail() {
   return (
     <LinearGradient colors={['#1e293b', '#4338ca']} style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View className="p-4">
+        <View className="p-6">
           <View className="flex-col items-center gap-6">
             <View className={`aspect-[2/3] w-60 max-w-xs ${isReversed ? 'rotate-180' : ''}`}>
               {resolvedImage && (
