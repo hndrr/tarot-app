@@ -10,22 +10,24 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.8",
     "@hono/zod-validator": "^0.4.3",
     "@next/third-parties": "15.2.4",
-    "@tarrot/api-schema": "workspace:*",
     "@repo/constants": "workspace:*",
     "@repo/tarot-logic": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/ui": "workspace:*",
     "@repo/utils": "workspace:*",
+    "@tarrot/api-schema": "workspace:*",
+    "ai": "^4.3.2",
     "hono": "^4.7.2",
     "iron-session": "^8.0.4",
     "next": "15.2.4",
     "openai": "^4.77.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zod": "^3.24.1",
-    "styled-jsx": "^5.1.6"
+    "styled-jsx": "^5.1.6",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^20",

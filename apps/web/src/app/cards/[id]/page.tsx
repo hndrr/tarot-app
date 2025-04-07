@@ -113,7 +113,7 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <p className="text-gray-200">
+                <p className="text-gray-200 whitespace-pre-wrap">
                   {isReversed ? result?.reversed : result?.upright}
                 </p>
               </div>
