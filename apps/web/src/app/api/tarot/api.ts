@@ -20,7 +20,7 @@ export const tarotApi = new Hono().post(
 
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
       const gatewayId = process.env.CLOUDFLARE_GATEWAY_NAME;
-      const apiToken = process.env.CLOUDFLARE_TOKEN;
+      const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
       if (!accountId || !gatewayId) {
         console.error("Missing Cloudflare credentials");

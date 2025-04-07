@@ -6,7 +6,7 @@ const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
   defaultHeaders: {
-    "cf-aig-authorization": `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+    "cf-aig-authorization": `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
   },
 });
 
