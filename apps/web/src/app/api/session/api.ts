@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors"; // CORSミドルウェアをインポート
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { getCookie, setCookie } from "hono/cookie";
@@ -10,8 +11,22 @@ const SessionRequestSchema = z.object({
   hasVisited: z.boolean().optional(),
 });
 
+const apiHost = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+
 // セッションAPI
 export const sessionApi = new Hono()
+  // CORSミドルウェアを適用
+  .use(
+    "/*", // すべてのパスに適用
+    cors({
+      origin: [apiHost], // 許可するオリジン
+      allowMethods: ["GET", "POST", "OPTIONS"], // 許可するメソッド
+      allowHeaders: ["Content-Type", "Authorization"], // 許可するヘッダー
+      credentials: true, // Cookieを含むリクエストを許可
+    })
+  )
   // セッションデータを取得するGETエンドポイント
   .get("/", async (c) => {
     try {
