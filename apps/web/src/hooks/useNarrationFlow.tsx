@@ -40,15 +40,20 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
     // タイプライター風表示
     let index = 0;
     const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + text[index]);
-      index++;
       if (index >= text.length) {
+        // index が範囲外になったらすぐにクリア
         clearInterval(interval);
+        return; // 何もせずに終了
       }
+      // index をインクリメントしてから部分文字列で表示テキストを更新
+      index++;
+      setDisplayedText(text.substring(0, index));
     }, 50);
 
-    // 音声終わったらステータスを更新
+    // 音声終わったらステータスを更新し、テキスト表示を確定
     audio.onended = () => {
+      clearInterval(interval); // タイマーを確実に停止
+      setDisplayedText(text); // 全文を表示して不整合を防ぐ
       setState("done");
     };
   };

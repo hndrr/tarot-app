@@ -5,7 +5,7 @@ import { TarotCardWeb as TarotCard } from "@repo/ui"; // Use renamed web export
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import DrawCardButton from "@/components/DrawCardButton";
+import { DrawCardButton } from "@/components/DrawCardButton";
 
 type Params = Promise<{ id: string }>;
 
