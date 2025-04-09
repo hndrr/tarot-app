@@ -40,7 +40,7 @@ export const narrationApi = new Hono().post(
 
       // openai SDK を使用して TTS を実行
       // Orate がサポートする OpenAI の女性の声
-      const femaleVoices = ["nova", "shimmer"] as const;
+      const femaleVoices = ["nova", "shimmer", "sage"] as const;
       // ランダムに声を選択
       const randomVoice =
         femaleVoices[Math.floor(Math.random() * femaleVoices.length)];

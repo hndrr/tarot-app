@@ -1,9 +1,20 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { TarotRequestSchema, TarotResponse } from "@tarrot/api-schema";
+import { TarotRequestSchema, TarotResponseSchema } from "@tarrot/api-schema";
 import { createGoogleGenerativeAI } from "@ai-sdk/google"; // Vercel AI SDK の Google Provider をインポート
 import { generateText, tool } from "ai"; // generateText と tool をインポート
 import { z } from "zod"; // zod を再度インポート
+import { speak } from "orate"; // orate をインポート
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { OpenAI as OpenAITTSClient } from "orate/openai"; // orate/openai をインポート (名前の衝突を避けるため別名で)
+
+// レスポンススキーマに audioBase64 を追加 (一時的な対応、後で @tarrot/api-schema を更新)
+// ※ 本来は @tarrot/api-schema で定義すべきですが、一旦ここで拡張します
+const TarotResponseWithAudioSchema = TarotResponseSchema.extend({
+  audioBase64: z.string().optional(), // 音声データを Base64 文字列で返す (optional にしておく)
+});
+type TarotResponseWithAudio = z.infer<typeof TarotResponseWithAudioSchema>;
 
 // Zod スキーマを定義 (tool と検証で再利用)
 const tarotInterpretationSchema = z.object({
@@ -29,11 +40,19 @@ export const tarotApi = new Hono().post(
       const gatewayId = process.env.CLOUDFLARE_GATEWAY_NAME;
       const apiToken = process.env.CLOUDFLARE_API_TOKEN; // Cloudflare API Token (AI Gateway用)
       const googleApiKey = process.env.GEMINI_API_KEY;
+      const openaiApiKey = process.env.OPENAI_API_KEY; // OpenAI API キーを追加
 
-      if (!accountId || !gatewayId || !apiToken || !googleApiKey) {
-        console.error("Missing Cloudflare AI Gateway credentials");
+      if (
+        !accountId ||
+        !gatewayId ||
+        !apiToken ||
+        !googleApiKey ||
+        !openaiApiKey
+      ) {
+        // openaiApiKey のチェックを追加
+        console.error("Missing Cloudflare AI Gateway or OpenAI credentials");
         return c.json(
-          { error: "サーバーの設定が不適切です (CF)" },
+          { error: "サーバーの設定が不適切です (CF or OpenAI)" }, // エラーメッセージを更新
           { status: 500 }
         );
       }
@@ -50,6 +69,13 @@ export const tarotApi = new Hono().post(
           "cf-aig-authorization": `Bearer ${apiToken}`,
         },
       });
+      // --- Gemini API 設定 ここまで ---
+
+      // --- OpenAI TTS クライアント初期化 ---
+      const openaiTTS = new OpenAITTSClient(openaiApiKey);
+      // --- OpenAI TTS クライアント初期化 ここまで ---
+
+      // --- Gemini でテキスト生成 (変更なし) ---
 
       // プロンプトを修正し、tool の各フィールドに対する詳細な指示を追加
       const prompt = `あなたはプロのタロットカード占い師です。
@@ -106,21 +132,62 @@ export const tarotApi = new Hono().post(
         );
       }
 
-      // 検証済みのデータを TarotResponse として使用
-      const tarotResponse: TarotResponse = parseResult.data;
+      const tarotTextData = parseResult.data; // パース結果を保持
+      // --- Gemini でテキスト生成 ここまで ---
+
+      // --- TTS 処理 ---
+      let audioBase64: string | undefined = undefined;
+      try {
+        // 正位置と逆位置のテキストを結合して TTS のプロンプトを作成
+        const textToSpeak = `${tarotTextData.upright}\n\n${tarotTextData.reversed}`;
+
+        // orate がサポートする OpenAI の女性の声
+        const femaleVoices = ["nova", "shimmer", "sage"] as const;
+        // ランダムに声を選択
+        const randomVoice =
+          femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
+
+        // orate の speak 関数を使用して TTS を実行
+        const ttsResponse = await speak({
+          model: openaiTTS.tts("tts-1", randomVoice),
+          prompt: textToSpeak,
+        });
+
+        // ReadableStream を Buffer に変換し、Base64 エンコード
+        const audioBuffer = await ttsResponse.arrayBuffer();
+        audioBase64 = Buffer.from(audioBuffer).toString("base64");
+        console.log("Successfully generated TTS audio.");
+      } catch (ttsError) {
+        console.error("TTS Error:", ttsError);
+        // TTS エラーが発生しても、テキストデータは返すようにする (audioBase64 は undefined のまま)
+        if (ttsError instanceof Error) {
+          console.error("TTS Error message:", ttsError.message);
+          console.error("TTS Error stack:", ttsError.stack);
+        }
+      }
+      // --- TTS 処理 ここまで ---
+
+      // --- レスポンス作成 ---
+      // 検証済みのテキストデータと音声データを含むレスポンスを作成
+      const finalResponse: TarotResponseWithAudio = {
+        ...tarotTextData, // upright, reversed を展開
+        audioBase64, // audioBase64 を追加
+      };
 
       console.log(
-        "Successfully generated tarot interpretation:",
-        tarotResponse
+        "Successfully generated tarot interpretation and TTS:",
+        {
+          upright: finalResponse.upright,
+          reversed: finalResponse.reversed,
+          hasAudio: !!finalResponse.audioBase64,
+        } // ログ出力を調整
       );
-      return c.json(tarotResponse);
+      return c.json(finalResponse);
+      // --- レスポンス作成 ここまで ---
     } catch (error) {
-      console.error("Error generating tarot interpretation:", error);
-      // エラーオブジェクトが Error インスタンスかチェック
+      console.error("Error in tarot API:", error); // エラーログのスコープを広げる
       if (error instanceof Error) {
-        // Vercel AI SDK のエラーレスポンスなどを考慮
         console.error("Error details:", error.message);
-        // 具体的なエラーメッセージに基づいてクライアントへのレスポンスを調整することも可能
         if (error.message.includes("API key")) {
           return c.json(
             { error: "AIサービスの認証に失敗しました" },
@@ -129,7 +196,7 @@ export const tarotApi = new Hono().post(
         }
       }
       return c.json(
-        { error: "文言生成中に予期せぬエラーが発生しました" },
+        { error: "API処理中に予期せぬエラーが発生しました" }, // エラーメッセージを更新
         { status: 500 }
       );
     }

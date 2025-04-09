@@ -5,6 +5,7 @@ import Image from "next/image";
 import React, { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm"; // remark-gfmをインポート
+import { AudioPlayer } from "@/components/AudioPlayer"; // AudioPlayerコンポーネントをインポート
 
 // Define props for the wrapper, matching ReactMarkdown's options if needed
 // For basic usage, just accepting children might be enough
@@ -17,6 +18,7 @@ type Params = Promise<{ id: string }>;
 type TarotResponse = {
   upright: string;
   reversed: string;
+  audioBase64?: string; // 音声データ（Base64エンコード）
 };
 
 const MarkdownWrapper: FC<MarkdownWrapperProps> = ({ children, ...props }) => {
@@ -136,6 +138,9 @@ export default async function CardDetail({ params }: { params: Params }) {
                       ? result?.reversed || "解釈を取得できませんでした。" // resultがnullの場合のフォールバック
                       : result?.upright || "解釈を取得できませんでした。"}
                   </MarkdownWrapper>
+                </div>
+                <div className="flex items-center mt-4 justify-end">
+                  <AudioPlayer audioBase64={result?.audioBase64} />
                 </div>
               </div>
             </div>
