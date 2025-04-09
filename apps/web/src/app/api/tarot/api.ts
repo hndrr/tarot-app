@@ -186,7 +186,18 @@ export const tarotApi = new Hono().post(
         try {
           console.log("Generating reversed audio...");
           const reversedTtsResponse = await speak({
-            model: openaiTTS.tts("tts-1", randomVoice),
+            // model: openaiTTS.tts("tts-1", randomVoice),
+            model: elevenlabsTTS.tts(
+              "eleven_flash_v2_5",
+              "RBnMinrYKeccY3vaUxlZ", // ここに ElevenLabs の音声モデル ID を指定
+              {
+                voice_settings: {
+                  speed: 1.07,
+                  stability: 0.72,
+                  similarity_boost: 0.75,
+                },
+              }
+            ),
             prompt: tarotTextData.reversed,
           });
 
