@@ -6,7 +6,7 @@ type UseNarrationFlowResult = {
   displayedText: string;
   fullText: string;
   state: NarrationState;
-  start: (theme: string) => void;
+  start: (prompt: string) => void; // 引数名を theme から prompt に変更
 };
 
 export const useNarrationFlow = (): UseNarrationFlowResult => {
@@ -14,7 +14,8 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
   const [displayedText, setDisplayedText] = useState("");
   const [state, setState] = useState<NarrationState>("idle");
 
-  const start = async (theme: string) => {
+  const start = async (prompt: string) => {
+    // 引数名を theme から prompt に変更
     setState("loading");
     setDisplayedText("");
 
@@ -23,7 +24,7 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ theme }),
+      body: JSON.stringify({ prompt }), // 送信するデータを prompt に変更
     });
 
     const data = await res.json();
@@ -35,6 +36,7 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
 
     // 音声再生
     const audio = new Audio(`data:audio/mpeg;base64,${audioBase64}`);
+    audio.playbackRate = 1.2; // 再生速度を1.1倍に設定
     audio.play();
 
     // タイプライター風表示
@@ -48,7 +50,7 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
       // index をインクリメントしてから部分文字列で表示テキストを更新
       index++;
       setDisplayedText(text.substring(0, index));
-    }, 50);
+    }, 100);
 
     // 音声終わったらステータスを更新し、テキスト表示を確定
     audio.onended = () => {

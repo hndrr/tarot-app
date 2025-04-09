@@ -16,7 +16,7 @@ const openaiClient = new OpenAI({
 
 // バリデーションスキーマを定義
 const schema = z.object({
-  theme: z.string().min(1, "テーマは必須です"),
+  prompt: z.string().min(1, "占いの内容は必須です"), // theme を prompt に変更し、メッセージも更新
 });
 
 // Hono アプリケーションを作成
@@ -24,14 +24,15 @@ export const narrationApi = new Hono().post(
   "/",
   zValidator("json", schema), // リクエストボディのバリデーション
   async (c) => {
-    const { theme } = c.req.valid("json");
+    const { prompt } = c.req.valid("json"); // theme を prompt に変更
 
     try {
       // @ai-sdk/openai を使用してナレーションテキストを生成
       const { text: narrationText } = await generateText({
         model: openai("gpt-4o"),
-        system: "あなたは神秘的な占い師です。口調は優しく古風です。",
-        prompt: `${theme}に関する占いの前口上を100文字以内で書いてください。`,
+        system:
+          "あなたは神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。「もちろんです。」から会話を始めないでください",
+        prompt: prompt, // 受け取った prompt をそのまま使用
       });
 
       if (!narrationText) {
@@ -40,9 +41,15 @@ export const narrationApi = new Hono().post(
       }
 
       // openai SDK を使用して TTS を実行
+      // 女性の声のリスト
+      const femaleVoices = ["sage", "nova", "shimmer"] as const;
+      // ランダムに声を選択
+      const randomVoice =
+        femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
+
       const ttsResponse = await openaiClient.audio.speech.create({
-        model: "tts-1-hd",
-        voice: "shimmer",
+        model: "tts-1",
+        voice: randomVoice, // ランダムに選択された声を使用
         input: narrationText,
       });
 
