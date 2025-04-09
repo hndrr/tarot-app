@@ -4,7 +4,9 @@ import { z } from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { speak } from "orate";
-import { OpenAI } from "orate/dist/openai";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { OpenAI } from "orate/openai";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
