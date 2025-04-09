@@ -10,9 +10,7 @@ import OpenAI from "openai"; // openai パッケージをインポート
 const openai = createOpenAI();
 
 // OpenAI クライアントを初期化 (openai SDK for TTS)
-const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+const openaiClient = new OpenAI();
 
 // バリデーションスキーマを定義
 const schema = z.object({
