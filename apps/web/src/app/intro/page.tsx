@@ -70,9 +70,7 @@ export default function FortunePage() {
           </p>
         </div>
       )}
-      {(state === "playing" || state === "done") && (
-        <DrawCardButton className="mt-8" />
-      )}
+      {state === "done" && <DrawCardButton className="mt-8" />}
     </main>
   );
 }
