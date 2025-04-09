@@ -22,15 +22,6 @@ export default function FortunePage() {
       {state === "idle" && (
         <h1 className="text-3xl font-bold mb-8">何を占いますか？</h1>
       )}
-
-      {state === "loading" && <LoadingSpinner />}
-      {(state === "playing" || state === "done") && (
-        <div className="bg-black/40 p-6 rounded-xl shadow-lg w-full max-w-2xl min-h-[100px] flex items-center justify-center">
-          <p className="whitespace-pre-wrap text-2xl font-serif leading-relaxed text-center">
-            {displayedText}
-          </p>
-        </div>
-      )}
       {state === "idle" && (
         <div className="grid grid-cols-2 gap-4 my-8 w-full max-w-md">
           <button
@@ -69,6 +60,14 @@ export default function FortunePage() {
           >
             🤝 対人運
           </button>
+        </div>
+      )}
+      {state === "loading" && <LoadingSpinner />}
+      {(state === "playing" || state === "done") && (
+        <div className="bg-black/40 p-6 rounded-xl shadow-lg w-full max-w-2xl min-h-[100px] flex items-center justify-center">
+          <p className="whitespace-pre-wrap text-lg font-serif leading-relaxed text-center">
+            {displayedText}
+          </p>
         </div>
       )}
       {(state === "playing" || state === "done") && (
