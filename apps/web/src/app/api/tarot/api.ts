@@ -1,13 +1,12 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { TarotRequestSchema, TarotResponseSchema } from "@tarrot/api-schema";
-import { z } from "zod"; // zod を再度インポート
-import { createGoogleGenerativeAI } from "@ai-sdk/google"; // Vercel AI SDK の Google Provider をインポート
-import { generateText, tool } from "ai"; // generateText と tool をインポート
-import { speak } from "orate"; // orate をインポート
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { OpenAI as OpenAITTSClient } from "orate/openai"; // orate/openai をインポート (名前の衝突を避けるため別名で)
+import { z } from "zod";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText, tool } from "ai";
+import { speak } from "orate";
+import { ElevenLabs } from "orate/elevenlabs";
+// import { OpenAI as OpenAITTSClient } from "orate/openai";
 
 // レスポンススキーマに audioBase64 を追加 (一時的な対応、後で @tarrot/api-schema を更新)
 // ※ 本来は @tarrot/api-schema で定義すべきですが、一旦ここで拡張します
@@ -78,11 +77,9 @@ export const tarotApi = new Hono().post(
           "cf-aig-authorization": `Bearer ${apiToken}`,
         },
       });
-      // --- Gemini API 設定 ここまで ---
 
-      // --- OpenAI TTS クライアント初期化 ---
-      const openaiTTS = new OpenAITTSClient(openaiApiKey);
-      // --- OpenAI TTS クライアント初期化 ここまで ---
+      // const openaiTTS = new OpenAITTSClient(openaiApiKey);
+      const elevenlabsTTS = new ElevenLabs(process.env.ELEVENLABS_API_KEY);
 
       // --- Gemini でテキスト生成 (変更なし) ---
 
@@ -142,9 +139,7 @@ export const tarotApi = new Hono().post(
       }
 
       const tarotTextData = parseResult.data; // パース結果を保持
-      // --- Gemini でテキスト生成 ここまで ---
 
-      // --- TTS 処理 ---
       // orate がサポートする OpenAI の女性の声
       const femaleVoices = ["nova", "shimmer"] as const;
       // ランダムに声を選択
@@ -160,7 +155,18 @@ export const tarotApi = new Hono().post(
         try {
           console.log("Generating upright audio...");
           const uprightTtsResponse = await speak({
-            model: openaiTTS.tts("tts-1", randomVoice),
+            // model: openaiTTS.tts("tts-1", randomVoice),
+            model: elevenlabsTTS.tts(
+              "eleven_flash_v2_5",
+              "RBnMinrYKeccY3vaUxlZ", // ここに ElevenLabs の音声モデル ID を指定
+              {
+                voice_settings: {
+                  speed: 1.07,
+                  stability: 0.72,
+                  similarity_boost: 0.75,
+                },
+              }
+            ),
             prompt: tarotTextData.upright,
           });
 
@@ -194,9 +200,7 @@ export const tarotApi = new Hono().post(
           }
         }
       }
-      // --- TTS 処理 ここまで ---
 
-      // --- レスポンス作成 ---
       // 検証済みのテキストデータと音声データを含むレスポンスを作成
       const finalResponse: TarotResponseWithAudio = {
         ...tarotTextData, // upright, reversed を展開
