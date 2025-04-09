@@ -1,20 +1,17 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { createOpenAI } from "@ai-sdk/openai"; // @ai-sdk/openai をインポート
-import { generateText } from "ai"; // ai パッケージから generateText をインポート
-import OpenAI from "openai"; // openai パッケージをインポート
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText } from "ai";
+import { speak } from "orate";
+import { OpenAI } from "orate/dist/openai";
 
-// OpenAI クライアントを初期化 (@ai-sdk/openai)
-// 環境変数 OPENAI_API_KEY は自動的に読み込まれます
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// OpenAI クライアントを初期化 (openai SDK for TTS)
-const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-);
+// OpenAI クライアントを初期化 (orate 用)
+const openaiTTS = new OpenAI(process.env.OPENAI_API_KEY);
 
 // バリデーションスキーマを定義
 const schema = z.object({
@@ -31,7 +28,7 @@ export const narrationApi = new Hono().post(
     try {
       // @ai-sdk/openai を使用してナレーションテキストを生成
       const { text: narrationText } = await generateText({
-        model: openai("gpt-4o"),
+        model: openai("gpt-4o-mini"),
         system:
           "あなたは神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。「もちろんです。」から会話を始めないでください",
         prompt: prompt, // 受け取った prompt をそのまま使用
@@ -43,21 +40,22 @@ export const narrationApi = new Hono().post(
       }
 
       // openai SDK を使用して TTS を実行
-      // 女性の声のリスト
-      const femaleVoices = ["sage", "nova", "shimmer"] as const;
+      // Orate がサポートする OpenAI の女性の声
+      const femaleVoices = ["nova", "shimmer"] as const;
       // ランダムに声を選択
       const randomVoice =
         femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
 
-      const ttsResponse = await openaiClient.audio.speech.create({
-        model: "tts-1",
-        voice: randomVoice, // ランダムに選択された声を使用
-        input: narrationText,
+      // orate の speak 関数を使用して TTS を実行
+      const ttsResponse = await speak({
+        model: openaiTTS.tts("tts-1", randomVoice),
+        prompt: narrationText,
       });
 
       // ReadableStream を Buffer に変換
-      const audioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
-      const audioBase64 = audioBuffer.toString("base64");
+      // speak 関数のレスポンスから音声データを取得
+      const audioBuffer = await ttsResponse.arrayBuffer();
+      const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
       // 成功レスポンスを返す
       return c.json({
