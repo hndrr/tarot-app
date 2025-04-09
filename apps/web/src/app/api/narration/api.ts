@@ -7,10 +7,14 @@ import OpenAI from "openai"; // openai パッケージをインポート
 
 // OpenAI クライアントを初期化 (@ai-sdk/openai)
 // 環境変数 OPENAI_API_KEY は自動的に読み込まれます
-const openai = createOpenAI();
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 // OpenAI クライアントを初期化 (openai SDK for TTS)
-const openaiClient = new OpenAI();
+const openaiClient = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+);
 
 // バリデーションスキーマを定義
 const schema = z.object({
