@@ -20,7 +20,7 @@ export default function Home() {
           className="bg-purple-600 hover:bg-purple-700 py-4 px-8 text-lg mb-8 rounded-full text-white font-bold transition duration-300"
           href="/intro"
         >
-          占いを始める
+          入室する
         </Link>
       </main>
       <footer className="h-16 text-white flex items-center">

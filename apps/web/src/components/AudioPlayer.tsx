@@ -3,10 +3,18 @@
 import React, { useEffect, useRef, useState } from "react";
 
 interface AudioPlayerProps {
-  audioBase64: string | undefined;
+  uprightAudioBase64?: string;
+  reversedAudioBase64?: string;
+  isReversed: boolean; // カードが逆位置かどうか
 }
 
-export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBase64 }) => {
+export const AudioPlayer: React.FC<AudioPlayerProps> = ({
+  uprightAudioBase64,
+  reversedAudioBase64,
+  isReversed,
+}) => {
+  // 位置に応じた音声データを選択
+  const audioBase64 = isReversed ? reversedAudioBase64 : uprightAudioBase64;
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -38,6 +46,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBase64 }) => {
   };
 
   if (!audioBase64) {
+    // 該当する位置の音声データがない場合は何も表示しない
     return null; // 音声データがない場合は何も表示しない
   }
 
@@ -85,7 +94,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioBase64 }) => {
             </svg>
           )}
         </span>
-        {isPlaying ? "一時停止" : "音声再生"}
+        {isPlaying
+          ? "一時停止"
+          : `${isReversed ? "逆位置" : "正位置"}の解釈を再生`}
       </button>
     </div>
   );

@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { TarotRequestSchema, TarotResponseSchema } from "@tarrot/api-schema";
+import { z } from "zod"; // zod を再度インポート
 import { createGoogleGenerativeAI } from "@ai-sdk/google"; // Vercel AI SDK の Google Provider をインポート
 import { generateText, tool } from "ai"; // generateText と tool をインポート
-import { z } from "zod"; // zod を再度インポート
 import { speak } from "orate"; // orate をインポート
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -12,7 +12,8 @@ import { OpenAI as OpenAITTSClient } from "orate/openai"; // orate/openai をイ
 // レスポンススキーマに audioBase64 を追加 (一時的な対応、後で @tarrot/api-schema を更新)
 // ※ 本来は @tarrot/api-schema で定義すべきですが、一旦ここで拡張します
 const TarotResponseWithAudioSchema = TarotResponseSchema.extend({
-  audioBase64: z.string().optional(), // 音声データを Base64 文字列で返す (optional にしておく)
+  uprightAudioBase64: z.string().optional(), // 正位置の音声データ
+  reversedAudioBase64: z.string().optional(), // 逆位置の音声データ
 });
 type TarotResponseWithAudio = z.infer<typeof TarotResponseWithAudioSchema>;
 
@@ -27,13 +28,21 @@ const tarotInterpretationSchema = z.object({
 });
 
 // タロットAPI
+// 拡張リクエストスキーマ（音声生成オプション付き）
+const TarotRequestWithAudioSchema = TarotRequestSchema.extend({
+  generateAudio: z
+    .enum(["none", "upright", "reversed", "both"])
+    .optional()
+    .default("none"),
+});
+
 export const tarotApi = new Hono().post(
   "/",
-  zValidator("json", TarotRequestSchema),
+  zValidator("json", TarotRequestWithAudioSchema),
   async (c) => {
     try {
-      const { name, meaning } = c.req.valid("json");
-      console.log("Received request:", { name, meaning });
+      const { name, meaning, generateAudio } = c.req.valid("json");
+      console.log("Received request:", { name, meaning, generateAudio });
 
       // Cloudflare AI Gateway の設定
       const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
@@ -136,33 +145,53 @@ export const tarotApi = new Hono().post(
       // --- Gemini でテキスト生成 ここまで ---
 
       // --- TTS 処理 ---
-      let audioBase64: string | undefined = undefined;
-      try {
-        // 正位置と逆位置のテキストを結合して TTS のプロンプトを作成
-        const textToSpeak = `${tarotTextData.upright}\n\n${tarotTextData.reversed}`;
+      // orate がサポートする OpenAI の女性の声
+      const femaleVoices = ["nova", "shimmer"] as const;
+      // ランダムに声を選択
+      const randomVoice =
+        femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
 
-        // orate がサポートする OpenAI の女性の声
-        const femaleVoices = ["nova", "shimmer", "sage"] as const;
-        // ランダムに声を選択
-        const randomVoice =
-          femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
+      // 音声生成オプションに基づいて処理
+      let uprightAudioBase64: string | undefined = undefined;
+      let reversedAudioBase64: string | undefined = undefined;
 
-        // orate の speak 関数を使用して TTS を実行
-        const ttsResponse = await speak({
-          model: openaiTTS.tts("tts-1", randomVoice),
-          prompt: textToSpeak,
-        });
+      // 正位置の音声生成（generateAudio が "upright" または "both" の場合）
+      if (generateAudio === "upright" || generateAudio === "both") {
+        try {
+          console.log("Generating upright audio...");
+          const uprightTtsResponse = await speak({
+            model: openaiTTS.tts("tts-1", randomVoice),
+            prompt: tarotTextData.upright,
+          });
 
-        // ReadableStream を Buffer に変換し、Base64 エンコード
-        const audioBuffer = await ttsResponse.arrayBuffer();
-        audioBase64 = Buffer.from(audioBuffer).toString("base64");
-        console.log("Successfully generated TTS audio.");
-      } catch (ttsError) {
-        console.error("TTS Error:", ttsError);
-        // TTS エラーが発生しても、テキストデータは返すようにする (audioBase64 は undefined のまま)
-        if (ttsError instanceof Error) {
-          console.error("TTS Error message:", ttsError.message);
-          console.error("TTS Error stack:", ttsError.stack);
+          const audioBuffer = await uprightTtsResponse.arrayBuffer();
+          uprightAudioBase64 = Buffer.from(audioBuffer).toString("base64");
+          console.log("Successfully generated upright TTS audio.");
+        } catch (ttsError) {
+          console.error("Upright TTS Error:", ttsError);
+          if (ttsError instanceof Error) {
+            console.error("TTS Error message:", ttsError.message);
+          }
+        }
+      }
+
+      // 逆位置の音声生成（generateAudio が "reversed" または "both" の場合）
+      if (generateAudio === "reversed" || generateAudio === "both") {
+        try {
+          console.log("Generating reversed audio...");
+          const reversedTtsResponse = await speak({
+            model: openaiTTS.tts("tts-1", randomVoice),
+            prompt: tarotTextData.reversed,
+          });
+
+          const audioBuffer = await reversedTtsResponse.arrayBuffer();
+          reversedAudioBase64 = Buffer.from(audioBuffer).toString("base64");
+          console.log("Successfully generated reversed TTS audio.");
+        } catch (ttsError) {
+          console.error("Reversed TTS Error:", ttsError);
+          if (ttsError instanceof Error) {
+            console.error("TTS Error message:", ttsError.message);
+          }
         }
       }
       // --- TTS 処理 ここまで ---
@@ -171,7 +200,8 @@ export const tarotApi = new Hono().post(
       // 検証済みのテキストデータと音声データを含むレスポンスを作成
       const finalResponse: TarotResponseWithAudio = {
         ...tarotTextData, // upright, reversed を展開
-        audioBase64, // audioBase64 を追加
+        uprightAudioBase64, // 正位置の音声データ
+        reversedAudioBase64, // 逆位置の音声データ
       };
 
       console.log(
@@ -179,7 +209,9 @@ export const tarotApi = new Hono().post(
         {
           upright: finalResponse.upright,
           reversed: finalResponse.reversed,
-          hasAudio: !!finalResponse.audioBase64,
+          hasUprightAudio: !!finalResponse.uprightAudioBase64,
+          hasReversedAudio: !!finalResponse.reversedAudioBase64,
+          audioGenerationMode: generateAudio,
         } // ログ出力を調整
       );
       return c.json(finalResponse);
