@@ -8,14 +8,6 @@ import { speak } from "orate";
 // @ts-expect-error
 import { OpenAI } from "orate/openai";
 
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// OpenAI クライアントを初期化 (orate 用)
-const openaiTTS = new OpenAI(process.env.OPENAI_API_KEY);
-
-// バリデーションスキーマを定義
 const schema = z.object({
   prompt: z.string().min(1, "占いの内容は必須です"), // theme を prompt に変更し、メッセージも更新
 });
@@ -25,6 +17,11 @@ export const narrationApi = new Hono().post(
   "/",
   zValidator("json", schema), // リクエストボディのバリデーション
   async (c) => {
+    const openai = createOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const openaiTTS = new OpenAI(process.env.OPENAI_API_KEY);
+
     const { prompt } = c.req.valid("json"); // theme を prompt に変更
 
     try {
