@@ -25,6 +25,7 @@
     "iron-session": "^8.0.4",
     "next": "15.2.4",
     "openai": "^4.77.3",
+    "orate": "^2.0.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^10.1.0",
