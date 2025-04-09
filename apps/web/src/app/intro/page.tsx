@@ -25,7 +25,7 @@ export default function FortunePage() {
       {state === "idle" && (
         <div className="grid grid-cols-2 gap-4 my-8 w-full max-w-md">
           <button
-            className="px-6 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 text-white font-semibold text-lg"
+            className="px-6 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 text-white font-semibold text-lg break-keep"
             onClick={() => start("今日の運勢を占う前口上を話してください")}
           >
             ☀️ 今日の運勢
