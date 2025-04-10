@@ -4,7 +4,6 @@ import { TarotRequestSchema, TarotResponseSchema } from "@tarrot/api-schema";
 import { z } from "zod";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, tool } from "ai";
-import { ElevenLabs } from "orate/elevenlabs";
 import { generateSpeech } from "@/lib/generateSpeech";
 // import { OpenAI as OpenAITTSClient } from "orate/openai";
 
@@ -79,17 +78,13 @@ export const tarotApi = new Hono().post(
       });
 
       // const openaiTTS = new OpenAITTSClient(openaiApiKey);
-      const elevenlabsTTS = new ElevenLabs(process.env.ELEVENLABS_API_KEY);
-
-      // --- Gemini でテキスト生成 (変更なし) ---
-
       // プロンプトを修正し、tool の各フィールドに対する詳細な指示を追加
       const prompt = `あなたはプロのタロットカード占い師です。
 以下のタロットカード「${name}」について、指定されたキーワード「${meaning}」を踏まえ、tarotInterpretation ツールの **upright** フィールドと **reversed** フィールドに、それぞれ対応する解釈とアドバイスを生成してください。
 
 *   **指示:**
-    *   **upright** フィールドには、正位置の解釈を記述してください。キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。
-    *   **reversed** フィールドには、逆位置の解釈を記述してください。同様に、キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。
+    *   **upright** フィールドには、正位置の解釈を記述してください。キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。難しい漢字は使わずひらがなでお願いします。
+    *   **reversed** フィールドには、逆位置の解釈を記述してください。同様に、キーワード「${meaning}」を自然に文章に組み込み、具体的な状況や感情に触れながら、読者が深く理解できるような解説文と、それに基づいた具体的なアドバイスを自然な文章で含めてください。単なるキーワードの羅列は避け、適切に改行をいれてください。難しい漢字は使わずひらがなでお願いします。
 
 必ず tarotInterpretation ツールを呼び出して、上記の指示に従った内容を各フィールドに設定してください。`;
 
