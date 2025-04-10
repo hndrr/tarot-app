@@ -4,8 +4,8 @@ import { TarotRequestSchema, TarotResponseSchema } from "@tarrot/api-schema";
 import { z } from "zod";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, tool } from "ai";
-import { speak } from "orate";
 import { ElevenLabs } from "orate/elevenlabs";
+import { generateSpeech } from "@/lib/generateSpeech";
 // import { OpenAI as OpenAITTSClient } from "orate/openai";
 
 // レスポンススキーマに audioBase64 を追加 (一時的な対応、後で @tarrot/api-schema を更新)
@@ -140,11 +140,11 @@ export const tarotApi = new Hono().post(
 
       const tarotTextData = parseResult.data; // パース結果を保持
 
-      // orate がサポートする OpenAI の女性の声
-      const femaleVoices = ["nova", "shimmer"] as const;
-      // ランダムに声を選択
-      const randomVoice =
-        femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
+      // // orate がサポートする OpenAI の女性の声
+      // const femaleVoices = ["nova", "shimmer"] as const;
+      // // ランダムに声を選択
+      // const randomVoice =
+      //   femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
 
       // 音声生成オプションに基づいて処理
       let uprightAudioBase64: string | undefined = undefined;
@@ -154,21 +154,10 @@ export const tarotApi = new Hono().post(
       if (generateAudio === "upright" || generateAudio === "both") {
         try {
           console.log("Generating upright audio...");
-          const uprightTtsResponse = await speak({
-            // model: openaiTTS.tts("tts-1", randomVoice),
-            model: elevenlabsTTS.tts(
-              "eleven_flash_v2_5",
-              "RBnMinrYKeccY3vaUxlZ", // ここに ElevenLabs の音声モデル ID を指定
-              {
-                voice_settings: {
-                  speed: 1.07,
-                  stability: 0.72,
-                  similarity_boost: 0.75,
-                },
-              }
-            ),
-            prompt: tarotTextData.upright,
-          });
+          const uprightTtsResponse = await generateSpeech(
+            tarotTextData.upright
+          );
+          // model: openaiTTS.tts("tts-1", randomVoice),
 
           const audioBuffer = await uprightTtsResponse.arrayBuffer();
           uprightAudioBase64 = Buffer.from(audioBuffer).toString("base64");
@@ -185,21 +174,9 @@ export const tarotApi = new Hono().post(
       if (generateAudio === "reversed" || generateAudio === "both") {
         try {
           console.log("Generating reversed audio...");
-          const reversedTtsResponse = await speak({
-            // model: openaiTTS.tts("tts-1", randomVoice),
-            model: elevenlabsTTS.tts(
-              "eleven_flash_v2_5",
-              "RBnMinrYKeccY3vaUxlZ", // ここに ElevenLabs の音声モデル ID を指定
-              {
-                voice_settings: {
-                  speed: 1.07,
-                  stability: 0.72,
-                  similarity_boost: 0.75,
-                },
-              }
-            ),
-            prompt: tarotTextData.reversed,
-          });
+          const reversedTtsResponse = await generateSpeech(
+            tarotTextData.reversed
+          );
 
           const audioBuffer = await reversedTtsResponse.arrayBuffer();
           reversedAudioBase64 = Buffer.from(audioBuffer).toString("base64");

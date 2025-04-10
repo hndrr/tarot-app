@@ -3,8 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { speak } from "orate";
-import { ElevenLabs } from "orate/elevenlabs";
+import { generateSpeech } from "@/lib/generateSpeech";
 
 const schema = z.object({
   prompt: z.string().min(1, "占いの内容は必須です"), // theme を prompt に変更し、メッセージも更新
@@ -18,7 +17,6 @@ export const narrationApi = new Hono().post(
     const openai = createOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-    const elevenlabsTTS = new ElevenLabs(process.env.ELEVENLABS_API_KEY);
 
     const { prompt } = c.req.valid("json"); // theme を prompt に変更
 
@@ -36,21 +34,8 @@ export const narrationApi = new Hono().post(
         return c.json({ error: "ナレーションの生成に失敗しました。" }, 500);
       }
 
-      // orate の speak 関数を使用して TTS を実行
-      const ttsResponse = await speak({
-        model: elevenlabsTTS.tts(
-          "eleven_flash_v2_5",
-          "RBnMinrYKeccY3vaUxlZ", // ここに ElevenLabs の音声モデル ID を指定
-          {
-            voice_settings: {
-              speed: 1.07,
-              stability: 0.72,
-              similarity_boost: 0.75,
-            },
-          }
-        ),
-        prompt: narrationText,
-      });
+      // 別ファイルに切り出した関数を使用してTTSを実行
+      const ttsResponse = await generateSpeech(narrationText);
       // ReadableStream を Buffer に変換
       // speak 関数のレスポンスから音声データを取得
       const audioBuffer = await ttsResponse.arrayBuffer();
