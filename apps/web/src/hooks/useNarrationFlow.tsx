@@ -14,6 +14,9 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
   const [displayedText, setDisplayedText] = useState("");
   const [state, setState] = useState<NarrationState>("idle");
 
+  const PLAYBACK_RATE = 1.1;
+  const LOADING_INTERVAL = 90;
+
   const start = async (prompt: string) => {
     // 引数名を theme から prompt に変更
     setState("loading");
@@ -36,7 +39,7 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
 
     // 音声再生
     const audio = new Audio(`data:audio/mpeg;base64,${audioBase64}`);
-    audio.playbackRate = 1.2; // 再生速度を1.1倍に設定
+    audio.playbackRate = PLAYBACK_RATE; // 再生速度を1.1倍に設定
     audio.play();
 
     // タイプライター風表示
@@ -50,7 +53,7 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
       // index をインクリメントしてから部分文字列で表示テキストを更新
       index++;
       setDisplayedText(text.substring(0, index));
-    }, 100);
+    }, LOADING_INTERVAL);
 
     // 音声終わったらステータスを更新し、テキスト表示を確定
     audio.onended = () => {
