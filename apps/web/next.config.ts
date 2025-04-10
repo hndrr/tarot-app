@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     CLOUDFLARE_GATEWAY_NAME: process.env.CLOUDFLARE_GATEWAY_NAME!,
     CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN!,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY!,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
   },
 };
 
