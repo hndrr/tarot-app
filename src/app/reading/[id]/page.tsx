@@ -26,7 +26,7 @@ export default async function Reading({ params }: { params: Params }) {
       : Math.random() < 0.3;
 
   if (!sessionData.hasVisited) {
-    await delay(1000);
+    await delay(4000);
   }
 
   const cardData = card
