@@ -7,14 +7,73 @@
    - Environments: .env.local
 
  [37m[1m [22m[39m Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (246kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ⚠ Compiled with warnings
+
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+A Node.js API is used (process.version at line: 80) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/stream.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/index.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/index.js
+../../node_modules/.pnpm/orate@2.0.5_@types+node@20.17.30_ws@8.18.1_zod@3.24.2/node_modules/orate/dist/elevenlabs.mjs
+./src/lib/generateSpeech.ts
+./src/app/api/narration/api.ts
+./src/app/api/index.ts
+
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+A Node.js API is used (process.versions at line: 82) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/stream.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/index.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/index.js
+../../node_modules/.pnpm/orate@2.0.5_@types+node@20.17.30_ws@8.18.1_zod@3.24.2/node_modules/orate/dist/elevenlabs.mjs
+./src/lib/generateSpeech.ts
+./src/app/api/narration/api.ts
+./src/app/api/index.ts
+
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+A Node.js API is used (process.versions at line: 86) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/stream.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/index.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/index.js
+../../node_modules/.pnpm/orate@2.0.5_@types+node@20.17.30_ws@8.18.1_zod@3.24.2/node_modules/orate/dist/elevenlabs.mjs
+./src/lib/generateSpeech.ts
+./src/app/api/narration/api.ts
+./src/app/api/index.ts
+
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+A Node.js API is used (process.versions at line: 87) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/core/runtime/runtime.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/stream.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/wrapper/index.js
+../../node_modules/.pnpm/elevenlabs@1.56.0/node_modules/elevenlabs/index.js
+../../node_modules/.pnpm/orate@2.0.5_@types+node@20.17.30_ws@8.18.1_zod@3.24.2/node_modules/orate/dist/elevenlabs.mjs
+./src/lib/generateSpeech.ts
+./src/app/api/narration/api.ts
+./src/app/api/index.ts
+
  [32m[1m✓[22m[39m Compiled successfully
 [?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m
  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
-[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
+[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
 [?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
 [?25l [37m[1m [22m[39m Generating static pages (0/7)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/7)  [36m[=   ][39m[2K[1G[?25h ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
 [?25h [32m[1m✓[22m[39m Generating static pages (7/7)
-[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
+[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
 [2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization     [32m[1m✓[22m[39m Finalizing page optimization 
 
 [4mRoute (app)[24m                                 [4mSize[24m  [4mFirst Load JS[24m  [4m[24m  [4m[24m
