@@ -2,7 +2,7 @@ import { speak } from "orate";
 import { ElevenLabs } from "orate/elevenlabs";
 import {
   ELEVENLABS_MODEL_ID,
-  ELEVENLABS_VOICE_ID,
+  getRandomVoiceId, // ELEVENLABS_VOICE_ID を getRandomVoiceId に変更
   ELEVENLABS_VOICE_SPEED,
   ELEVENLABS_VOICE_STABILITY,
   ELEVENLABS_VOICE_SIMILARITY_BOOST,
@@ -21,7 +21,8 @@ export async function generateSpeech(narrationText: string) {
   const elevenlabsTTS = new ElevenLabs(apiKey);
 
   return await speak({
-    model: elevenlabsTTS.tts(ELEVENLABS_MODEL_ID, ELEVENLABS_VOICE_ID, {
+    model: elevenlabsTTS.tts(ELEVENLABS_MODEL_ID, getRandomVoiceId(), {
+      // ELEVENLABS_VOICE_ID を getRandomVoiceId() の呼び出しに変更
       voice_settings: {
         speed: ELEVENLABS_VOICE_SPEED,
         stability: ELEVENLABS_VOICE_STABILITY,
