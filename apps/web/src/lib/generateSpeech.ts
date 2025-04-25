@@ -6,7 +6,7 @@ import {
   ELEVENLABS_VOICE_SPEED,
   ELEVENLABS_VOICE_STABILITY,
   ELEVENLABS_VOICE_SIMILARITY_BOOST,
-} from "@repo/constants";
+} from "@repo/constants/src/elevenlabs";
 
 /**
  * ElevenLabsを使用してテキストを音声に変換する関数

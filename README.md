@@ -178,3 +178,36 @@ pnpm type-check
 -   [Turborepo Documentation](https://turbo.build/repo/docs)
 -   [Next.js Documentation](https://nextjs.org/docs) (for the `apps/web` application)
 -   [Expo Documentation](https://docs.expo.dev/) (for the `apps/mobile` application)
+
+## Troubleshooting
+
+### Build Error: Module not found: Can't resolve './elevenlabs'
+
+**Symptoms:**
+
+When running `pnpm build`, the build process for the `apps/web` package fails with an error similar to:
+
+```
+@tarrot/web:build: ../../packages/constants/dist/index.js
+@tarrot/web:build: Module not found: Can't resolve './elevenlabs'
+```
+
+**Cause:**
+
+This error typically occurs when the build output (`dist` directory) of the `@repo/constants` package does not contain the expected `elevenlabs.js` file. This might happen due to stale Turborepo cache or issues with TypeScript's incremental build information (`tsconfig.tsbuildinfo`).
+
+**Solution:**
+
+1.  **Clean the specific package's build artifacts:** Manually remove the `dist` directory and `tsconfig.tsbuildinfo` file from the affected package (`@repo/constants` in this case).
+
+    ```bash
+    rm -rf packages/constants/dist packages/constants/tsconfig.tsbuildinfo
+    ```
+
+2.  **Rebuild the project:** Run the build command again.
+
+    ```bash
+    pnpm build
+    ```
+
+This ensures that the package is rebuilt from a clean state, resolving potential caching issues.
