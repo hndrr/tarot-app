@@ -1,11 +1,12 @@
 import { tarotCards } from "@repo/constants";
 import { delay } from "@repo/utils";
 import { Card } from "@/lib/actions";
-import { TarotCardWeb as TarotCard } from "@repo/ui"; // Use renamed web export
+// import { TarotCardWeb as TarotCard } from "@repo/ui"; // Use renamed web export
+import TarotCard from "@/components/TarotCard";
 import SaveCard from "@/components/SaveCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import DrawCardButton from "@/components/DrawCardButton";
+import { DrawCardButton } from "@/components/DrawCardButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -26,7 +27,7 @@ export default async function Reading({ params }: { params: Params }) {
   );
   const isReversed = existingCard
     ? existingCard.isReversed
-    : Math.random() < 0.5;
+    : Math.random() < 0.3;
 
   if (!sessionData.hasVisited) {
     await delay(6000);
