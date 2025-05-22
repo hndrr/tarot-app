@@ -36,10 +36,15 @@ export const narrationApi = new Hono().post(
 
       // TTS API を直接呼び出す
       const ttsResult = await processTtsRequest(
+        // {
+        //   text: narrationText,
+        //   provider: "openai",
+        //   voice: "alloy",
+        // },
         {
           text: narrationText,
-          provider: "openai",
-          voice: "alloy",
+          provider: "gemini",
+          voice: "Sulafat",
         },
         c.env as Env["Bindings"] // Hono のコンテキストから環境変数を渡す
       );
@@ -57,6 +62,7 @@ export const narrationApi = new Hono().post(
       return c.json({
         text: narrationText,
         audioBase64,
+        contentType: ttsResult.contentType,
       });
     } catch (error) {
       console.error("Narration API Error:", error);

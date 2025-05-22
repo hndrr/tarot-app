@@ -33,12 +33,13 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
     const data = await res.json();
     const text: string = data.text;
     const audioBase64: string = data.audioBase64;
+    const contentType: string = data.contentType; // contentType を受け取る
 
     setFullText(text);
     setState("playing");
 
     // 音声再生
-    const audio = new Audio(`data:audio/mpeg;base64,${audioBase64}`);
+    const audio = new Audio(`data:${contentType};base64,${audioBase64}`); // contentType を使用
     audio.playbackRate = PLAYBACK_RATE; // 再生速度を1.1倍に設定
     audio.play();
 

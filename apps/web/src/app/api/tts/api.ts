@@ -422,71 +422,24 @@ export async function processTtsRequest(
       ];
 
       try {
-        const response = await ai.models.generateContentStream({
+        const response = await ai.models.generateContent({
           model,
           config,
           contents,
         });
 
-        let audioData = "";
-        let mimeType = "";
-        let hasReceivedAudioData = false;
-        let finishReason = "";
+        const audioData =
+          response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
 
-        for await (const chunk of response) {
-          if (chunk.candidates && chunk.candidates.length > 0) {
-            const candidate = chunk.candidates[0];
-            if (candidate.finishReason) {
-              finishReason = candidate.finishReason;
-            }
-            if (candidate.content && candidate.content.parts) {
-              for (const part of candidate.content.parts) {
-                if (part.inlineData) {
-                  audioData = part.inlineData.data || "";
-                  mimeType = part.inlineData.mimeType || "";
-                  hasReceivedAudioData = true;
-                  console.log("Gemini APIから受信したMIMEタイプ:", mimeType);
-                }
-              }
-            }
-          }
+        console.log("audioData type", typeof audioData);
+        if (!audioData) {
+          return { error: "音声データが取得できませんでした。" };
         }
 
-        if (finishReason === "OTHER") {
-          console.error(
-            "APIが音声生成を完了できませんでした。完了理由:",
-            finishReason
-          );
-          return {
-            error: `APIが音声生成を完了できませんでした。完了理由: ${finishReason}。テキストの内容を変更して再試行してください。`,
-          };
-        }
-
-        if (!hasReceivedAudioData || !audioData || !mimeType) {
-          return {
-            error:
-              "音声データを生成できませんでした。テキストの内容を変更して再試行してください。",
-          };
-        }
-
-        const byteCharacters = atob(audioData);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const rawAudioUint8Array = new Uint8Array(byteNumbers);
-        console.log(
-          "rawAudioUint8Arrayの最初の10バイト:",
-          rawAudioUint8Array.slice(0, 10)
-        );
-        const wavBuffer = convertToWav(rawAudioUint8Array, mimeType);
-        console.log("wavBufferの最初の10バイト:", wavBuffer.slice(0, 10));
-
-        const finalAudioData = new Uint8Array(wavBuffer); // 新しい Uint8Array を作成
-
+        const audioBuffer = Buffer.from(audioData, "base64");
         return {
-          audioBuffer: finalAudioData.buffer,
-          contentType: "application/octet-stream",
+          audioBuffer: audioBuffer.buffer,
+          contentType: "audio/wav",
         };
       } catch (apiError) {
         console.error("Gemini API呼び出しエラー:", apiError);
@@ -513,9 +466,6 @@ export async function processTtsRequest(
           ) {
             errorMessage =
               "APIの使用量制限に達しました。しばらく待ってから再試行するか、別のAPIキーを使用してください。";
-          } else if (errorStr.includes("not_found")) {
-            errorMessage =
-              "指定されたモデルまたはリソースが見つかりません。サポートされているモデルを使用しているか確認してください。";
           } else {
             errorMessage = `音声生成中にエラーが発生しました: ${apiError.message}`;
           }
