@@ -64,13 +64,18 @@ export default function FortunePage() {
       )}
       {state === "loading" && <LoadingSpinner />}
       {(state === "playing" || state === "done") && (
-        <div className="bg-black/40 p-6 rounded-xl shadow-lg w-full max-w-2xl min-h-[100px] flex items-center justify-center">
-          <p className="whitespace-pre-wrap text-lg font-serif leading-relaxed text-center">
-            {displayedText}
-          </p>
-        </div>
+        <>
+          <div className="bg-black/40 p-6 rounded-xl shadow-lg w-full max-w-2xl min-h-[100px] flex items-center justify-center">
+            <p className="whitespace-pre-wrap text-lg font-serif leading-relaxed text-center">
+              {displayedText}
+            </p>
+          </div>
+          <DrawCardButton
+            className="mt-8 disabled:opacity-80 disabled:cursor-not-allowed"
+            disabled={state !== "done"}
+          />
+        </>
       )}
-      {state === "done" && <DrawCardButton className="mt-8" />}
     </main>
   );
 }

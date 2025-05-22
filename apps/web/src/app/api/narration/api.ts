@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { generateSpeech } from "@/lib/generateSpeech";
+import { processTtsRequest, Env } from "@/app/api/tts/api";
 
 const schema = z.object({
   prompt: z.string().min(1, "占いの内容は必須です"), // theme を prompt に変更し、メッセージも更新
@@ -34,11 +34,23 @@ export const narrationApi = new Hono().post(
         return c.json({ error: "ナレーションの生成に失敗しました。" }, 500);
       }
 
-      // 別ファイルに切り出した関数を使用してTTSを実行
-      const ttsResponse = await generateSpeech(narrationText);
+      // TTS API を直接呼び出す
+      const ttsResult = await processTtsRequest(
+        {
+          text: narrationText,
+          provider: "openai",
+          voice: "alloy",
+        },
+        c.env as Env["Bindings"] // Hono のコンテキストから環境変数を渡す
+      );
+
+      if ("error" in ttsResult) {
+        console.error("TTS API Error:", ttsResult.error);
+        return c.json({ error: ttsResult.error }, 500);
+      }
+
       // ReadableStream を Buffer に変換
-      // speak 関数のレスポンスから音声データを取得
-      const audioBuffer = await ttsResponse.arrayBuffer();
+      const audioBuffer = ttsResult.audioBuffer;
       const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
       // 成功レスポンスを返す
