@@ -27,13 +27,7 @@ export type Env = {
 /**
  * サポートされている TTS プロバイダーの ID
  */
-export type ProviderId =
-  | "google"
-  | "elevenlabs"
-  | "openai"
-  | "voicevox"
-  | "aivis"
-  | "gemini";
+export type ProviderId = "google" | "elevenlabs" | "openai" | "gemini";
 
 /**
  * TTS API リクエストのボディの型
@@ -43,7 +37,7 @@ export interface TTSRequestBody {
   provider: ProviderId;
   voice: string;
   model_id?: string; // ElevenLabsやOpenAIなどで使用するモデルID (オプショナル)
-  instruction?: string; // Gemini TTSやOpenaAIで使用するインストラクション (オプショナル)
+  instruction?: string; // Gemini TTSやOpenaAIで使用するインストラショナル (オプショナル)
   temperature?: number; // Gemini TTSで使用する温度 (オプショナル)
 }
 
@@ -66,7 +60,7 @@ export function convertToWav(
   mimeType: string
 ): Uint8Array {
   const options = parseMimeType(mimeType);
-  const wavHeader = createWavHeader(rawData.length, options);
+  const wavHeader = createWavHeader(rawData.byteLength, options);
 
   const combined = new Uint8Array(wavHeader.length + rawData.length);
   combined.set(wavHeader, 0);
@@ -173,6 +167,44 @@ function isAudioObjectWithData(obj: unknown): obj is AudioObjectWithData {
   );
 }
 
+function createWavBlob(
+  pcmData: Uint8Array,
+  channels = 1,
+  sampleRate = 24000,
+  sampleWidth = 2
+) {
+  const length = pcmData.length;
+  const arrayBuffer = new ArrayBuffer(44 + length);
+  const view = new DataView(arrayBuffer);
+
+  // WAVヘッダーを書き込み
+  const writeString = (offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + length, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * channels * sampleWidth, true);
+  view.setUint16(32, channels * sampleWidth, true);
+  view.setUint16(34, sampleWidth * 8, true);
+  writeString(36, "data");
+  view.setUint32(40, length, true);
+
+  // PCMデータをコピー
+  const pcmView = new Uint8Array(arrayBuffer, 44);
+  pcmView.set(new Uint8Array(pcmData));
+
+  return new Blob([arrayBuffer], { type: "audio/wav" });
+}
+
 // TTS処理ロジックを関数としてエクスポート
 export async function processTtsRequest(
   requestBody: TTSRequestBody,
@@ -184,6 +216,14 @@ export async function processTtsRequest(
     requestBody || {};
 
   if (!text || !provider || !voice) {
+    console.log("processTtsRequest received:", {
+      text,
+      provider,
+      voice,
+      model_id,
+      instruction,
+      temperature,
+    });
     return { error: "Missing required fields: text, provider, voice" };
   }
 
@@ -238,6 +278,9 @@ export async function processTtsRequest(
         responseFormat || mimeType.split("/")[1]?.toLowerCase() || "mp3";
 
       // extension が使用されていないという ESLint 警告を解消するため、ここで使用する
+      console.log(
+        `handleAudioResponse returning: audioBuffer.byteLength=${arrayBuffer.byteLength}, contentType=${mimeType}`
+      );
       // 例えば、ログ出力やファイル名生成などに利用できる
       console.log(`Generated audio with extension: ${extension}`);
 
@@ -430,15 +473,25 @@ export async function processTtsRequest(
 
         const audioData =
           response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        // const audioFormat = response.candidates;
+        // console.log("audioFormat", audioFormat);
 
-        console.log("audioData type", typeof audioData);
         if (!audioData) {
           return { error: "音声データが取得できませんでした。" };
         }
 
-        const audioBuffer = Buffer.from(audioData, "base64");
+        const audioBuffer = new Uint8Array(
+          atob(audioData)
+            .split("")
+            .map((c) => c.charCodeAt(0))
+        );
+
+        // WAVファイルのBlobを作成
+        const wavBlob = createWavBlob(audioBuffer);
+        const wavArrayBuffer = await wavBlob.arrayBuffer();
+
         return {
-          audioBuffer: audioBuffer.buffer,
+          audioBuffer: wavArrayBuffer,
           contentType: "audio/wav",
         };
       } catch (apiError) {
