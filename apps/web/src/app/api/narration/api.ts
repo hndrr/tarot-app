@@ -8,7 +8,8 @@ import { processTtsRequest, Env } from "@/app/api/tts/api";
 import { providers } from "@/constants/ttsConstants";
 
 const schema = z.object({
-  prompt: z.string().min(1, "占いの内容は必須です"), // theme を prompt に変更し、メッセージも更新
+  prompt: z.string().min(1, "占いの内容は必須です"),
+  enableAudio: z.boolean().optional().default(true),
 });
 
 // Hono アプリケーションを作成
@@ -23,7 +24,7 @@ export const narrationApi = new Hono().post(
     //   apiKey: process.env.GEMINI_API_KEY,
     // });
 
-    const { prompt } = c.req.valid("json"); // theme を prompt に変更
+    const { prompt, enableAudio } = c.req.valid("json");
 
     try {
       // @ai-sdk/openai を使用してナレーションテキストを生成
@@ -44,46 +45,49 @@ export const narrationApi = new Hono().post(
       // const voices = providers.find((p) => p.id === "gemini")?.voices || [];
       const voices = providers.find((p) => p.id === "openai")?.voices || [];
 
-      // TTS API を直接呼び出す
-      const ttsResult = await processTtsRequest(
-        {
-          text: narrationText,
-          provider: "openai",
-          voice: voices[Math.floor(Math.random() * voices.length)].id || "nova",
-          model_id: "gpt-4o-mini-tts",
-          instruction:
-            "あなたはタロット占い師です。女性的で神秘的な雰囲気を持っています。",
-        },
-        // {
-        //   text: narrationText,
-        //   provider: "gemini",
-        //   voice:
-        //     voices[Math.floor(Math.random() * voices.length)].id || "Sulafat",
-        //   instruction:
-        //     "あなたはタロット占い師です。口調は優しく、神秘的な雰囲気を持っています。",
-        // },
-        c.env as Env["Bindings"] // Hono のコンテキストから環境変数を渡す
-      );
+      let audioBase64 = "";
+      let contentType = "";
 
-      if ("error" in ttsResult) {
-        console.error("TTS API Error:", ttsResult.error);
-        // TTS失敗時もtextだけは必ず返し、audioBase64は空文字で返す
-        return c.json({
-          text: narrationText,
-          audioBase64: "",
-          contentType: "",
-        });
+      if (enableAudio) {
+        // TTS API を直接呼び出す
+        const ttsResult = await processTtsRequest(
+          {
+            text: narrationText,
+            provider: "openai",
+            voice:
+              voices[Math.floor(Math.random() * voices.length)].id || "nova",
+            model_id: "gpt-4o-mini-tts",
+            instruction:
+              "あなたはタロット占い師です。女性的で神秘的な雰囲気を持っています。",
+          },
+          // {
+          //   text: narrationText,
+          //   provider: "gemini",
+          //   voice:
+          //     voices[Math.floor(Math.random() * voices.length)].id || "Sulafat",
+          //   instruction:
+          //     "あなたはタロット占い師です。口調は優しく、神秘的な雰囲気を持っています。",
+          // },
+          c.env as Env["Bindings"] // Hono のコンテキストから環境変数を渡す
+        );
+
+        if ("error" in ttsResult) {
+          console.error("TTS API Error:", ttsResult.error);
+          // TTS失敗時もtextだけは必ず返し、audioBase64は空文字で返す
+          // ここでreturnせず、audioBase64とcontentTypeを空のまま進める
+        } else {
+          // ReadableStream を Buffer に変換
+          const audioBuffer = ttsResult.audioBuffer;
+          audioBase64 = Buffer.from(audioBuffer).toString("base64");
+          contentType = ttsResult.contentType;
+        }
       }
-
-      // ReadableStream を Buffer に変換
-      const audioBuffer = ttsResult.audioBuffer;
-      const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
       // 成功レスポンスを返す
       return c.json({
         text: narrationText,
         audioBase64,
-        contentType: ttsResult.contentType,
+        contentType,
       });
     } catch (error) {
       console.error("Narration API Error:", error);
