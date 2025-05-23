@@ -31,7 +31,7 @@ export const narrationApi = new Hono().post(
         model: openai("gpt-4.1-nano"),
         // model: google("gemini-2.0-flash-lite"),
         system:
-          "あなたは神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。",
+          "神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。",
         prompt: prompt,
       });
 
@@ -41,17 +41,18 @@ export const narrationApi = new Hono().post(
       }
 
       // Gemini の音声プロバイダーを取得
-      const voices = providers.find((p) => p.id === "gemini")?.voices || [];
+      // const voices = providers.find((p) => p.id === "gemini")?.voices || [];
+      const voices = providers.find((p) => p.id === "openai")?.voices || [];
 
       // TTS API を直接呼び出す
       const ttsResult = await processTtsRequest(
         {
           text: narrationText,
           provider: "openai",
-          voice: "nova",
+          voice: voices[Math.floor(Math.random() * voices.length)].id || "nova",
           model_id: "gpt-4o-mini-tts",
           instruction:
-            "あなたはタロット占い師です。口調は優しく、神秘的な雰囲気を持っています。",
+            "あなたはタロット占い師です。女性的で神秘的な雰囲気を持っています。",
         },
         // {
         //   text: narrationText,
