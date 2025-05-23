@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-// import { createOpenAI } from "@ai-sdk/openai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
+// import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { processTtsRequest, Env } from "@/app/api/tts/api";
 import { providers } from "@/constants/ttsConstants";
@@ -16,20 +16,20 @@ export const narrationApi = new Hono().post(
   "/",
   zValidator("json", schema), // リクエストボディのバリデーション
   async (c) => {
-    // const openai = createOpenAI({
-    //   apiKey: process.env.OPENAI_API_KEY,
-    // });
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
+    const openai = createOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
+    // const google = createGoogleGenerativeAI({
+    //   apiKey: process.env.GEMINI_API_KEY,
+    // });
 
     const { prompt } = c.req.valid("json"); // theme を prompt に変更
 
     try {
       // @ai-sdk/openai を使用してナレーションテキストを生成
       const { text: narrationText } = await generateText({
-        // model: openai("gpt-4.1-nano"),
-        model: google("gemini-2.0-flash-lite"),
+        model: openai("gpt-4.1-nano"),
+        // model: google("gemini-2.0-flash-lite"),
         system:
           "あなたは神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。",
         prompt: prompt,
@@ -45,25 +45,33 @@ export const narrationApi = new Hono().post(
 
       // TTS API を直接呼び出す
       const ttsResult = await processTtsRequest(
-        // {
-        //   text: narrationText,
-        //   provider: "openai",
-        //   voice: "alloy",
-        // },
         {
           text: narrationText,
-          provider: "gemini",
-          voice:
-            voices[Math.floor(Math.random() * voices.length)].id || "Sulafat",
+          provider: "openai",
+          voice: "nova",
+          model_id: "gpt-4o-mini-tts",
           instruction:
-            "あなたは神秘的なタロット占い師です。口調は優しく、文言は適切に改行してください。",
+            "あなたはタロット占い師です。口調は優しく、神秘的な雰囲気を持っています。",
         },
+        // {
+        //   text: narrationText,
+        //   provider: "gemini",
+        //   voice:
+        //     voices[Math.floor(Math.random() * voices.length)].id || "Sulafat",
+        //   instruction:
+        //     "あなたはタロット占い師です。口調は優しく、神秘的な雰囲気を持っています。",
+        // },
         c.env as Env["Bindings"] // Hono のコンテキストから環境変数を渡す
       );
 
       if ("error" in ttsResult) {
         console.error("TTS API Error:", ttsResult.error);
-        return c.json({ error: ttsResult.error }, 500);
+        // TTS失敗時もtextだけは必ず返し、audioBase64は空文字で返す
+        return c.json({
+          text: narrationText,
+          audioBase64: "",
+          contentType: "",
+        });
       }
 
       // ReadableStream を Buffer に変換
@@ -83,7 +91,12 @@ export const narrationApi = new Hono().post(
         console.error("Error message:", error.message);
         console.error("Error stack:", error.stack);
       }
-      return c.json({ error: "サーバー内部エラーが発生しました。" }, 500);
+      // 予期しないエラー時もtextだけは必ず返し、audioBase64は空文字で返す
+      return c.json({
+        text: typeof prompt === "string" ? prompt : "",
+        audioBase64: "",
+        contentType: "",
+      });
     }
   }
 );
