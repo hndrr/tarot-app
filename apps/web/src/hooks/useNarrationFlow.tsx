@@ -108,7 +108,6 @@ export const useNarrationFlow = (): UseNarrationFlowResult => {
       }
 
       // タイプライター風表示
-      // タイプライター風表示
       let localIndex = 0; // 変数名を変更
       const interval = setInterval(() => {
         if (localIndex >= text.length) {
