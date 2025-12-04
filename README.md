@@ -187,7 +187,7 @@ pnpm type-check
 
 When running `pnpm build`, the build process for the `apps/web` package fails with an error similar to:
 
-```
+```bash
 @tarrot/web:build: ../../packages/constants/dist/index.js
 @tarrot/web:build: Module not found: Can't resolve './elevenlabs'
 ```
