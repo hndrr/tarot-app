@@ -86,7 +86,7 @@ export default function CardDetail() {
             '[CardDetail] Full error object:',
             JSON.stringify(error, Object.getOwnPropertyNames(error))
           );
-          // setError(error instanceof Error ? error.message : '文言生成に失敗しました');
+          setError(error instanceof Error ? error.message : '文言生成に失敗しました');
         }
       }
 
