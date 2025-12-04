@@ -39,7 +39,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    eas build --platform android --local
    eas build --platform ios --local
    ```
-5. AppStore submission
+6. AppStore submission
    ```bash
    eas submit --platform android
    eas submit --platform ios
