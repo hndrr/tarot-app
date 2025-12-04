@@ -10,7 +10,6 @@ const SessionRequestSchema = z.object({
   hasVisited: z.boolean().optional(),
 });
 
-// セッションAPI
 export const sessionApi = new Hono()
   // セッションデータを取得するGETエンドポイント
   .get("/", async (c) => {

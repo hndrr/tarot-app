@@ -5,6 +5,9 @@ import { zodResponseFormat } from "openai/helpers/zod";
 const client = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+  defaultHeaders: {
+    "cf-aig-authorization": `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+  },
 });
 
 export const generateTarotMessageGemini = async (
@@ -27,7 +30,7 @@ export const generateTarotMessageGemini = async (
   // API呼び出し
   try {
     const completion = await client.beta.chat.completions.parse({
-      model: "gemini-1.5-flash-002",
+      model: "gemini-2.0-flash-lite",
       messages: [{ role: "system", content: prompt }],
       response_format: zodResponseFormat(jsonSchema, "tarot_response"),
       // max_tokens: 300,

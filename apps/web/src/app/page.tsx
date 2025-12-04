@@ -21,14 +21,29 @@ export default function Home() {
       </main>
       <footer className="h-16 text-white flex items-center">
         <div className="w-4/5 max-w-3xl mx-auto flex justify-between items-center flex-col gap-2">
-          <Link
-            className="text-blue-400 underline hover:text-blue-800"
-            href="/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            プライバシーポリシー
-          </Link>
+          <div className="flex gap-4 items-center flex-col">
+            <Link
+              href="https://play.google.com/store/apps/details?id=com.hndr.tarrotappexpo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src="/googleplay.png"
+                alt="Google Play"
+                width={160}
+                height={47.5}
+                className="object-contain"
+              />
+            </Link>
+            <Link
+              className="text-blue-400 underline hover:text-blue-800"
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              プライバシーポリシー
+            </Link>
+          </div>
           <p>© 2025 Tarotie</p>
         </div>
       </footer>

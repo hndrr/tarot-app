@@ -7,13 +7,42 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 1. Install dependencies
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start the app
 
    ```bash
     npx expo start
+   ```
+
+3. debug app
+  ```bash
+   npx expo run:android
+   npx expo run:ios
+  ```
+4. Open the app in a simulator or on your device
+
+   - For Android, you can use an emulator or a physical device.
+   - For iOS, you can use a simulator or a physical device.
+
+   If you're using a physical device, make sure to install the [Expo Go](https://expo.dev/go) app from the App Store or Google Play.
+ 
+ 5. EAS deployment
+   ```bash
+   eas build --platform android
+   eas build --platform ios
+   ```
+
+   local build
+   ```bash
+   eas build --platform android --local
+   eas build --platform ios --local
+   ```
+6. AppStore submission
+   ```bash
+   eas submit --platform android
+   eas submit --platform ios
    ```
 
 In the output, you'll find options to open the app in a
@@ -30,7 +59,7 @@ You can start developing by editing the files inside the **app** directory. This
 When you're ready, run:
 
 ```bash
-npm run reset-project
+pnpm run reset-project
 ```
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.

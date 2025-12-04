@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import axios from "axios";
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import axios from 'axios';
 interface TarotResponse {
   upright: string;
   reversed: string;
@@ -12,38 +12,39 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
 タロットカード「${name}」に基づいて正位置と逆位置の文言を生成してください。
 キーワード: ${meaning}
 `;
-  const api_token = process.env.EXPO_PUBLIC_GEMINI_API_KEY || "";
-  const account_id = process.env.EXPO_PUBLIC_CLOUDFLARE_ACCOUNT_ID || "";
-  const gateway_name = process.env.EXPO_PUBLIC_CLOUDFLARE_GATEWAY_NAME || "";
+  const api_key = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+  const account_id = process.env.EXPO_PUBLIC_CLOUDFLARE_ACCOUNT_ID || '';
+  const gateway_name = process.env.EXPO_PUBLIC_CLOUDFLARE_GATEWAY_NAME || '';
+  // const token = process.env.EXPO_PUBLIC_CLOUDFLARE_API_TOKEN || '';
 
   const geminiApiEndpoint =
-    // "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent";
-    `https://gateway.ai.cloudflare.com/v1/${account_id}/${gateway_name}/google-ai-studio/v1/models/gemini-1.5-flash-002:generateContent`;
+    // "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
+    `https://gateway.ai.cloudflare.com/v1/${account_id}/${gateway_name}/google-ai-studio/v1/models/gemini-2.0-flash-lite:generateContent`;
 
   const schema = {
-    description: "タロットカードの正位置と逆位置の文言を生成する",
+    description: 'タロットカードの正位置と逆位置の文言を生成する',
     type: SchemaType.ARRAY,
     items: {
       type: SchemaType.OBJECT,
       properties: {
         upright: {
           type: SchemaType.STRING,
-          description: "タロットカードの正位置の文言",
+          description: 'タロットカードの正位置の文言',
         },
         reversed: {
           type: SchemaType.STRING,
-          description: "タロットカードの逆位置の文言",
+          description: 'タロットカードの逆位置の文言',
         },
       },
-      required: ["upright", "reversed"],
+      required: ['upright', 'reversed'],
     },
   };
 
   try {
-    // const genAI = new GoogleGenerativeAI(api_token);
+    // const genAI = new GoogleGenerativeAI(api_key);
     // const model = await genAI.getGenerativeModel(
     //   {
-    //     model: "gemini-1.5-flash",
+    //     model: "gemini-2.0-flash-lite",
     //     generationConfig: {
     //       responseMimeType: "application/json",
     //       responseSchema: schema,
@@ -66,7 +67,7 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
       {
         contents: [
           {
-            role: "user",
+            role: 'user',
             parts: [{ text: prompt }],
           },
         ],
@@ -77,26 +78,26 @@ export const generateTarotMessage = async (name: string, meaning: string) => {
       },
       {
         headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": api_token,
+          'Content-Type': 'application/json',
+          'x-goog-api-key': api_key,
+          // 'cf-aig-authorization': `Bearer ${token}`,
         },
       }
     );
 
     console.log(response.data);
-    const responseText =
-      response.data.candidates[0].content.parts[0].text.trim();
+    const responseText = response.data.candidates[0].content.parts[0].text.trim();
     const tarotResponse: TarotResponse = JSON.parse(responseText)?.[0];
     console.log(tarotResponse);
 
     return tarotResponse;
-    return "";
+    return '';
   } catch (error) {
-    console.error("文言生成エラー:", error);
+    console.error('文言生成エラー:', error);
     if (error instanceof Error) {
       throw new Error(`文言生成に失敗しました: ${error.message}`);
     } else {
-      throw new Error("文言生成に失敗しました。予期せぬエラーが発生しました。");
+      throw new Error('文言生成に失敗しました。予期せぬエラーが発生しました。');
     }
   }
 };

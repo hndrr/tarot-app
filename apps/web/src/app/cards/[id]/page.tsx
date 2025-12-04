@@ -2,12 +2,29 @@ import { tarotCards } from "@repo/constants";
 import { getSessionCards } from "@/lib/actions";
 import Link from "next/link";
 import Image from "next/image";
+import React, { FC } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"; // remark-gfmをインポート
+
+// Define props for the wrapper, matching ReactMarkdown's options if needed
+// For basic usage, just accepting children might be enough
+type MarkdownWrapperProps = {
+  children: string;
+};
 
 type Params = Promise<{ id: string }>;
 
 type TarotResponse = {
   upright: string;
   reversed: string;
+};
+
+const MarkdownWrapper: FC<MarkdownWrapperProps> = ({ children, ...props }) => {
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} {...props}>
+      {children}
+    </ReactMarkdown>
+  );
 };
 
 async function getTarotMessage(
@@ -113,9 +130,13 @@ export default async function CardDetail({ params }: { params: Params }) {
               <p className="text-gray-200">{card.meaning}</p>
               <h2 className="text-xl font-semibold mt-6 mb-2">詳細な解釈</h2>
               <div className="space-y-4">
-                <p className="text-gray-200">
-                  {isReversed ? result?.reversed : result?.upright}
-                </p>
+                <div className="text-gray-200 whitespace-pre-wrap">
+                  <MarkdownWrapper>
+                    {isReversed
+                      ? result?.reversed || "解釈を取得できませんでした。" // resultがnullの場合のフォールバック
+                      : result?.upright || "解釈を取得できませんでした。"}
+                  </MarkdownWrapper>
+                </div>
               </div>
             </div>
           </div>

@@ -42,7 +42,7 @@ export const TarotLoading = () => {
         </View>
 
         {/* text */}
-        <Text className="ml-6 mt-6 animate-fade rounded-md bg-black bg-opacity-40 px-2 py-1.5 text-2xl font-bold text-amber-200">
+        <Text className="mt-6 animate-fade rounded-md bg-black bg-opacity-40 px-2 py-1.5 text-2xl font-bold text-amber-200">
           あなたの運命を占っています...
         </Text>
       </View>
