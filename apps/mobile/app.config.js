@@ -38,6 +38,16 @@ const baseConfig = {
         backgroundColor: '#4338ca',
       },
     ],
+    [
+      'expo-build-properties',
+      {
+        android: {
+          compileSdkVersion: 35,
+          targetSdkVersion: 35,
+          minSdkVersion: 24,
+        },
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

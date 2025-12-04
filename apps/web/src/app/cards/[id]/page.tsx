@@ -5,6 +5,7 @@ import Image from "next/image";
 import React, { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm"; // remark-gfmをインポート
+import { AudioPlayer } from "@/components/AudioPlayer"; // AudioPlayerコンポーネントをインポート
 
 // Define props for the wrapper, matching ReactMarkdown's options if needed
 // For basic usage, just accepting children might be enough
@@ -17,6 +18,8 @@ type Params = Promise<{ id: string }>;
 type TarotResponse = {
   upright: string;
   reversed: string;
+  uprightAudioBase64?: string; // 正位置の音声データ
+  reversedAudioBase64?: string; // 逆位置の音声データ
 };
 
 const MarkdownWrapper: FC<MarkdownWrapperProps> = ({ children, ...props }) => {
@@ -29,8 +32,11 @@ const MarkdownWrapper: FC<MarkdownWrapperProps> = ({ children, ...props }) => {
 
 async function getTarotMessage(
   name: string,
-  meaning: string
+  meaning: string,
+  isReversed: boolean // カードの位置を追加
 ): Promise<TarotResponse> {
+  // 位置に基づいて生成する音声を決定
+  const generateAudio = isReversed ? "reversed" : "upright";
   const apiHost = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
@@ -44,7 +50,7 @@ async function getTarotMessage(
       // ALLOWED_API_KEYSに設定された単一のキーを使用する
       "x-api-key": process.env.ALLOWED_API_KEYS || "",
     },
-    body: JSON.stringify({ name, meaning }),
+    body: JSON.stringify({ name, meaning, generateAudio }), // generateAudioパラメータを追加
   });
 
   if (!res.ok) {
@@ -76,7 +82,7 @@ export default async function CardDetail({ params }: { params: Params }) {
 
   if (card) {
     try {
-      result = await getTarotMessage(card.name, card.meaning);
+      result = await getTarotMessage(card.name, card.meaning, isReversed); // isReversedを渡す
     } catch (error) {
       console.error("エラー:", error);
     }
@@ -136,6 +142,13 @@ export default async function CardDetail({ params }: { params: Params }) {
                       ? result?.reversed || "解釈を取得できませんでした。" // resultがnullの場合のフォールバック
                       : result?.upright || "解釈を取得できませんでした。"}
                   </MarkdownWrapper>
+                </div>
+                <div className="flex items-center mt-4 justify-end">
+                  <AudioPlayer
+                    uprightAudioBase64={result?.uprightAudioBase64}
+                    reversedAudioBase64={result?.reversedAudioBase64}
+                    isReversed={isReversed}
+                  />
                 </div>
               </div>
             </div>

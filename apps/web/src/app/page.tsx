@@ -1,4 +1,3 @@
-import DrawCardButton from "@/components/DrawCardButton";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,7 +16,12 @@ export default function Home() {
           />
         </div>
         <p className="text-xl mb-8 text-purple-200">今日のあなたの運勢は...?</p>
-        <DrawCardButton />
+        <Link
+          className="bg-purple-600 hover:bg-purple-700 py-4 px-8 text-lg mb-8 rounded-full text-white font-bold transition duration-300"
+          href="/intro"
+        >
+          入室する
+        </Link>
       </main>
       <footer className="h-16 text-white flex items-center">
         <div className="w-4/5 max-w-3xl mx-auto flex justify-between items-center flex-col gap-2">

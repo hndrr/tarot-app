@@ -25,6 +25,11 @@
       "node": "20.11.0",
       "pnpm": "9.1.0",
       "prebuildCommand": "npx expo prebuild --platform android --clean"
+    },
+    "release": {
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   },
   "submit": {

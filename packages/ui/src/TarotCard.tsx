@@ -1,5 +1,5 @@
 import React from "react"; // Import React
-import Image from "next/image";
+// import Image from "next/image"; // Use standard img tag instead
 import type { TarotCard as TarotCardType } from "@repo/types"; // Use shared type
 
 type TarotCardProps = {
@@ -22,12 +22,13 @@ export const TarotCard = ({ card, isReversed }: TarotCardProps) => {
           isReversed ? "rotate-180" : "" // Use ternary for clarity
         }`}
       >
-        <Image
-          src={imageSrc} // Use constructed path
+        {/* Replace Next.js Image with standard img tag for compatibility */}
+        <img
+          src={imageSrc}
           alt={card.name}
-          fill
-          className="rounded-lg object-cover shadow-lg"
-          priority // Keep priority if needed
+          // Apply classes to mimic 'fill' and other styles from Next Image
+          className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-lg"
+          loading="lazy" // Use standard loading attribute
         />
       </div>
       <h3 className="text-3xl font-bold mb-3">{card.name}</h3>
