@@ -21,7 +21,7 @@ export const tarotApi = new Hono().post(
   zValidator("json", TarotRequestSchema),
   async (c) => {
     try {
-      const { name, meaning } = c.req.valid("json");
+      const { name, meaning } = await c.req.valid("json");
       console.log("Received request:", { name, meaning });
 
       // Cloudflare AI Gateway の設定
